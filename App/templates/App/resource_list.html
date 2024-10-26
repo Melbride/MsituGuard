@@ -1,0 +1,58 @@
+{% extends 'App/base.html' %}
+
+{% block content %}
+
+
+<style>
+
+    .resource-list{
+        background-color: rgb(60, 135, 115);
+ 
+        padding: 20px;
+    }
+
+    .resource-list h2 {
+        color: white;
+    }
+
+   
+
+
+
+
+
+
+
+
+</style>
+
+
+<div class="resource-list">
+
+    <h2>Here Are Our Available Resources</h2>
+    {% comment %} 
+    <ul> {% endcomment %}
+        {% comment %} <li>
+            <strong>Clothes:</strong> I have some few clothes I would like to share...
+        </li>
+        <li>
+            <strong>Food:</strong> I will buy food to share... What can you advise me on?
+        </li>
+        <!-- Add more categories as needed --> {% endcomment %}
+    {% comment %}
+ </ul> {% endcomment %}
+     <ul>
+        {% for resource in resources %}
+            <li><strong>{{ resource.name }}:</strong> {{ resource.description }}</li>
+             {% comment %} <a href="{% url 'resource_delete' resource.pk %}">Edit</a>
+            <a href="{% url 'resource_delete' resource.pk %}">Delete</a> {% endcomment %}
+    
+        {% endfor %}
+    </ul> 
+    <p>Want to share resources?<a href="{% url 'resource_create' %}">Click here to contribute!</a></p>
+    {% endblock %}
+
+</div>
+
+
+

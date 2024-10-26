@@ -1,0 +1,47 @@
+{% extends 'App/base.html' %}
+
+{% block content %}
+
+
+<style>
+.contact {
+    background-color: rgb(60, 135, 115);
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+}
+
+.contact h1{
+    letter-spacing: 2px;
+
+}
+
+strong, a {
+    color: black;
+}
+
+p {
+    text-align: center;
+    letter-spacing: .5px;
+}
+</style>
+
+
+<div class="contact">
+    <h1>Emergency Contacts</h1>
+    <p>Call or Email any of the following for help</p>
+    <ul>
+        {% for contact in contacts %}
+            <li>
+            <strong>{{ contact.name }}</strong> - {{ contact.organization }}<br>
+            Email: <a href="mailto:  {{ contact.email }}">{{ contact.email }}</a><br>
+            Phone: <a href="tel:  {{ contact.phone }}">{{ contact.phone }}</a>
+            </li>
+            <!-- Add other contact details as needed -->
+        {% empty %}
+            <li>No contacts available.</li>
+        {% endfor %}
+    </ul>
+    {% endblock %}
+
+</div>

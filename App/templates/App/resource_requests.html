@@ -1,0 +1,35 @@
+{% extends "App/base.html" %}
+
+{% block content %}
+
+<style>
+    .ur_response {
+        background-color: rgb(60, 135, 115);
+        padding: 20px;
+        border-radius: 5px;
+
+    }
+
+    .ur_response h2 {
+        color: white;
+        
+    }
+
+
+
+</style>
+
+<div class="ur_response">
+    <h2>Your Resource Requests</h2>
+    <ul>
+        {% for request in requests %}
+        <li>{{ request.resource_type }} - {{ request.description }} ({{ request.date_requested }})</li>
+        {% empty %}
+        <li>No requests made yet.</li>
+        {% endfor %}
+    </ul>
+
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,36 @@
+<!-- {% extends 'App/base.html' %}
+{% block title%}Register{% endblock%}
+
+{% block content %} -->
+
+
+<link rel="stylesheet" href="../../static/css/styles.css">
+
+<div class="register">
+
+    <div class="register-inner">
+
+        <div>
+
+            
+                <h1>Register</h1>
+    
+                <div class="separator"></div>
+
+        </div>
+
+            <div class="">
+            
+                <form method="POST" class="register-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="">Register</buttton>
+                </form>
+            </div>
+
+    </div>
+
+</div>
+
+<!-- {% endblock %} -->
+

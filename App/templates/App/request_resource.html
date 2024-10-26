@@ -1,0 +1,71 @@
+{% extends "App/base.html" %}
+{% block content %}
+
+
+
+<style>
+
+    .resource {
+        background-color:   rgb(60, 135, 115);
+        padding: 20px;
+        color: white;
+        border-radius: 5px;
+      
+
+    }
+
+    .resource h2 {
+        color: white;
+        text-align: center;
+        letter-spacing: 2px;
+    }
+
+    .resource input {
+        padding: 10px;
+        outline: none ;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .resource button {
+        display: inline-block; /* Ensures the button stays inline */
+
+    
+    }
+
+    .location h3 {
+        color: white;
+        
+
+    }
+
+
+
+</style>
+
+
+<div class="resource">
+
+
+    <h2>Request a Resource</h2>
+        <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+<div class="location">
+    <h3>Provide us your location</h3>
+    <input type="text">
+
+</div>
+        <button type="submit">Submit Request</button>
+    
+    </form>
+
+</div>
+
+{% include './footer.html' %}
+
+
+{% endblock %}
+
+
+

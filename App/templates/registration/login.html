@@ -1,0 +1,38 @@
+<!-- {% extends 'App/base.html' %}
+{% block title%}Login{% endblock%}
+
+{% block content %} -->
+
+
+<link rel="stylesheet" href="../../static/css/styles.css">
+<div class="login">
+
+    <div class="login-inner">
+
+        <div>
+            <h1>Login</h1>
+            
+    
+            <div class="separator"></div>
+        </div>
+    
+        <div class="mb-2">
+        
+            <form method="POST" class="login-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn btn-secondary">Login</buttton>
+            </form>
+            
+        </div>
+        <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+
+    </div>
+
+</div>
+
+
+
+
+<!-- {% endblock %} -->
+

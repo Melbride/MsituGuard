@@ -1,0 +1,11 @@
+<!-- comment_form.html -->
+{% extends 'App/base.html' %}\
+{% block content %}
+<form method="post" action="{% url 'comment_create' %}">
+    {% csrf_token %}
+    <input type="hidden" name="post_id" value="{{ post.id }}">
+    <textarea name="content" rows="4" cols="50"></textarea><br>
+    <input type="submit" value="Add Comment">
+</form>
+
+{% endblock %}

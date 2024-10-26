@@ -1,0 +1,49 @@
+{% extends "App/base.html" %}
+{% block content %}
+<h1>Comment....</h1>
+<p>{{ post.content }}</p> 
+
+{% if not post.comments.all %}
+  No Comments Yet...<a href="{% url 'add_comment' post.pk %}">Add One</a>
+{% else %}
+
+<a href="{% url 'add_comment' post.pk %}">Add Comment</a>
+<br/><br/>
+  {% for comment in post.comments.all %}
+    <strong>
+      {{ comment.user.username }}
+      {{ comment.created_at }}
+    </strong>
+    {{ comment.content }}
+    <br> 
+
+
+  {% endfor %}
+    <a href="{% url 'add_comment' post.pk %}">Add Comment</a>
+
+{% endif %}
+<br/>
+
+
+</br>
+  {% comment %} <h1>{{ post.title }}</h1>
+  <p>{{ post.content }}</p>
+  <p>Posted by {{ post.user.username }} on {{ post.created_at }}</p>
+
+  {% comment %} <h2>Comments</h2> {% endcomment %}
+  {% comment %} <ul>
+    {% for comment in post.comments.all %}
+      <li>
+        <p>{{ comment.content }}</p>
+        <p>Commented by {{ comment.user.username }} on {{ comment.created_at }}</p>
+      </li>
+    {% endfor %} {% endcomment %}
+  {% comment %} </ul>
+
+  <h3>Add a Comment</h3>
+  <form method="post" action="{% url 'comment_create' post.pk %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form> {% endcomment %} 
+{% endblock %}

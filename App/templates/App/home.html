@@ -1,0 +1,254 @@
+{% extends "App/base.html" %}
+{% load static %}
+
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<title>Home</title>
+
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<title>Home</title>
+    <style>
+.image-container {
+  position: relative;
+  width: 100%; /* Adjust based on your image size */
+}
+
+.image-container img {
+  width: 100%; /* Make the image responsive */
+  height: 500px;
+  object-fit: cover;
+
+}
+
+
+.image-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* Dark overlay */
+}
+
+
+
+
+.text-overlay {
+    display: flex ;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  color: white;
+  z-index: 1;
+
+}
+
+
+.reach_btn {
+    background-color: rgb(60, 135, 115); ;
+    padding: 10px 30px;
+    font-size: 15px;
+    color: white;
+    border-radius: 10px;
+    z-index: 1;
+    width: fit-content;
+
+
+}
+.reach_btn:hover {
+    transition: transform 0.3s ease;
+  animation: pulse 2s infinite;
+}
+
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.reach_out{
+    margin-top: 20px;
+    font-size: 40px;
+    text-align: center;
+    font-weight: bold;
+    color: lightgray;
+    
+
+}
+.reach_btn a{
+  text-decoration: none;
+  color: white;
+}
+.about {
+    background-color: rgb(60, 135, 115);
+    padding: 20px;
+    border-radius: 5px;
+    color: white;
+    margin-top: 30px;
+
+}
+
+.about h2 , .about h3{
+    color: white ;
+    text-align: center;
+    letter-spacing: 2px;
+
+}
+
+.about p {
+    line-height: 30px;
+    letter-spacing: .5px;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 10px;
+    margin-top: 30px;
+    align-items: center;
+}
+
+.features img {
+    width: 400px;
+    height: auto;
+    object-fit: contain;
+}
+
+
+
+.right h3, .left h3 {
+    text-align: center;
+    letter-spacing: 2px;
+
+    
+}
+
+footer {
+    background-color: black;
+    color: white;
+    width: 100%;
+}
+
+
+    </style> 
+<body>
+    <div class="intro">
+        <div class="image-container">
+            <img src="../../static/images/banner.jpg" alt="Image description" />
+            <div class="text-overlay">
+                <div>
+
+                    <h3 class="reach_out">Let us help you during these difficult times</h3>
+                </div>
+
+                <div>
+
+                    <button class="reach_btn">
+                        <a href="/contacts">Reach out now</a>
+                    </button>
+
+                </div>
+
+            </div>
+          </div>
+          
+    </div>
+    
+    {% if user.is_authenticated %}
+
+
+        <div class="platform-info">
+
+            <div class="about">
+
+                <h2>About Us</h2>
+                <p>Welcome to the Community Crisis Communication Platform. Our platform is designed to help communities manage and disseminate information during crises. Whether it’s a natural disaster, a health emergency, or any other critical situation, our platform provides the tools and resources needed to stay informed and connected.</p>
+            </div>
+
+
+            <div class="features">
+
+                <div class="left">
+                    <img
+                      src="../../static/images/saving.jpg" 
+                      alt="saving"
+                      class="saving"
+                    />
+                  </div>
+
+                <div class="right">
+
+                    <h3>Our Services</h3>
+                    <ul>
+                        <li><strong>Emergency Alerts:</strong> Receive timely notifications about ongoing crises and emergencies.</li>
+                        <li><strong>Resource Exchange:</strong> Share and request resources such as food, clothing, and shelter.</li>
+                        <li><strong>Community Forums:</strong> Engage in discussions and share information with other community members.</li>
+                        <li><strong>Interactive Map:</strong> View and update information about crisis-affected areas.</li>
+                        <li><strong>Emergency Contacts Directory:</strong> Access important contact information for emergency services and organizations.</li>
+                    </ul>
+
+                </div>
+            </div>
+
+            <!-- <div class="separator"></div> -->
+
+
+            <div class="features">
+                <div class="left">
+
+                    <h3>How to Use the Platform</h3>
+                    <ol>
+                        <li><strong>Create an Account:</strong> Sign up and complete your profile to get started.</li>
+                        <li><strong>Stay Informed:</strong> Check the latest alerts and updates on the homepage.</li>
+                        <li><strong>Participate:</strong> Join forums, post updates, and contribute to the community.</li>
+                        <li><strong>Request Help:</strong> Use the resource exchange feature to request or offer help.</li>
+                    </ol>
+
+                </div>
+
+                <div class="right">
+                    <img src="../../static/images/children.jpg" alt="">
+                </div>
+            </div>
+
+
+            <div class="about">
+                <h3>Community Involvement</h3>
+                <p>We believe in the power of community. By sharing information and resources, we can help each other during difficult times. Your participation is crucial. Whether you are offering assistance or in need of help, your involvement makes a difference.</p>
+
+            </div>
+
+
+        </div>
+    {% else %}
+        <p>Please log in to read more about the platform.</p>
+    {% endif %}
+
+    
+
+    
+    
+    
+    
+    {% include './footer.html' %}
+    
+    {% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'App/base.html' %}
+{% block content %}
+  <!-- <h2>Create A New Alert</h2>
+  <a href="{% url 'alert_create' %}">Create Alert</a> -->
+  <ul>
+    {% for alert in alerts %}
+      <li>
+        <a href="{% url 'alert_update' alert.pk %}">{{ alert.title }}</a>
+        | <a href="{% url 'alert_delete' alert.pk %}">Delete</a>
+        <p>{{ alert.description }}</p>
+        <p>{{ alert.location }}</p>
+        <p>{{ alert.date_created }}</p>
+        <p>{{ alert.is_active }}</p>
+        <p>{{ alert.visibility }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!-- App/templates/App/profile_detail.html -->
+
+{% extends 'App/base.html' %}
+{% block content %}
+    <h2>{{ user.username }} Profile Details</h2>
+    <p>Username: {{ user.username }}</p>
+    <p>First name: {{ user.first_name }}</p>
+    <p>Last name: {{ user.last_name }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Last login: {{ user.last_login }}</p>
+    <p>Is superuser: {% if user.is_superuser %} Yes {% else %} No {% endif %}</p>
+    <p>Is staff: {% if user.is_staff %} Yes {% else %} No {% endif %}</p>
+    <p>Is active: {% if user.is_active %} Yes {% else %} No {% endif %}</p>
+    <p>Date joined: {{ user.date_joined }}</p>
+    <p>Phone Number: {{ user.profile.phoneNumber }}</p>
+    <p>Location: {{ user.profile.location }}</p>
+
+
+
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+    <a href="{% url 'password_change' %}" class="btn btn-primary">Change Password</a>
+
+    {% include './footer.html' %}
+
+{% endblock %}
