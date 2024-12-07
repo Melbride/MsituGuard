@@ -1,4 +1,4 @@
-{% extends "App/base.html" %}
+{% extends "app/base.html" %}
 {% load static %}
 
 
@@ -173,7 +173,7 @@ footer {
           
     </div>
     
-    {% if user.is_authenticated %}
+    {% comment %} {% if user.is_authenticated %} {% endcomment %}
 
 
         <div class="platform-info">
@@ -239,9 +239,9 @@ footer {
 
 
         </div>
-    {% else %}
-        <p>Please log in to read more about the platform.</p>
-    {% endif %}
+    {% comment %} {% else %}
+        <p>Please log in to read more about the platform.</p> {% endcomment %}
+    {% comment %} {% endif %} {% endcomment %}
 
     
 

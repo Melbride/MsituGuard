@@ -1,5 +1,5 @@
 <!-- App/templates/App/profile.html -->
-{% extends 'App/base.html' %}
+{% extends 'app/base.html' %}
 {% block title %}Your Profile{% endblock title %}
 
 {% block content %}
@@ -8,7 +8,7 @@
 <p>Username: {{ user.username }}</p>
 <p>Email: {{ user.email }}</p>
 <p>Location: {{ user.profile.location }}</p>
-<p>Phone Number: {{ user.profile.phone_number }}</p>
+<p>Phone Number: {{ user.phoneNumber }}</p>
 
 <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
 <a href="{% url 'password_change' %}" class="btn btn-primary">Change Password</a>

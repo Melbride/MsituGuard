@@ -1,5 +1,5 @@
 <!-- comment_form.html -->
-{% extends 'App/base.html' %}\
+{% extends 'app/base.html' %}\
 {% block content %}
 <form method="post" action="{% url 'comment_create' %}">
     {% csrf_token %}

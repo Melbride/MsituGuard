@@ -1,36 +1,43 @@
-<!-- {% extends 'App/base.html' %}
-{% block title%}Register{% endblock%}
+{% extends 'App/base.html' %}
+{% block title %}Register{% endblock %}
 
-{% block content %} -->
-
+{% block content %}
 
 <link rel="stylesheet" href="../../static/css/styles.css">
 
 <div class="register">
-
     <div class="register-inner">
-
         <div>
-
-            
-                <h1>Register</h1>
-    
-                <div class="separator"></div>
-
+            <h1>Register</h1>
+            <div class="separator"></div>
         </div>
 
-            <div class="">
-            
-                <form method="POST" class="register-form">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button class="">Register</buttton>
-                </form>
+        <form method="POST" class="register-form">
+            {% csrf_token %}
+            {{ form.as_p }}  <!-- Keep your form rendering as it is -->
+
+            <!-- Password field visibility toggle with compact styling -->
+            <div class="password-toggle">
+                <button type="button" onclick="togglePasswords()" class="see-button">See</button>
             </div>
 
+            <button type="submit" class="register-button">Register</button>
+        </form>
     </div>
-
 </div>
 
-<!-- {% endblock %} -->
+<script>
+function togglePasswords() {
+    var passwordFields = ['id_password1', 'id_password2'];
+    passwordFields.forEach(function(fieldId) {
+        var passwordField = document.getElementById(fieldId);
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+        } else {
+            passwordField.type = 'password';
+        }
+    });
+}
+</script>
 
+{% endblock %}

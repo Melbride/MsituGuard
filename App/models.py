@@ -1,29 +1,32 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 # Create your models here.
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(default='Bio information not provided')
-    location = models.CharField(max_length=200)
-    email = models.EmailField(default='example@example.com')
     phoneNumber = models.CharField(
         max_length=17,
-        default=' ',  # Allow blank phone numbers
-        validators=[RegexValidator(regex=r'^\d*$', message='Only numeric values are allowed')]  # Change to r'^\d*$' to allow empty
-    )    
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)    
+        default=' ',
+        validators=[RegexValidator(regex=r'^\d*$', message='Only numeric values are allowed')]
+    )
+    location = models.CharField(max_length=200, default='')
+    bio = models.TextField(default='Bio information not provided')
+    email = models.EmailField(default='example@example.com')
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     first_name = models.CharField(max_length=100, default='')
     last_name = models.CharField(max_length=100, default='')
-
+    # last_namee = models.CharField(max_length=100, default='')
 
 
     def __str__(self):
         return self.user.username 
+
+    
 
 
 class Alert(models.Model):
@@ -42,8 +45,9 @@ class Alert(models.Model):
 
 
 class Resource(models.Model):
-    name = models.CharField(max_length=250)
+    Resource_Name = models.CharField(max_length=250)
     description = models.TextField()
+    is_approved = models.BooleanField(default=False)  
     available = models.BooleanField(default=True)
     phoneNumber = models.CharField(
         max_length=17,
@@ -55,7 +59,7 @@ class Resource(models.Model):
 
 
     def __str__(self):
-        return self.name
+        return self.Resource_Name
     
 
 class EmergencyContact(models.Model):

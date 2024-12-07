@@ -1,38 +1,48 @@
-<!-- {% extends 'App/base.html' %}
-{% block title%}Login{% endblock%}
+{% extends 'App/base.html' %}
+{% load static %}
+{% block title %}Login{% endblock %}
 
-{% block content %} -->
+{% block content %}
 
-
-<link rel="stylesheet" href="../../static/css/styles.css">
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 <div class="login">
-
     <div class="login-inner">
-
         <div>
             <h1>Login</h1>
-            
-    
             <div class="separator"></div>
         </div>
     
         <div class="mb-2">
-        
             <form method="POST" class="login-form">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-secondary">Login</buttton>
+                
+                <!-- Render form fields directly, or add custom labels if needed -->
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="button" onclick="togglePassword()">See</button>
+
+                <button class="btn btn-secondary">Login</button>
             </form>
-            
+            <p><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
+
         </div>
+        
         <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
-
     </div>
-
 </div>
 
+<script>
+function togglePassword() {
+  var passwordField = document.getElementById('password');
+  if (passwordField.type === 'password') {
+    passwordField.type = 'text';
+  } else {
+    passwordField.type = 'password';
+  }
+}
+</script>
 
-
-
-<!-- {% endblock %} -->
-
+{% endblock %}

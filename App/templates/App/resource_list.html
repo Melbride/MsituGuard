@@ -1,4 +1,4 @@
-{% extends 'App/base.html' %}
+{% extends 'app/base.html' %}
 
 {% block content %}
 
@@ -43,7 +43,7 @@
  </ul> {% endcomment %}
      <ul>
         {% for resource in resources %}
-            <li><strong>{{ resource.name }}:</strong> {{ resource.description }}</li>
+            <li><strong>{{ resource.Resource_Name }}:</strong> {{ resource.description }}</li>
              {% comment %} <a href="{% url 'resource_delete' resource.pk %}">Edit</a>
             <a href="{% url 'resource_delete' resource.pk %}">Delete</a> {% endcomment %}
     

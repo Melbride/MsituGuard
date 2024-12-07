@@ -1,9 +1,8 @@
 from django.apps import AppConfig
 
-
 class AppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'App'
 
     def ready(self):
-        import App.signals
+        import App.signals  # Make sure to import signals to register signal handlers

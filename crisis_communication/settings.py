@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['9ebb-102-0-14-102.ngrok-free.app','127.0.0.1', 'localhost']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'App',
+    # 'App',  # This is the correct way to add your app
+    'App.apps.AppConfig',  # This is how to add the AppConfig
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -73,6 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 
+# AUTH_USER_MODEL = 'App.CustomUser'  
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -149,4 +151,15 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 # LOGIN_REDIRECT_URL = '/'
+
+
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+
+
 

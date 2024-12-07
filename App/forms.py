@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 # from .models import CustomUser
 from django.core.validators import RegexValidator
+# from .models import CustomUser
 
 
 
@@ -17,14 +18,12 @@ class UserRegistrationForm(UserCreationForm):
     )        
     first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    # password = forms.CharField(widget=forms.PasswordInput)
-    # confirm_password = forms.CharField(widget=forms.PasswordInput)
     location = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
     class Meta:
         model = User
-        fields = ['username', 'email',  'phoneNumber',  'first_name', 'last_name' ,'location',]
+        fields = ['username', 'email',  'phoneNumber',  'first_name', 'last_name' ,'location']
 
 
     def clean(self):
@@ -36,19 +35,22 @@ class UserRegistrationForm(UserCreationForm):
             raise forms.ValidationError("passwords do not match")
         return cleaned_data
     
-    # def save(self, commit=True):
-    #     user = super().save(commit=False)
-    #     user.email = self.cleaned_data['email']
-    #     if commit:
-    #         user.save()
-    #         # Create the profile instance linked to the user
-    #         Profile.objects.create(
-    #             user=user,
-    #             phoneNumber=self.cleaned_data['phoneNumber'],
-    #             location=self.cleaned_data['location']
-    #         )
-    #     return user
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
 
+        if commit:
+            user.save()
+
+            profile, created = Profile.objects.get_or_create(user=user)
+
+            if created:
+                profile.phoneNumber = self.cleaned_data['phoneNumber']
+                profile.location = self.cleaned_data['location']
+                profile.save()  
+
+        return user
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -66,7 +68,7 @@ class LoginForm(AuthenticationForm):
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['name', 'description', 'available', 'phoneNumber', 'location']
+        fields = ['Resource_Name', 'description', 'available', 'phoneNumber', 'location']
 
         
 
@@ -83,23 +85,23 @@ class AlertForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['location', 'email', 'phoneNumber']
+        fields = ['location', 'email']
         
         widgets = {
             'location': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'phoneNumber': forms.TextInput(  # Use TextInput for phone number
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Enter your phone number'  # Optional placeholder
-                }
-            )
-        }
-    def clean_phoneNumber(self):
-        phone_number = self.cleaned_data.get('phoneNumber')
-        if not phone_number.isdigit():
-            raise forms.ValidationError("Only numeric values are allowed.")
-        return phone_number
+    #         'phoneNumber': forms.TextInput(  
+    #             attrs={
+    #                 'class': 'form-control',
+    #                 'placeholder': 'Enter your phone number' 
+    #             }
+    #         )
+         }
+    # def clean_phoneNumber(self):
+    #     phone_number = self.cleaned_data.get('phoneNumber')
+    #     if not phone_number.isdigit():
+    #         raise forms.ValidationError("Only numeric values are allowed.")
+    #     return phone_number
 
 
 
@@ -146,12 +148,12 @@ class EditProfileForm(UserChangeForm):
     is_staff = forms.CharField(max_length=100, widget=forms.CheckboxInput(attrs={'class': 'form-check'}))
     is_active = forms.CharField(max_length=100, widget=forms.CheckboxInput(attrs={'class': 'form-check'}))
     date_joined = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    phone_number = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    phoneNumber = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
     location = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'phone_number', 'location')
+        fields = ('username', 'first_name', 'last_name', 'email', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'phoneNumber', 'location')
 
 
 class PasswordChangingForm(PasswordChangeForm):
@@ -161,4 +163,7 @@ class PasswordChangingForm(PasswordChangeForm):
     class Meta:
         model = User
         fields = ['old_password', 'new_password1', 'new_password2']
+
+
+
 

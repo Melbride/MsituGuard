@@ -10,7 +10,7 @@ from .views import(HomeView,   UserLogoutView, ResourceListView, ResourceCreateV
                    ResourceDetailView, AlertListView, AlertCreateView, AlertUpdateView, AlertDetailView,
                    LatestAlertsView, ResourceRequestCreateView, ResourceRequestListView,
                    ForumPostListView, ForumPostCreateView, ForumPostDetailView,  AddCommentView, UserEditView, ApprovedAlertListView,
-                   PasswordChangeView)
+                   ApprovedContributeListView)
 #,UserRegisterView
                    
 urlpatterns = [
@@ -33,6 +33,7 @@ urlpatterns = [
     path('latest-alerts/', LatestAlertsView.as_view(), name='latest_alerts'),
     path('alerts/<int:pk>/', AlertDetailView.as_view(), name='alert_detail'),
     path('approved-alerts/', ApprovedAlertListView.as_view(), name='approved_alerts'),
+    path('approved-contributes/', ApprovedContributeListView.as_view(), name='approved_contributes'),
     path('request-resource/', ResourceRequestCreateView.as_view(), name='request_resource'),
     path('resource-requests/', ResourceRequestListView.as_view(), name='resource_requests'),
     # path('resources/', ApprovedResourceListView.as_view(), name='resources-list'),
@@ -46,6 +47,12 @@ urlpatterns = [
     path('change_password/', views.PasswordChangeView.as_view(template_name = "registration/password_change.html"), name="change-password"),
     path('password_success/', views.password_success, name="password_success"),
     path('ussd_callback/', ussd_callback, name='ussd_callback'),
+
+    path('password_reset/', auth_views.PasswordResetView.as_view(success_url='/password_reset_done/'), name='password_reset'),
+    path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
 
    
