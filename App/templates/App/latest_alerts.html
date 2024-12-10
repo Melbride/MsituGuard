@@ -1,8 +1,24 @@
-{% extends 'app/base.html' %}
+{% extends 'app/base2.html' %}
 
 <link rel="stylesheet" href="../../static/css/styles.css">
 
 {% block content %}
+
+<style>
+
+    .alerts {
+        background-color:  rgb(60, 135, 115);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
+        
+    }
+    .alerts h2{
+        color: white;
+    }
+</style>
 <div class="alerts">
     <h2>Latest Alerts</h2>
     <ul>

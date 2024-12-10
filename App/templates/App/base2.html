@@ -23,41 +23,26 @@ body {
   padding: 0 20px;
   z-index: 999;
   position: relative;
+  background-color: black;
   
  
 
 }
 
-.banner {
-    height: 500px;
-    object-fit: cover;
-    z-index: 0;
-    position: relative;
-
-   
-}
-
-.banner::after {
-    content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 500px;
-  background-color: rgba(0, 0, 0, 0.2);
-  pointer-events: none;
-  z-index: 1;
-}
 
 .dropbtn{
     background-color: transparent;
 }
 
-.log-btn {
-     background-color: black;
+.log-btn:hover {
+    background-color: black;
     color: white;
     transition: all .3s ease-in-out;
 }
+
+
+
+
 
 
 
@@ -67,12 +52,8 @@ body {
 
 </head>
 <body>
-    <nav class="banner"
-    style="background-size: cover;
-     background-image: url('../../static/images/banner.jpg');
-     background-position: center center;
-     background-color: brown;
-     "
+    <nav 
+    
     >
         <div class="container-fluid">
 
@@ -161,21 +142,7 @@ body {
 
         </div>
 
-        <div class="text-overlay">
-            <div>
-
-                <h3 class="reach_out">Let us help you during these difficult times</h3>
-            </div>
-
-            <div>
-
-                <button class="reach_btn">
-                    <a href="/contacts">Reach out now</a>
-                </button>
-
-            </div>
-
-        </div>
+     
     </nav>
 
     <div class="container mt-4">

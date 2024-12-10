@@ -7,7 +7,7 @@
 
 
 body {
-    background-color: hwb(0 71% 29%);
+    background-color: white;
     max-width: 100%;
 }
 
@@ -57,7 +57,7 @@ body {
   }
 
   button {
-    padding: 10px;
+    padding: 10px 12px;
     border-radius: 5px;
     color: white;
     outline: none;
@@ -70,6 +70,8 @@ body {
   
     
   }
+
+
 
 
   p {
@@ -136,6 +138,7 @@ body {
 
 .dropdown-content .nav-link:hover {
   background-color: #c7c2c2;
+  border-radius: 3px;
 }
 
 .dropdown:hover .dropdown-content {

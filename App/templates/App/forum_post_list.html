@@ -1,5 +1,30 @@
-{% extends "app/base.html" %}
+{% extends "app/base2.html" %}
 {% block content %}
+
+<style>
+
+  .latest-posts{
+    background-color:  rgb(60, 135, 115);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        padding: 20px 0px;
+
+        
+  }
+
+  .latest-posts h1{
+        color: white;
+    }
+
+
+</style>
+
+
+<div class="latest-posts">
+
   <h1>Latest Posts</h1>
 
   <div class="posts-section">
@@ -31,4 +56,5 @@
     {% comment %} <h2>Add Post</h2> {% endcomment %}
     {% comment %} <a href="{% url 'forum_post_create' %}" class="btn btn-primary">Add New Post</a> {% endcomment %}
   </div>
+</div>
 {% endblock %}
