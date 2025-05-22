@@ -2,6 +2,17 @@
 
 {% extends 'app/base2.html' %}
 {% block content %}
+<!-- Display Django messages (e.g., from contribute view) -->
+{% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
     <h2>{{ user.username }} Profile Details</h2>
     <p>Username: {{ user.username }}</p>
     <p>First name: {{ user.first_name }}</p>
@@ -16,6 +27,18 @@
     <p>Location: {{ user.profile.location }}</p>
 
 
+<!-- Account verification status -->
+{% if not user.profile.is_verified %}
+    <div class="alert alert-warning mt-3">
+        <p>Your account is not verified. Please verify your account to contribute resources or post alerts.</p>
+        <form method="post" action="{% url 'request_verification' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Request Verification</button>
+        </form>
+    </div>
+{% else %}
+    <p class="text-success mt-3">Your account is verified ✅</p>
+{% endif %}
 
     <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
     <a href="{% url 'password_change' %}" class="btn btn-primary">Change Password</a>

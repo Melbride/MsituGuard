@@ -1,13 +1,9 @@
 {% extends 'app/base2.html' %}
 
 {% block content %}
-
-
 <style>
-
-    .resource-list{
+    .resource-list {
         background-color: rgb(60, 135, 115);
- 
         padding: 20px;
     }
 
@@ -15,44 +11,36 @@
         color: white;
     }
 
-   
+    .resource-list ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
 
-
-
-
-
-
-
-
+    .resource-list li {
+        background: white;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
 </style>
 
-
 <div class="resource-list">
-
     <h2>Here Are Our Available Resources</h2>
-    {% comment %} 
-    <ul> {% endcomment %}
-        {% comment %} <li>
-            <strong>Clothes:</strong> I have some few clothes I would like to share...
-        </li>
-        <li>
-            <strong>Food:</strong> I will buy food to share... What can you advise me on?
-        </li>
-        <!-- Add more categories as needed --> {% endcomment %}
-    {% comment %}
- </ul> {% endcomment %}
-     <ul>
-        {% for resource in resources %}
-            <li><strong>{{ resource.Resource_Name }}:</strong> {{ resource.description }}</li>
-             {% comment %} <a href="{% url 'resource_delete' resource.pk %}">Edit</a>
-            <a href="{% url 'resource_delete' resource.pk %}">Delete</a> {% endcomment %}
-    
-        {% endfor %}
-    </ul> 
-    <p>Want to share resources?<a href="{% url 'resource_create' %}">Click here to contribute!</a></p>
-    {% endblock %}
 
+    {% if resources %}
+        <ul>
+            {% for resource in resources %}
+                <li>
+                    <strong>{{ resource.resource_type }}</strong>: {{ resource.description }}
+                    <br>
+                    {% comment %} <small>Location: {{ resource.location }} | Contributor: {{ resource.contributor.username }}</small> {% endcomment %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No resources available at the moment.</p>
+    {% endif %}
+
+    <p>Want to share resources? <a href="{% url 'resource_create' %}">Click here to contribute!</a></p>
 </div>
-
-
-
+{% endblock %}

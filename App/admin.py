@@ -19,25 +19,18 @@ class AlertAdmin(admin.ModelAdmin):
     list_display = ('title', 'user', 'is_active', 'is_approved')  
     actions = [approve_alerts]  # Register the approve_alerts action
 
-
-class ResourceAdmin(admin.ModelAdmin):
-    list_display = ('Resource_Name', 'description', 'user', 'location', 'available', 'phoneNumber')
-
-
-
 @admin.action(description='Approve selected resources')
 def approve_resources(modeladmin, request, queryset):
     queryset.update(is_approved=True)
 
-
 class ResourceAdmin(admin.ModelAdmin):
-    list_display = ('Resource_Name', 'user',  'is_approved')  # Fields displayed in admin list view
-    actions = [approve_resources]  # Register the approve_alerts action
+    list_display = ('resource_type', 'contributor', 'description', 'location', 'available', 'phoneNumber', 'is_approved')
+    actions = [approve_resources]
 
 
 # admin.site.register(Resource, ResourceAdmin)
 class ResourceRequestAdmin(admin.ModelAdmin):
-    list_display = ('user', 'Resource_type', 'description', 'location', 'phoneNumber') 
+    list_display = ('user', 'resource_type', 'description', 'location', 'phoneNumber') 
 
 
 
@@ -46,6 +39,7 @@ class ProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'Profile'
     fields = ['bio', 'location', 'email', 'phoneNumber', 'profile_picture', 'first_name', 'last_name']
+
 
 
 class UserAdmin(DefaultUserAdmin):
@@ -61,14 +55,20 @@ class UserAdmin(DefaultUserAdmin):
         return obj.profile.phoneNumber
     get_phone_number.short_description = 'PhoneNumber'  # Column title
 
+
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'is_verified', 'verification_requested')
+    list_filter = ('is_verified', 'verification_requested')
+    actions = ['verify_users']
+
+    def verify_users(self, request, queryset):
+        updated = queryset.update(is_verified=True, verification_requested=False)
+        self.message_user(request, f"{updated} users verified successfully.")
+
+
 # Unregister the default User admin and register the new one
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-
-
-
-
-
 admin.site.register(Alert, AlertAdmin)  # Register Alert with the AlertAdmin class
 admin.site.register(Profile)
 admin.site.register(Resource, ResourceAdmin)

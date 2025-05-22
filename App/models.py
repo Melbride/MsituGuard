@@ -20,6 +20,9 @@ class Profile(models.Model):
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     first_name = models.CharField(max_length=100, default='')
     last_name = models.CharField(max_length=100, default='')
+    is_verified = models.BooleanField(default=False)
+    verification_requested = models.BooleanField(default=False)
+
     # last_namee = models.CharField(max_length=100, default='')
 
 
@@ -27,7 +30,6 @@ class Profile(models.Model):
         return self.user.username 
 
     
-
 
 class Alert(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)   
@@ -43,23 +45,33 @@ class Alert(models.Model):
     def __str__(self):
         return self.title 
 
-
 class Resource(models.Model):
-    Resource_Name = models.CharField(max_length=250)
+    RESOURCE_TYPES = [
+    ('Food', 'Food'),
+    ('Clothes', 'Clothes'),
+    ('Shelter', 'Shelter'),
+    ('Medical', 'Medical'),
+]
+    # Resource_Name = models.CharField(max_length=250)
+    contributor = models.ForeignKey(User, on_delete=models.CASCADE)  # Who contributed
+    resource_type = models.CharField(max_length=100, choices=RESOURCE_TYPES)
+    quantity = models.PositiveIntegerField(blank=True, null=True)
     description = models.TextField()
-    is_approved = models.BooleanField(default=False)  
-    available = models.BooleanField(default=True)
     phoneNumber = models.CharField(
         max_length=17,
-        default=' ',
         validators=[RegexValidator(regex=r'^\d+$', message='Only numeric values are allowed')]
-    )    
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    location = models.CharField(max_length=200, default='')  # Location of donor
+    )
+    location = models.CharField(max_length=200)
+    is_approved = models.BooleanField(default=False)  # Admin approval status
+    date_contributed = models.DateTimeField(auto_now_add=True)
+    is_allocated = models.BooleanField(default=False)  # Optional: if resource is already allocated
+    available = models.BooleanField(default=True)
+    STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
 
     def __str__(self):
-        return self.Resource_Name
+        return self.resource_type
     
 
 class EmergencyContact(models.Model):
@@ -73,26 +85,42 @@ class EmergencyContact(models.Model):
         return f"{self.name} ({self.organization})"
 
 class ResourceRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('matched', 'Matched'),
+        ('fulfilled', 'Fulfilled'),
+        ('rejected', 'Rejected'),
+    ]
+
+    RESOURCE_TYPES = [
+        ('Food', 'Food'),
+        ('Clothes', 'Clothes'),
+        ('Shelter', 'Shelter'),
+        ('Medical Aid', 'Medical Aid'),
+        ('Water', 'Water'),
+        ('Other', 'Other'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # name = models.CharField(max_length=255)  # Add this field
-    Resource_type = models.CharField(max_length=100, default='')
+    resource_type = models.CharField(max_length=100, choices=RESOURCE_TYPES)
     description = models.TextField()
+    quantity_requested = models.PositiveIntegerField(default=1)
     date_requested = models.DateTimeField(auto_now_add=True)
-    # is_approved = models.BooleanField(default=False)  # New field to track approval status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    matched_contribution = models.ForeignKey(Resource, null=True, blank=True, on_delete=models.SET_NULL)
+    response_message = models.TextField(blank=True, null=True)
     is_fulfilled = models.BooleanField(default=False)
+
     phoneNumber = models.CharField(
         max_length=17,
-        default=' ',
+        default='',
         validators=[RegexValidator(regex=r'^\d+$', message='Only numeric values are allowed')]
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    location = models.CharField(max_length=200, default='')  # Location of donor
-    # resource = models.ForeignKey(Resource, on_delete=models.CASCADE, null=True)  # Make sure this field exists
 
-
+    location = models.CharField(max_length=200, default='')
 
     def __str__(self):
-        return f"User: {self.user.username}, Resource Type: {self.Resource_type}"
+        return f"User: {self.user.username}, Resource Type: {self.resource_type}"
     
 
 class ForumPost(models.Model):
@@ -108,7 +136,7 @@ class ForumPost(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(ForumPost, on_delete=models.CASCADE, related_name='comments')
-    name = models.CharField(max_length=250,  default='')
+    # name = models.CharField(max_length=250,  default='')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

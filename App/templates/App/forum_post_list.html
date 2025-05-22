@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "app/base2.html" %}
 {% block content %}
 
@@ -26,35 +27,74 @@
 <div class="latest-posts">
 
   <h1>Latest Posts</h1>
+=======
+{% extends "app/base.html" %}
+{% load static %}
+{% block content %}
+>>>>>>> 1ece88c (Updated features and added new functionality)
 
-  <div class="posts-section">
-    {% comment %} <h2>Add Post</h2> {% endcomment %}
-    <a href="{% url 'forum_post_create' %}" class="btn btn-primary">Add New Post</a>
-  </div>
-  <div class="posts-list">
-    {% if posts %}
-      <ul>
-        {% for post in posts %}
-<hr>
-          <li class="list-group-item mb-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <h2>{{ post.title }}</h2>
-            <p><strong>Posted by:</strong> {{ post.user.username }}</p>
-            <p><strong>Posted on:</strong> {{ post.created_at|date:"F d, Y, H:i a" }}</p>
-            <a href="{% url 'forum_post_detail' post.pk %}" class="btn btn-secondary">View Post</a>
-          </div>
-          </li>
-        {% endfor %}
-        <br/>
-      </ul>
-    {% else %}
-      <p>No Posts Yet...<a href="{% url 'forum_post_create' %}" class="ml-2">Add One</a></p>
-    {% endif %}
-  </div>
+<div class="container mt-4">
+  <div class="row">
 
-  <div class="posts-section">
-    {% comment %} <h2>Add Post</h2> {% endcomment %}
-    {% comment %} <a href="{% url 'forum_post_create' %}" class="btn btn-primary">Add New Post</a> {% endcomment %}
+    <!-- Forum Posts Section (8 columns) -->
+    <div class="col-lg-8 col-md-12">
+      <h2 class="mb-3">Latest Forum Posts</h2>
+
+      <div class="mb-3 d-flex align-items-center">
+        <a href="{% url 'forum_post_create' %}" class="btn btn-primary">+ Add New Post</a>
+
+        <!-- Button to open Twitter modal -->
+        <button type="button" class="btn btn-info ms-3" data-bs-toggle="modal" data-bs-target="#twitterModal">
+          View Live Emergency Updates
+        </button>
+      </div>
+
+      {% if posts %}
+        <ul class="list-group">
+          {% for post in posts %}
+            <li class="list-group-item mb-3 shadow-sm">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h5>{{ post.title }}</h5>
+                  <p class="mb-1 text-muted">By {{ post.user.username }} — {{ post.created_at|date:"M d, Y, H:i a" }}</p>
+                </div>
+                <a href="{% url 'forum_post_detail' post.pk %}" class="btn btn-outline-secondary">View</a>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No posts found. <a href="{% url 'forum_post_create' %}">Add one now</a>.</p>
+      {% endif %}
+    </div>
+
   </div>
 </div>
+<<<<<<< HEAD
+=======
+
+<!-- Twitter Feed Modal -->
+<div class="modal fade" id="twitterModal" tabindex="-1" aria-labelledby="twitterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="twitterModalLabel">Live Emergency Updates</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <a class="twitter-timeline"
+           data-height="400"
+           href="https://twitter.com/KenyaRedCross?ref_src=twsrc%5Etfw"
+           rel="noopener noreferrer"
+           target="_blank">
+          Tweets by KenyaRedCross
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+>>>>>>> 1ece88c (Updated features and added new functionality)
 {% endblock %}

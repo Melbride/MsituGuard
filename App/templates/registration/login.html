@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 {% extends 'App/base2.html' %}
+=======
+{% extends 'app/base.html' %}
+>>>>>>> 1ece88c (Updated features and added new functionality)
 {% load static %}
 {% block title %}Login{% endblock %}
 
@@ -16,6 +20,10 @@
             <form method="POST" class="login-form">
                 {% csrf_token %}
                 
+                    {% comment %} {% if form.errors %}
+                        <p style="color: red;">Wrong username or password. Try again.</p>
+                    {% endif %} {% endcomment %}
+
                 <!-- Render form fields directly, or add custom labels if needed -->
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
@@ -25,7 +33,11 @@
                 <button type="button" onclick="togglePassword()">See</button>
 
                 <button class="btn btn-secondary">Login</button>
+
             </form>
+                {{ form.media }}
+
+          
             <p><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
 
         </div>

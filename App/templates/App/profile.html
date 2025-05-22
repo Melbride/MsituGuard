@@ -5,14 +5,17 @@
 {% block content %}
 
 <h2>{{ user.username }} Profile</h2>
-<p>Username: {{ user.username }}</p>
-<p>Email: {{ user.email }}</p>
-<p>Location: {{ user.profile.location }}</p>
-<p>Phone Number: {{ user.phoneNumber }}</p>
 
+
+<!-- User details -->
+<p><strong>Username:</strong> {{ user.username }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Location:</strong> {{ user.profile.location }}</p>
+<p><strong>Phone Number:</strong> {{ user.profile.phoneNumber }}</p>
+
+<!-- Buttons -->
 <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
-<a href="{% url 'password_change' %}" class="btn btn-primary">Change Password</a>
+<a href="{% url 'password_change' %}" class="btn btn-secondary">Change Password</a>
 
 
 {% endblock %}
-

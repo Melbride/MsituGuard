@@ -1,35 +1,84 @@
 {% extends "app/base2.html" %}
 
 {% block content %}
-
 <style>
     .ur_response {
-        background-color: rgb(60, 135, 115);
-        padding: 20px;
-        border-radius: 5px;
-
+        background-color: #3c8773;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        margin: 30px auto;
+        width: 90%;
+        max-width: 800px;
+        color: #f0f0f0;
+        font-family: Arial, sans-serif;
     }
 
     .ur_response h2 {
-        color: white;
-        
+        color: #ffffff;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 28px;
     }
 
+    .request-item {
+        background-color: #4ca88d;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        transition: background-color 0.3s;
+    }
 
+    .request-item:hover {
+        background-color: #43987e;
+    }
 
+    .request-item strong {
+        font-size: 18px;
+        color: #ffffff;
+    }
+
+    .request-item em {
+        color: #e0e0e0;
+        font-style: normal;
+    }
+
+    .status-message {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #ffffff10;
+        border-radius: 5px;
+        font-style: italic;
+    }
 </style>
 
 <div class="ur_response">
     <h2>Your Resource Requests</h2>
-    <ul>
+    {% if requests %}
         {% for request in requests %}
-        <li>{{ request.resource_type }} - {{ request.description }} ({{ request.date_requested }})</li>
-        {% empty %}
-        <li>No requests made yet.</li>
+            <div class="request-item">
+                <strong>{{ request.resource_type }}</strong><br>
+                {{ request.description }}<br>
+                <em>Date:</em> {{ request.date_requested|date:"M d, Y" }}<br>
+                <em>Status:</em> {{ request.status|title }}
+
+                {% if request.response_message %}
+                    <br><em>Message:</em> {{ request.response_message }}
+                {% endif %}
+
+                {% if request.status == 'matched' %}
+                    <div class="status-message">
+                        <strong>Good news:</strong> Your request has been matched. Help is on the way!
+                    </div>
+                {% elif request.status == 'rejected' %}
+                    <div class="status-message">
+                        <strong>Update:</strong> Your request was rejected. Reason: {{ request.response_message }}
+                    </div>
+                {% endif %}
+            </div>
         {% endfor %}
-    </ul>
-
-
+    {% else %}
+        <p>No requests made yet.</p>
+    {% endif %}
 </div>
 {% endblock %}
-

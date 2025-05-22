@@ -1,18 +1,23 @@
+<<<<<<< HEAD
 {% extends 'app/base2.html' %}
 {% block title%}Comment on the Post{% endblock%}
 
+=======
+{% extends 'app/base.html' %}
+{% load static %}
+>>>>>>> 1ece88c (Updated features and added new functionality)
 {% block content %}
+  <div class="container">
 
 
-    <h1>Add Comment....</h1>
-    <br/><br/>
-    <div class="form-group">
+  {% comment %} {% block title %}Comment on the Post{% endblock %} {% endcomment %}
 
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn btn-secondary">Add Comment</buttton>
-    </div>
 
+    <h1>Add Comment</h1>
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-secondary">Add Comment</button>
+    </form>
+  </div>
 {% endblock %}
-

@@ -105,6 +105,16 @@ body {
 
 }
 
+.login-form input:focus, .register-form input:focus {
+  border-color: #1976d2;
+  outline: none;
+}
+
+button:hover {
+  background-color: #333;
+}
+
+
 .dropdown {
  
 }
@@ -115,7 +125,7 @@ body {
   background-color: #f9f9f9;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 999;
+  z-index: 1050;
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -261,6 +271,53 @@ li {
   text-align: center;
 }
 
+.twitter-sidebar {
+  z-index: 1;
+  position: relative;
+}
+
+.thank-you-container {
+    max-width: 600px;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: #f0f8ff;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.thank-you-container h2 {
+    color: #2e8b57;
+    margin-bottom: 15px;
+}
+
+.thank-you-container p {
+    font-size: 18px;
+    color: #333;
+}
+
+.thank-you-container a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.thank-you-container a:hover {
+    text-decoration: underline;
+}
+
+
+
+/* .btn {
+  padding: 10px 20px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+} */
 
 
 

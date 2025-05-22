@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, Password
 # from .models import CustomUser
 from django.core.validators import RegexValidator
 # from .models import CustomUser
-
+from captcha.fields import CaptchaField
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -19,6 +19,9 @@ class UserRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     location = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    # captcha = CaptchaField()
+    # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+
 
 
     class Meta:
@@ -62,13 +65,14 @@ class LoginForm(AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
     )
+    captcha = CaptchaField()
 
 
 
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['Resource_Name', 'description', 'available', 'phoneNumber', 'location']
+        fields = ['resource_type', 'quantity', 'description', 'available', 'phoneNumber', 'location']
 
         
 
@@ -111,9 +115,28 @@ class SuperuserProfileForm(ProfileForm):
 
 
 class ResourceRequestForm(forms.ModelForm):
+    RESOURCE_CHOICES = [
+        ('Food', 'Food'),
+        ('Clothes', 'Clothes'),
+        ('Shelter', 'Shelter'),
+        ('Medical Aid', 'Medical Aid'),
+        ('Water', 'Water'),
+        ('Other', 'Other'),
+    ]
+    
+    resource_type = forms.ChoiceField(choices=RESOURCE_CHOICES, label="Resource Type")
+
     class Meta:
         model = ResourceRequest
-        fields = ['Resource_type', 'description', 'phoneNumber', 'location']
+        fields = ['resource_type', 'description', 'phoneNumber', 'location']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Briefly describe your situation or what kind of assistance would help.',
+                'rows': 4,
+            }),
+            'phoneNumber': forms.TextInput(attrs={'placeholder': 'Enter your phone number'}),
+            'location': forms.TextInput(attrs={'placeholder': 'Enter your location'}),
+        }
 
 
 class ForumPostForm(forms.ModelForm):
@@ -122,18 +145,18 @@ class ForumPostForm(forms.ModelForm):
         fields = ['title', 'content']
 
    
-class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ['content']
+# class CommentForm(forms.ModelForm):
+#     class Meta:
+#         model = Comment
+#         fields = ['content']
 
 class FormComment(forms.ModelForm):
     class  Meta:
         model = Comment
-        fields = ('name',  'content')
+        fields = ('content',)
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            # 'name': forms.TextInput(attrs={'class': 'form-control'}),
             'content': forms.Textarea(attrs={'class': 'form-control'}),
 
         }
@@ -165,5 +188,7 @@ class PasswordChangingForm(PasswordChangeForm):
         fields = ['old_password', 'new_password1', 'new_password2']
 
 
+# class LoginFormWithCaptcha(AuthenticationForm):
+#     captcha = CaptchaField(widget=CaptchaV2Checkbox)
 
 

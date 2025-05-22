@@ -1,49 +1,29 @@
 {% extends "app/base2.html" %}
 {% block content %}
-<h1>Comment....</h1>
-<p>{{ post.content }}</p> 
+<a href="{% url 'forum_post_list' %}" class="btn btn-outline-secondary">← Back to Forums</a>
 
-{% if not post.comments.all %}
-  No Comments Yet...<a href="{% url 'add_comment' post.pk %}">Add One</a>
-{% else %}
+<h2>{{ post.title }}</h2>
+<p>{{ post.content }}</p>
+<p><small>Posted by {{ post.user.username }} on {{ post.created_at }}</small></p>
 
-<a href="{% url 'add_comment' post.pk %}">Add Comment</a>
-<br/><br/>
-  {% for comment in post.comments.all %}
-    <strong>
-      {{ comment.user.username }}
-      {{ comment.created_at }}
-    </strong>
-    {{ comment.content }}
-    <br> 
+<hr>
+<div id="comments">
+  <h4>Comments</h4>
 
-
-  {% endfor %}
-    <a href="{% url 'add_comment' post.pk %}">Add Comment</a>
-
-{% endif %}
-<br/>
-
-
-</br>
-  {% comment %} <h1>{{ post.title }}</h1>
-  <p>{{ post.content }}</p>
-  <p>Posted by {{ post.user.username }} on {{ post.created_at }}</p>
-
-  {% comment %} <h2>Comments</h2> {% endcomment %}
-  {% comment %} <ul>
+  {% if post.comments.all %}
     {% for comment in post.comments.all %}
-      <li>
-        <p>{{ comment.content }}</p>
-        <p>Commented by {{ comment.user.username }} on {{ comment.created_at }}</p>
-      </li>
-    {% endfor %} {% endcomment %}
-  {% comment %} </ul>
+      <div class="card mb-2">
+        <div class="card-body">
+          <strong>{{ comment.user.username }}</strong>
+          <span class="text-muted float-end">{{ comment.created_at }}</span>
+          <p class="mt-2">{{ comment.content }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No comments yet...</p>
+  {% endif %}
+</div>
 
-  <h3>Add a Comment</h3>
-  <form method="post" action="{% url 'comment_create' post.pk %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form> {% endcomment %} 
+<a href="{% url 'add_comment' post.pk %}" class="btn btn-primary mt-3">Add Comment</a>
 {% endblock %}

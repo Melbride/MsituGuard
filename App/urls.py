@@ -4,18 +4,24 @@ from . import views
 from .views import ussd_callback
 
 from django.contrib.auth import views as auth_views
-from .views import UseRegisterView
+from .views import UseRegisterView #CustomLoginView
+from .views import CustomPasswordResetView
+from .views import request_verification  
+
+# from .forms import LoginFormWithCaptcha
+
+
 from .views import(HomeView,   UserLogoutView, ResourceListView, ResourceCreateView,
                    ResourceUpdateView, ResourceDeleteView, EmergencyContactListView, ProfileDetailView, 
                    ResourceDetailView, AlertListView, AlertCreateView, AlertUpdateView, AlertDetailView,
                    LatestAlertsView, ResourceRequestCreateView, ResourceRequestListView,
                    ForumPostListView, ForumPostCreateView, ForumPostDetailView,  AddCommentView, UserEditView, ApprovedAlertListView,
-                   ApprovedContributeListView)
+                   ApprovedContributeListView, TemplateView)
 #,UserRegisterView
                    
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),  
-    path('', include('django.contrib.auth.urls')), 
+    # path('', include('django.contrib.auth.urls')), 
     path('register/', UseRegisterView.as_view(), name='register'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('resources/', ResourceListView.as_view(), name='resource_list'),
@@ -25,6 +31,7 @@ urlpatterns = [
     path('resources/<int:pk>/', ResourceDetailView.as_view(), name='resource_detail'),
     path('contacts/', EmergencyContactListView.as_view(), name='contact_list'),
     path('profile/', ProfileDetailView.as_view(), name='profile_detail'),
+    path('request-verification/', request_verification, name='request_verification'),
     # path('profile/remove_picture/', remove_profile_picture, name='remove_profile_picture'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('alerts/', AlertListView.as_view(), name='alert_list'),
@@ -36,6 +43,7 @@ urlpatterns = [
     path('approved-contributes/', ApprovedContributeListView.as_view(), name='approved_contributes'),
     path('request-resource/', ResourceRequestCreateView.as_view(), name='request_resource'),
     path('resource-requests/', ResourceRequestListView.as_view(), name='resource_requests'),
+    path('request/success/', TemplateView.as_view(template_name='app/request_success.html'), name='request_success'),
     # path('resources/', ApprovedResourceListView.as_view(), name='resources-list'),
     path('forums/', ForumPostListView.as_view(), name='forum_post_list'),
     path('forums/create/', ForumPostCreateView.as_view(), name='forum_post_create'),
@@ -43,18 +51,44 @@ urlpatterns = [
     # path('comment/create/<int:post_id>/', CommentCreateView.as_view(), name='comment_create'),
     path('forums/<int:pk>/comment/', AddCommentView.as_view(), name='add_comment'),
     path('edit_profile/', UserEditView.as_view(), name='edit_profile'),
-    # path('password/', auth_views.PasswordChangeView.as_view(template_name='registration/change-password.html')),
+    # path('password/', auth_vie
+    # ws.PasswordChangeView.as_view(template_name='registration/change-password.html')),
     path('change_password/', views.PasswordChangeView.as_view(template_name = "registration/password_change.html"), name="change-password"),
     path('password_success/', views.password_success, name="password_success"),
     path('ussd_callback/', ussd_callback, name='ussd_callback'),
-
-    path('password_reset/', auth_views.PasswordResetView.as_view(success_url='/password_reset_done/'), name='password_reset'),
     path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('password_reset/', CustomPasswordResetView.as_view(
+        template_name='registration/password_reset_form.html',
+        success_url='/password_reset_done/',
+        email_template_name='registration/password_reset_email.txt',  
+        html_email_template_name='registration/password_reset_email.html'  
+    ), name='password_reset'),
+
+    # path('accounts/login/', LoginView.as_view(
+    #     authentication_form=LoginFormWithCaptcha,
+    #     template_name='registration/login.html'
+    # ), name='login'),
+
+    # path('captcha/', include('captcha.urls')),
 
 
+
+    # path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    # path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+
+    # path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    # path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+
+    # path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+   
+    # path('login/', CustomLoginView.as_view(), name='login'),
+
+# from django.urls import path
+# from django.contrib.auth import views as auth_views
+
+   
    
 ]
 

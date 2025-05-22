@@ -22,6 +22,8 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('App.urls')),
+    path('captcha/', include('captcha.urls')),
+
     # path('accounts/', include('django.contrib.auth.urls')),
  
 ]

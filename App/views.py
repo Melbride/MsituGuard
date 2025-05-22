@@ -6,13 +6,22 @@ from django.contrib.auth.views import LogoutView, PasswordChangeView
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from .models import Profile, Resource, EmergencyContact,Alert, ResourceRequest, ForumPost, Comment #Post
-from .forms import UserRegistrationForm,  ResourceForm, AlertForm, ProfileForm,  ResourceRequestForm, ForumPostForm,  CommentForm,FormComment, EditProfileForm, PasswordChangingForm 
+from .forms import UserRegistrationForm,  ResourceForm, AlertForm, ProfileForm,  ResourceRequestForm, ForumPostForm,  FormComment, EditProfileForm, PasswordChangingForm 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import FormMixin
 from django.views import generic
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.views import PasswordResetView
+from django.db.models import Q
+from django.http import HttpResponseForbidden
+from django.views.decorators.http import require_POST
+
+
 # from App.models import CustomUser
 # from django.contrib.auth.forms import UserCreationForm
 # from .forms import CustomUserCreationForm
@@ -43,19 +52,22 @@ class UserLogoutView(LogoutView):
     next_page = reverse_lazy('home')
 
 
+# class CustomLoginView(LoginView):
+#     authentication_form = AuthenticationForm
+#     template_name = 'registration/login.html'
+
+
+
 class ResourceListView(ListView):
     model = Resource
     template_name = 'app/resource_list.html'
     context_object_name = 'resources'
 
-
     
     def get_queryset(self):
-        resources =  Resource.objects.filter(is_approved=True).order_by('-user_id')[:10] 
+        resources =  Resource.objects.filter(is_approved=True).order_by('-contributor_id')[:10]
         logger.debug(f'Latest resources retrieved: {resources}')  # Log the alerts
         return resources
-
-
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = Resource
@@ -63,8 +75,21 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
     template_name = 'app/resource_form.html'
     success_url = reverse_lazy('resource_list')
 
+    def dispatch(self, request, *args, **kwargs):
+        # First, ensure user is authenticated
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()  # LoginRequiredMixin handles redirect
+
+        # Then check if user is verified
+        if not request.user.profile.is_verified:
+            messages.warning(request, "You must verify your account before contributing resources.")
+            return redirect('profile_detail')
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
-        form.instance.user = self.request.user
+        form.instance.contributor = self.request.user
+        form.instance.is_approved = False  # Admin will approve manually
         return super().form_valid(form)
 
 
@@ -86,6 +111,18 @@ class ResourceDetailView(DetailView):
     template_name = 'app/resource_detail.html' 
     context_object_name = 'resource'
 
+
+@login_required
+@require_POST
+def request_verification(request):
+    profile = request.user.profile
+    if profile.verification_requested:
+        messages.info(request, "You've already requested verification. Please wait for approval.")
+    else:
+        profile.verification_requested = True
+        profile.save()
+        messages.success(request, "Verification request submitted. Admin will review and verify your account.")
+    return redirect('profile_detail')
 
 class EmergencyContactListView(ListView):
     model = EmergencyContact
@@ -194,7 +231,7 @@ class ResourceRequestCreateView(CreateView):
     model = ResourceRequest
     form_class = ResourceRequestForm
     template_name = 'app/request_resource.html'
-    success_url = reverse_lazy('resource_requests')
+    success_url = reverse_lazy('request_success')
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -205,14 +242,19 @@ class ResourceRequestCreateView(CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
+
 class ResourceRequestListView(LoginRequiredMixin,ListView):
     model = ResourceRequest
     template_name = 'app/resource_requests.html'
     context_object_name = 'requests'
 
     def get_queryset(self):
-        return ResourceRequest.objects.filter(user=self.request.user)
+        return ResourceRequest.objects.filter(user=self.request.user).order_by('-date_requested')
+        
 
+
+class RequestSuccessView(TemplateView):
+    template_name = 'app/request_success.html'
 
 
 class UseRegisterView(generic.CreateView):
@@ -241,6 +283,19 @@ class ForumPostListView(LoginRequiredMixin, ListView):
     context_object_name = 'posts'
     ordering = ['-created_at']
     form_class = ForumPostForm
+
+
+    def forum_post_list(request):
+        query = request.GET.get('q')
+        if query:
+            posts = ForumPost.objects.filter(
+                Q(title__icontains=query) | Q(user__username__icontains=query)
+            ).order_by('-created_at')
+        else:
+            posts = ForumPost.objects.all().order_by('-created_at')
+        
+        return render(request, 'app/forum_post_list.html', {'posts': posts})
+
    
 class ForumPostCreateView(LoginRequiredMixin, CreateView):
     model = ForumPost
@@ -259,7 +314,7 @@ class ForumPostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = CommentForm()
+        context['form'] = FormComment()
         return context
 
 
@@ -270,10 +325,10 @@ class AddCommentView(CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.post_id = self.kwargs['pk']
-
         return super().form_valid(form)
-    success_url = reverse_lazy('home')
 
+    def get_success_url(self):
+        return reverse('forum_post_detail', kwargs={'pk': self.kwargs['pk']}) + '#comments'
 
 class UserEditView(generic.UpdateView):
     form_class = EditProfileForm
@@ -292,6 +347,17 @@ class PasswordChangeView(LoginRequiredMixin, PasswordChangeView):
 
 def password_success(request):
     return render(request, "registration/password_change_success.html")
+
+
+class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
+    template_name = 'registration/password_reset_form.html'
+    email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    success_message = "We've emailed you instructions for setting your password."
+
+    def form_valid(self, form):
+        return super().form_valid(form)
 
 
 
@@ -330,20 +396,20 @@ class ApprovedContributeListView(ListView):
 
     def get_queryset(self):
         approved_contributes = Resource.objects.filter(is_approved=True)
-        logger.debug(f'Approved resources retrieved: {approved_contributes}')  # Log the alerts
+        # logger.debug(f'Approved resources retrieved: {approved_contributes}')  # Log the alerts
         return approved_contributes
 
 
 
 
-# views.py
-from django.contrib.auth.views import PasswordResetView
-from django.shortcuts import redirect
+# # views.py
+# from django.contrib.auth.views import PasswordResetView
+# from django.shortcuts import redirect
 
-class CustomPasswordResetView(PasswordResetView):
-    def form_valid(self, form):
-        # Perform any custom logic here (like logging or additional redirects)
-        return redirect('login_url')  # Redirect to a custom login page
+# class CustomPasswordResetView(PasswordResetView):
+#     def form_valid(self, form):
+#         # Perform any custom logic here (like logging or additional redirects)
+#         return redirect('login_url')  # Redirect to a custom login page
 
 
 

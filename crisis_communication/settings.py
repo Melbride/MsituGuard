@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'App',  # This is the correct way to add your app
     'App.apps.AppConfig',  # This is how to add the AppConfig
+    'captcha',
 ]
 
 
@@ -126,8 +129,8 @@ USE_TZ = True
 
 # settings.py
 
-AFRICASTALKING_USERNAME = 'sandbox'  # Replace with your Africa's Talking username
-AFRICASTALKING_API_KEY = 'atsk_eef06dd8b22f21b0b0c8bff1052725a83c40db660c6d6b2d11f06fbca788a83a28551eb7'  # Replace with your Africa's Talking API key
+AFRICASTALKING_USERNAME = 'sandbox'  
+AFRICASTALKING_API_KEY = 'atsk_eef06dd8b22f21b0b0c8bff1052725a83c40db660c6d6b2d11f06fbca788a83a28551eb7' 
 
 CSRF_TRUSTED_ORIGINS = ['https://9ebb-102-0-14-102.ngrok-free.app']
 
@@ -155,11 +158,17 @@ LOGIN_URL = 'login'
 
 # settings.py
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 
 
