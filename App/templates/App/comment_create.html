@@ -1,11 +1,6 @@
-<!-- comment_form.html -->
-<<<<<<< HEAD
-{% extends 'app/base2.html' %}\
-=======
 {% extends 'app/base.html' %}
 {% load static %}
 
->>>>>>> 1ece88c (Updated features and added new functionality)
 {% block content %}
 <form method="post" action="{% url 'comment_create' %}">
     {% csrf_token %}
@@ -13,5 +8,4 @@
     <textarea name="content" rows="4" cols="50"></textarea><br>
     <input type="submit" value="Add Comment">
 </form>
-
 {% endblock %}

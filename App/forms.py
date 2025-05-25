@@ -19,14 +19,19 @@ class UserRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     location = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    # captcha = CaptchaField()
+    bio = forms.CharField(
+        required=False, 
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        label="Bio (optional)"
+    )
+    captcha = CaptchaField()
     # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
 
 
     class Meta:
         model = User
-        fields = ['username', 'email',  'phoneNumber',  'first_name', 'last_name' ,'location']
+        fields = ['username', 'email',    'first_name', 'last_name', 'bio']
 
 
     def clean(self):
@@ -38,20 +43,28 @@ class UserRegistrationForm(UserCreationForm):
             raise forms.ValidationError("passwords do not match")
         return cleaned_data
     
-    
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.location = self.cleaned_data['location']
 
         if commit:
             user.save()
 
-            profile, created = Profile.objects.get_or_create(user=user)
-
-            if created:
-                profile.phoneNumber = self.cleaned_data['phoneNumber']
-                profile.location = self.cleaned_data['location']
-                profile.save()  
+            # Always update or create profile data
+            Profile.objects.update_or_create(
+                user=user,
+                defaults={
+                    'phoneNumber': self.cleaned_data['phoneNumber'],
+                    'location': self.cleaned_data['location'],
+                    'email': self.cleaned_data['email'],
+                    'first_name': self.cleaned_data['first_name'],
+                    'last_name': self.cleaned_data['last_name'],
+                    'bio': self.cleaned_data.get('bio', ''),
+                }
+            )
 
         return user
 
@@ -65,7 +78,6 @@ class LoginForm(AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
     )
-    captcha = CaptchaField()
 
 
 
@@ -75,39 +87,54 @@ class ResourceForm(forms.ModelForm):
         fields = ['resource_type', 'quantity', 'description', 'available', 'phoneNumber', 'location']
 
         
-
-
 class AlertForm(forms.ModelForm):
+    emergency_type = forms.ChoiceField(
+        choices=[('', 'Please select an emergency type')] + Alert.EMERGENCY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
     class Meta:
         model = Alert
-        fields = ['title', 'description', 'location', 'is_active', 'visibility']
+        fields = ['emergency_type', 'title', 'description', 'location', 'is_active', 'visibility', 'phoneNumber']
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
+            'emergency_type': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'cols': 40
+            }),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'visibility': forms.Select(attrs={'class': 'form-control'}),
+            'phoneNumber': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Capture user from the view
+        super().__init__(*args, **kwargs)
+        if user and hasattr(user, 'profile'):
+            self.fields['phoneNumber'].initial = user.profile.phoneNumber
 
 
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['location', 'email']
-        
+        fields = ['first_name', 'last_name', 'phoneNumber', 'location', 'email', 'bio', 'profile_picture']
+
         widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'phoneNumber': forms.TextInput(attrs={'class': 'form-control'}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-    #         'phoneNumber': forms.TextInput(  
-    #             attrs={
-    #                 'class': 'form-control',
-    #                 'placeholder': 'Enter your phone number' 
-    #             }
-    #         )
-         }
-    # def clean_phoneNumber(self):
-    #     phone_number = self.cleaned_data.get('phoneNumber')
-    #     if not phone_number.isdigit():
-    #         raise forms.ValidationError("Only numeric values are allowed.")
-    #     return phone_number
+            'bio': forms.Textarea(attrs={'class': 'form-control'}),
+        }
 
-
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
 
 
 class SuperuserProfileForm(ProfileForm):
@@ -124,11 +151,11 @@ class ResourceRequestForm(forms.ModelForm):
         ('Other', 'Other'),
     ]
     
-    resource_type = forms.ChoiceField(choices=RESOURCE_CHOICES, label="Resource Type")
+    help_type = forms.ChoiceField(choices=RESOURCE_CHOICES, label="Help Type")
 
     class Meta:
         model = ResourceRequest
-        fields = ['resource_type', 'description', 'phoneNumber', 'location']
+        fields = ['help_type', 'description', 'phoneNumber', 'location']
         widgets = {
             'description': forms.Textarea(attrs={
                 'placeholder': 'Briefly describe your situation or what kind of assistance would help.',

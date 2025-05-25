@@ -49,9 +49,10 @@
         <h1 class="alert-title">{{ alert.title }}</h1>
         <p class="alert-description">{{ alert.description }}</p>
         <p class="alert-location"><strong>Location:</strong> {{ alert.location }}</p>
+        {% comment %} <p class="alert-phoneNumber"><strong>phone Number:</strong> {{ alert.phoneNumber }}</p> {% endcomment %}
         <p class="alert-date"><strong>Date Created:</strong> {{ alert.date_created|date:"F d, Y H:i" }}</p>
-        <p class="alert-status"><strong>Status:</strong> {% if alert.is_active %}Active{% else %}Inactive{% endif %}</p>
-        <p class="alert-visibility"><strong>Visibility:</strong> {{ alert.get_visibility_display }}</p>
+        {% comment %} <p class="alert-status"><strong>Status:</strong> {% if alert.is_active %}Active{% else %}Inactive{% endif %}</p> {% endcomment %}
+        {% comment %} <p class="alert-visibility"><strong>Visibility:</strong> {{ alert.get_visibility_display }}</p> {% endcomment %}
         <div class="alert-footer">
             <a href="{% url 'latest_alerts' %}" class="back-link">Back to Alerts</a>
         </div>

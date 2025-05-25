@@ -30,7 +30,7 @@ class ResourceAdmin(admin.ModelAdmin):
 
 # admin.site.register(Resource, ResourceAdmin)
 class ResourceRequestAdmin(admin.ModelAdmin):
-    list_display = ('user', 'resource_type', 'description', 'location', 'phoneNumber') 
+    list_display = ('user', 'help_type', 'description', 'location', 'phoneNumber') 
 
 
 

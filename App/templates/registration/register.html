@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-{% extends 'App/base2.html' %}
-=======
 {% extends 'app/base.html' %}
 {% load static %}
->>>>>>> 1ece88c (Updated features and added new functionality)
 {% block title %}Register{% endblock %}
 
 {% block content %}
@@ -19,8 +15,8 @@
 
         <form method="POST" class="register-form">
             {% csrf_token %}
-            {{ form.as_p }}  
-            <!-- Password field visibility toggle with compact styling -->
+            {{ form.as_p }}
+
             <div class="password-toggle">
                 <button type="button" onclick="togglePasswords()" class="see-button">See</button>
             </div>

@@ -1,59 +1,62 @@
-<<<<<<< HEAD
-{% extends 'App/base2.html' %}
-=======
 {% extends 'app/base.html' %}
->>>>>>> 1ece88c (Updated features and added new functionality)
 {% load static %}
+
 {% block title %}Login{% endblock %}
 
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
 <div class="login">
     <div class="login-inner">
-        <div>
-            <h1>Login</h1>
-            <div class="separator"></div>
-        </div>
-    
+        <h1>Login</h1>
+        <div class="separator"></div>
+
         <div class="mb-2">
-            <form method="POST" class="login-form">
+            <form method="POST" action="{% url 'login' %}" class="login-form">
+            
                 {% csrf_token %}
-                
-                    {% comment %} {% if form.errors %}
-                        <p style="color: red;">Wrong username or password. Try again.</p>
-                    {% endif %} {% endcomment %}
+                {{ form.captcha }} 
+                {% if form.errors %}
+                    <p style="color: red;">Wrong username or password. Try again.</p>
+                {% endif %}
 
-                <!-- Render form fields directly, or add custom labels if needed -->
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+                <p>
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                </p>
 
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <button type="button" onclick="togglePassword()">See</button>
+                <p>
+                    {{ form.password.label_tag }}
+                    {{ form.password }}
+                    <button type="button" onclick="togglePassword()">See</button>
+                </p>
 
-                <button class="btn btn-secondary">Login</button>
+                <p>
+                    {% comment %} {{ form.captcha.label_tag }} {% endcomment %}
+                    {% comment %} {{ form.captcha }} {% endcomment %}
+                </p>
 
+                <button class="btn btn-secondary" type="submit">Login</button>
             </form>
-                {{ form.media }}
 
-          
+            {{ form.media }}
+
             <p><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
-
         </div>
-        
+
         <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
     </div>
 </div>
 
 <script>
 function togglePassword() {
-  var passwordField = document.getElementById('password');
-  if (passwordField.type === 'password') {
-    passwordField.type = 'text';
-  } else {
-    passwordField.type = 'password';
-  }
+    var passwordInput = document.querySelector("input[name='password']");
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+    } else {
+        passwordInput.type = 'password';
+    }
 }
 </script>
 

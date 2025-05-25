@@ -6,7 +6,7 @@ from django.contrib.auth.views import LogoutView, PasswordChangeView
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from .models import Profile, Resource, EmergencyContact,Alert, ResourceRequest, ForumPost, Comment #Post
-from .forms import UserRegistrationForm,  ResourceForm, AlertForm, ProfileForm,  ResourceRequestForm, ForumPostForm,  FormComment, EditProfileForm, PasswordChangingForm 
+from .forms import UserRegistrationForm,  ResourceForm, AlertForm, ProfileForm,  ResourceRequestForm, ForumPostForm,  FormComment, EditProfileForm, PasswordChangingForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -20,6 +20,9 @@ from django.contrib.auth.views import PasswordResetView
 from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.views.decorators.http import require_POST
+from .forms import UserForm, ProfileForm
+
+# from .forms import CustomLoginForm
 
 
 # from App.models import CustomUser
@@ -129,7 +132,6 @@ class EmergencyContactListView(ListView):
     template_name = 'app/contact_list.html'
     context_object_name = 'contacts'
     
-
 class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
     model = Profile
     form_class = ProfileForm
@@ -141,12 +143,18 @@ class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form()
+        if 'form' not in context:
+            context['form'] = self.get_form()
         return context
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(instance=self.get_object())
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        form = self.get_form(request.POST, instance=self.object)
+        form = self.get_form_class()(request.POST, request.FILES, instance=self.object)
         if form.is_valid():
             return self.form_valid(form)
         else:
@@ -155,11 +163,7 @@ class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
     def form_valid(self, form):
         form.save()
         messages.success(self.request, "Profile updated successfully.")
-        return redirect(self.get_success_url())
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form) 
+        return super().form_valid(form)
         
 
 class AlertListView(ListView):
@@ -186,11 +190,20 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
     model = Alert
     form_class = AlertForm
     template_name = 'app/alert_form.html'
-    success_url = reverse_lazy('latest_alerts')
-
+    # success_url = reverse_lazy('latest_alerts')
+    def get_initial(self):
+        initial = super().get_initial()
+        if hasattr(self.request.user, 'profile'):
+            initial['phoneNumber'] = self.request.user.profile.phoneNumber
+        return initial
+        
     def form_valid(self, form):
-        form.instance.user = self.request.user 
-        return super().form_valid(form)
+        form.instance.user = self.request.user
+        self.object = form.save()
+        messages.success(self.request, "Your alert has been submitted successfully. We will get to it.")
+        return render(self.request, self.template_name, {
+            'submitted': True  # Pass a flag to the template
+        })
 
 class AlertUpdateView(UpdateView):
     model = Alert
@@ -329,14 +342,34 @@ class AddCommentView(CreateView):
 
     def get_success_url(self):
         return reverse('forum_post_detail', kwargs={'pk': self.kwargs['pk']}) + '#comments'
-
-class UserEditView(generic.UpdateView):
-    form_class = EditProfileForm
+class UserEditView(UpdateView):
+    model = User
+    form_class = UserForm
     template_name = 'registration/edit_profile.html'
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('profile_detail')
 
-    def get_object(self):
+    def get_object(self, queryset=None):
+        # Return the logged-in user object
         return self.request.user
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.method == 'POST':
+            data['profile_form'] = ProfileForm(self.request.POST, instance=self.request.user.profile)
+        else:
+            data['profile_form'] = ProfileForm(instance=self.request.user.profile)
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        profile_form = context['profile_form']
+        if profile_form.is_valid():
+            self.object = form.save()
+            profile_form.instance = self.object.profile
+            profile_form.save()
+            return redirect(self.success_url)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 
 class PasswordChangeView(LoginRequiredMixin, PasswordChangeView):
@@ -399,7 +432,9 @@ class ApprovedContributeListView(ListView):
         # logger.debug(f'Approved resources retrieved: {approved_contributes}')  # Log the alerts
         return approved_contributes
 
-
+# class CustomLoginView(LoginView):
+#     form_class = CustomLoginForm
+#     template_name = 'registration/login.html'
 
 
 # # views.py

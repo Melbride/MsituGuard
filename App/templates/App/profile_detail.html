@@ -1,48 +1,165 @@
-<!-- App/templates/App/profile_detail.html -->
-
-{% extends 'app/base2.html' %}
+{% extends "app/base.html" %}
 {% block content %}
-<!-- Display Django messages (e.g., from contribute view) -->
-{% if messages %}
-  <div class="messages">
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
 
-    <h2>{{ user.username }} Profile Details</h2>
-    <p>Username: {{ user.username }}</p>
-    <p>First name: {{ user.first_name }}</p>
-    <p>Last name: {{ user.last_name }}</p>
-    <p>Email: {{ user.email }}</p>
-    <p>Last login: {{ user.last_login }}</p>
-    <p>Is superuser: {% if user.is_superuser %} Yes {% else %} No {% endif %}</p>
-    <p>Is staff: {% if user.is_staff %} Yes {% else %} No {% endif %}</p>
-    <p>Is active: {% if user.is_active %} Yes {% else %} No {% endif %}</p>
-    <p>Date joined: {{ user.date_joined }}</p>
-    <p>Phone Number: {{ user.profile.phoneNumber }}</p>
-    <p>Location: {{ user.profile.location }}</p>
+<style>
+/* Heading above the card */
+.profile-heading {
+    text-align: center;
+    font-size: 2.5em;
+    margin: 40px 0 20px 0;
+    color: #2c3e50; /* Dark text */
+    font-weight: 700;
+}
 
+/* Profile card container */
+.profile-card {
+    background-color: rgb(60, 135, 115);
+    padding: 30px 40px;
+    color: white;
+    border-radius: 10px;
+    margin: 0 auto 40px auto;
+    max-width: 600px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+}
 
-<!-- Account verification status -->
-{% if not user.profile.is_verified %}
-    <div class="alert alert-warning mt-3">
+/* Spacing and alignment for each profile field */
+.profile-field {
+    margin-bottom: 18px;
+    font-size: 1.1em;
+}
+
+/* Label and value inline with uniform spacing */
+.profile-label {
+    font-weight: 600;
+    display: inline-block;
+    width: 130px;  /* fixed width for uniform alignment */
+    color: #d0e8d0; /* slightly lighter label color */
+}
+
+.profile-value {
+    display: inline-block;
+    color: #f0f9f0; /* value text color */
+}
+
+/* Verified message styling */
+.verified-message {
+    color: #b6f7a4;  /* bright light green */
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #004d3a;
+    color: white;
+    padding: 10px 25px;
+    margin-right: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background-color: #006f55;
+}
+
+.alert-warning {
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+    padding: 15px 20px;
+    border-radius: 8px;
+    background-color: rgb(60, 135, 115);
+    color: #006f55;
+    font-weight: 600;
+    text-align: center;
+}
+</style>
+
+<!-- Separate heading -->
+<h2 class="profile-heading">{{ object.user.username }} Profile Details</h2>
+
+<!-- Profile card -->
+<div class="profile-card">
+    <div class="profile-field">
+        <span class="profile-label">Username:</span>
+        <span class="profile-value">{{ object.user.username }}</span>
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">First name:</span>
+        <span class="profile-value">{{ object.first_name }}</span>
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Last name:</span>
+        <span class="profile-value">{{ object.last_name }}</span>
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Email:</span>
+        <span class="profile-value">{{ object.email }}</span>
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Last login:</span>
+        <span class="profile-value">{{ object.user.last_login }}</span>
+    </div>
+    {% comment %} <div class="profile-field">
+        <span class="profile-label">Is superuser:</span>
+        <span class="profile-value">{% if object.user.is_superuser %}Yes{% else %}No{% endif %}</span>
+    </div> {% endcomment %}
+    {% comment %} <div class="profile-field">
+        <span class="profile-label">Is staff:</span>
+        <span class="profile-value">{% if object.user.is_staff %}Yes{% else %}No{% endif %}</span>
+    </div> {% endcomment %}
+    {% comment %} <div class="profile-field">
+        <span class="profile-label">Is active:</span>
+        <span class="profile-value">{% if object.user.is_active %}Yes{% else %}No{% endif %}</span>
+    </div> {% endcomment %}
+    <div class="profile-field">
+        <span class="profile-label">Date joined:</span>
+        <span class="profile-value">{{ object.user.date_joined }}</span>
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Location:</span>
+        <span class="profile-value">{{ object.location }}</span>
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Phone Number:</span>
+        <span class="profile-value">{{ object.phoneNumber }}</span>
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Bio:</span>
+        <span class="profile-value">{{ object.bio }}</span>
+    </div>
+</div>
+
+<!-- Account verification -->
+{% if not object.is_verified %}
+    <div class="alert-warning mt-3">
         <p>Your account is not verified. Please verify your account to contribute resources or post alerts.</p>
         <form method="post" action="{% url 'request_verification' %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-warning">Request Verification</button>
+            <button type="submit" class="btn-primary">Request Verification</button>
         </form>
     </div>
 {% else %}
-    <p class="text-success mt-3">Your account is verified ✅</p>
+    <div class="verified-message">✅ Your account is verified.</div>
 {% endif %}
 
-    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
-    <a href="{% url 'password_change' %}" class="btn btn-primary">Change Password</a>
+<!-- Buttons -->
+<div style="max-width:600px; margin: 0 auto 40px auto; text-align:center;">
+    <a href="{% url 'edit_profile' %}" class="btn-primary">Edit Profile</a>
+    <a href="{% url 'password_change' %}" class="btn-primary">Change Password</a>
+</div>
 
-    {% include './footer.html' %}
+{% include './footer.html' %}
 
 {% endblock %}

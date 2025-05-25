@@ -7,6 +7,8 @@ from django.contrib.auth import views as auth_views
 from .views import UseRegisterView #CustomLoginView
 from .views import CustomPasswordResetView
 from .views import request_verification  
+# from .forms import CustomLoginForm
+from django.contrib.auth.views import LoginView
 
 # from .forms import LoginFormWithCaptcha
 
@@ -66,12 +68,9 @@ urlpatterns = [
         html_email_template_name='registration/password_reset_email.html'  
     ), name='password_reset'),
 
-    # path('accounts/login/', LoginView.as_view(
-    #     authentication_form=LoginFormWithCaptcha,
-    #     template_name='registration/login.html'
-    # ), name='login'),
+    path('accounts/login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
 
-    # path('captcha/', include('captcha.urls')),
+
 
 
 

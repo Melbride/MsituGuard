@@ -1,41 +1,60 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Footer</title>
+  <style>
+    footer {
+      width: 100%;
+      padding: 20px 15px;
+      background: #000;
+      margin-top: 20px;
+      box-sizing: border-box;
+      /* Uncomment below to fix footer to bottom */
+      /* position: fixed; 
+         bottom: 0;
+         left: 0;
+      */
+    }
+
+    footer h3,
+    footer p {
+      color: white;
+      margin: 0 0 10px 0;
+      font-weight: normal;
+    }
+
+    ul.email {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    ul.email li {
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+
+    ul.email li a {
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    ul.email li a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <style>
-
-        footer {
-            width: 100%;
-            height: 100%; /* Let the footer take all available space */
-
-          padding: 20px 15px;
-          background: black;
-          margin-top: 20px;
-        }
-
-        footer h3, p {
-            color: white;
-            
-        }
-    </style>
-    
-        <footer>
-            
-            <h3>Support and Contact Information</h3>
-            <p>Contact Us</p>
-            <ul class="email">
-                <li>Email: support@crisisplatform.org</li>
-                <li>Phone: +254 790 117 305</li>
-                <li>Address: 123 Crisis Avenue, Support City</li>
-            </ul>
-        </footer>
-    
+  <footer>
+    <h3>Support and Contact Information</h3>
+    <p>Contact Us</p>
+    <ul class="email">
+      <li>Email: <a href="mailto:support@crisisplatform.org">support@crisisplatform.org</a></li>
+      <li>Phone: <a href="tel:+254790117305">+254 790 117 305</a></li>
+      <li>Address: 123 Crisis Avenue, Support City</li>
+    </ul>
+  </footer>
 </body>
 </html>
-
-    

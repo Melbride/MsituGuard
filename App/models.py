@@ -14,7 +14,7 @@ class Profile(models.Model):
         default=' ',
         validators=[RegexValidator(regex=r'^\d*$', message='Only numeric values are allowed')]
     )
-    location = models.CharField(max_length=200, default='')
+    location = models.CharField(max_length=100, blank=True, default=' ')
     bio = models.TextField(default='Bio information not provided')
     email = models.EmailField(default='example@example.com')
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
@@ -34,13 +34,25 @@ class Profile(models.Model):
 class Alert(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)   
     title = models.CharField(max_length=250)
+    EMERGENCY_CHOICES = [
+        ('fire', 'Fire'),
+        ('flood', 'Flood'),
+        ('earthquake', 'Earthquake'),
+        ('medical', 'Medical'),
+        ('other', 'Other'),
+    ]
+    emergency_type = models.CharField(max_length=20, choices=EMERGENCY_CHOICES, default='other')
     description = models.TextField()
     location = models.CharField(max_length=200)
     date_created = models.DateTimeField(auto_now_add=True)
     is_approved = models.BooleanField(default=False)  
     is_active = models.BooleanField(default=True)
     visibility = models.CharField(max_length=20, choices=[('public', 'Public'), ('private', 'Private')], default='public')
-
+    phoneNumber = models.CharField(
+        default = ' ',
+        max_length=17,
+        validators=[RegexValidator(regex=r'^\d+$', message='Only numeric values are allowed')]
+    )
 
     def __str__(self):
         return self.title 
@@ -92,7 +104,7 @@ class ResourceRequest(models.Model):
         ('rejected', 'Rejected'),
     ]
 
-    RESOURCE_TYPES = [
+    HELP_TYPES = [
         ('Food', 'Food'),
         ('Clothes', 'Clothes'),
         ('Shelter', 'Shelter'),
@@ -102,7 +114,7 @@ class ResourceRequest(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    resource_type = models.CharField(max_length=100, choices=RESOURCE_TYPES)
+    help_type = models.CharField(max_length=100, choices=HELP_TYPES)
     description = models.TextField()
     quantity_requested = models.PositiveIntegerField(default=1)
     date_requested = models.DateTimeField(auto_now_add=True)
@@ -120,7 +132,7 @@ class ResourceRequest(models.Model):
     location = models.CharField(max_length=200, default='')
 
     def __str__(self):
-        return f"User: {self.user.username}, Resource Type: {self.resource_type}"
+        return f"User: {self.user.username}, Help Type: {self.help_type}"
     
 
 class ForumPost(models.Model):
