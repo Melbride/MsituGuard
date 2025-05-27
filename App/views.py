@@ -34,7 +34,7 @@ from .forms import UserForm, ProfileForm
 
 class HomeView(TemplateView):
     # model = Profile
-    template_name = 'app/home.html'
+    template_name = 'App/home.html'
 
 
     def get_context_data(self, **kwargs):
@@ -63,7 +63,7 @@ class UserLogoutView(LogoutView):
 
 class ResourceListView(ListView):
     model = Resource
-    template_name = 'app/resource_list.html'
+    template_name = 'App/resource_list.html'
     context_object_name = 'resources'
 
     
@@ -75,7 +75,7 @@ class ResourceListView(ListView):
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = Resource
     form_class = ResourceForm
-    template_name = 'app/resource_form.html'
+    template_name = 'App/resource_form.html'
     success_url = reverse_lazy('resource_list')
 
     def dispatch(self, request, *args, **kwargs):
@@ -99,19 +99,19 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
 class ResourceUpdateView(LoginRequiredMixin, UpdateView):
     model = Resource
     form_class = ResourceForm
-    template_name = 'app/resource_form.html'
+    template_name = 'App/resource_form.html'
     success_url = reverse_lazy('resource_list')
 
 
 class ResourceDeleteView(LoginRequiredMixin, DeleteView):
     model = Resource
-    template_name = 'app/resource_confirm_delete.html'
+    template_name = 'App/resource_confirm_delete.html'
     success_url = reverse_lazy('resource_list')
 
 
 class ResourceDetailView(DetailView):
     model = Resource
-    template_name = 'app/resource_detail.html' 
+    template_name = 'App/resource_detail.html' 
     context_object_name = 'resource'
 
 
@@ -129,13 +129,13 @@ def request_verification(request):
 
 class EmergencyContactListView(ListView):
     model = EmergencyContact
-    template_name = 'app/contact_list.html'
+    template_name = 'App/contact_list.html'
     context_object_name = 'contacts'
     
 class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
     model = Profile
     form_class = ProfileForm
-    template_name = 'app/profile_detail.html'
+    template_name = 'App/profile_detail.html'
     success_url = reverse_lazy('profile_detail')
 
     def get_object(self, queryset=None):
@@ -168,7 +168,7 @@ class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
 class AlertListView(ListView):
     model = Alert
-    template_name = 'app/alert_list.html'
+    template_name = 'App/alert_list.html'
     context_object_name = 'alerts'
 
     def get_queryset(self):
@@ -189,7 +189,7 @@ class AlertListView(ListView):
 class AlertCreateView(LoginRequiredMixin, CreateView):
     model = Alert
     form_class = AlertForm
-    template_name = 'app/alert_form.html'
+    template_name = 'App/alert_form.html'
     # success_url = reverse_lazy('latest_alerts')
     def get_initial(self):
         initial = super().get_initial()
@@ -208,7 +208,7 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
 class AlertUpdateView(UpdateView):
     model = Alert
     form_class = AlertForm
-    template_name = 'app/alert_form.html'
+    template_name = 'App/alert_form.html'
     success_url = reverse_lazy('alert_list')
 
     def get_queryset(self):
@@ -217,7 +217,7 @@ class AlertUpdateView(UpdateView):
         
 class LatestAlertsView(ListView):
     model = Alert
-    template_name = 'app/latest_alerts.html'  
+    template_name = 'App/latest_alerts.html'  
     context_object_name = 'alerts'
 
     def get_queryset(self):
@@ -229,7 +229,7 @@ class LatestAlertsView(ListView):
 
 class AlertDetailView(DetailView):
     model = Alert
-    template_name = 'app/alert_detail.html'
+    template_name = 'App/alert_detail.html'
     context_object_name = 'alert'
 
 @login_required
@@ -243,7 +243,7 @@ def remove_profile_picture(request):
 class ResourceRequestCreateView(CreateView):
     model = ResourceRequest
     form_class = ResourceRequestForm
-    template_name = 'app/request_resource.html'
+    template_name = 'App/request_resource.html'
     success_url = reverse_lazy('request_success')
 
     def dispatch(self, request, *args, **kwargs):
@@ -258,7 +258,7 @@ class ResourceRequestCreateView(CreateView):
 
 class ResourceRequestListView(LoginRequiredMixin,ListView):
     model = ResourceRequest
-    template_name = 'app/resource_requests.html'
+    template_name = 'App/resource_requests.html'
     context_object_name = 'requests'
 
     def get_queryset(self):
@@ -267,7 +267,7 @@ class ResourceRequestListView(LoginRequiredMixin,ListView):
 
 
 class RequestSuccessView(TemplateView):
-    template_name = 'app/request_success.html'
+    template_name = 'App/request_success.html'
 
 
 class UseRegisterView(generic.CreateView):
@@ -292,7 +292,7 @@ class UseRegisterView(generic.CreateView):
 
 class ForumPostListView(LoginRequiredMixin, ListView):
     model = ForumPost
-    template_name = 'app/forum_post_list.html'
+    template_name = 'App/forum_post_list.html'
     context_object_name = 'posts'
     ordering = ['-created_at']
     form_class = ForumPostForm
@@ -307,13 +307,13 @@ class ForumPostListView(LoginRequiredMixin, ListView):
         else:
             posts = ForumPost.objects.all().order_by('-created_at')
         
-        return render(request, 'app/forum_post_list.html', {'posts': posts})
+        return render(request, 'App/forum_post_list.html', {'posts': posts})
 
    
 class ForumPostCreateView(LoginRequiredMixin, CreateView):
     model = ForumPost
     form_class = ForumPostForm
-    template_name = 'app/forum_post_create.html'
+    template_name = 'App/forum_post_create.html'
     success_url = reverse_lazy('forum_post_list')
 
     def form_valid(self, form):
@@ -322,7 +322,7 @@ class ForumPostCreateView(LoginRequiredMixin, CreateView):
 
 class ForumPostDetailView(DetailView):
     model = ForumPost
-    template_name = 'app/forum_post_detail.html'
+    template_name = 'App/forum_post_detail.html'
     context_object_name = 'post'
 
     def get_context_data(self, **kwargs):
@@ -334,7 +334,7 @@ class ForumPostDetailView(DetailView):
 class AddCommentView(CreateView):
     model = Comment
     form_class = FormComment
-    template_name = 'app/add_comment.html'
+    template_name = 'App/add_comment.html'
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.post_id = self.kwargs['pk']
@@ -397,7 +397,7 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
 class profile(LoginRequiredMixin, generic.View):
     model = User
     login_url = 'login'
-    template_name = "app/profile.html"
+    template_name = "App/profile.html"
 
     def get(self, request, user_name):
         user_related_data = User.objects.filter(author__username=user_name)[:6]
@@ -411,7 +411,7 @@ class profile(LoginRequiredMixin, generic.View):
 
 class ApprovedAlertListView(ListView):
     model = Alert
-    template_name = 'app/approved_alerts.html'  # The template where alerts will be rendered
+    template_name = 'App/approved_alerts.html'  # The template where alerts will be rendered
     context_object_name = 'approved_alerts'
 
     def get_queryset(self):
@@ -424,7 +424,7 @@ class ApprovedAlertListView(ListView):
 
 class ApprovedContributeListView(ListView):
     model = Resource
-    template_name = 'app/approved_contributes.html'  # The template where alerts will be rendered
+    template_name = 'App/approved_contributes.html'  # The template where alerts will be rendered
     context_object_name = 'approved_contributes'
 
     def get_queryset(self):
