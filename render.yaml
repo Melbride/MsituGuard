@@ -2,7 +2,7 @@ services:
   - type: web
     name: CrisisConnect
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: ./build.sh
     startCommand: gunicorn crisis_communication.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
