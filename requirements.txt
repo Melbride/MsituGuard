@@ -52,6 +52,7 @@ google-auth==2.32.0
 google-auth-httplib2==0.2.0
 google-pasta==0.2.0
 googleapis-common-protos==1.63.2
+gunicorn==21.2.0
 grpcio==1.65.4
 h11==0.14.0
 h5py==3.11.0
