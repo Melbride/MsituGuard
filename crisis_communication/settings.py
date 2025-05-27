@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-a#((2n(2x!ytaj+a0#&y%jn!l!+9k9_v#=qg&zk3pq#m1pt6er
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['9ebb-102-0-14-102.ngrok-free.app','127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com']
 
 
 
