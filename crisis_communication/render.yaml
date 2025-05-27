@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: CrisisConnect-Platform
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn crisis_communication.wsgi

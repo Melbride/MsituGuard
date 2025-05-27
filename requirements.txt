@@ -143,7 +143,6 @@ python-on-whales==0.71.0
 pytube==15.0.0
 pytz==2024.1
 PyWavelets==1.7.0
-pywin32==306
 pywinpty==2.0.13
 PyYAML==6.0.1
 pyzmq==26.0.2
