@@ -45,7 +45,7 @@ urlpatterns = [
     path('approved-contributes/', ApprovedContributeListView.as_view(), name='approved_contributes'),
     path('request-resource/', ResourceRequestCreateView.as_view(), name='request_resource'),
     path('resource-requests/', ResourceRequestListView.as_view(), name='resource_requests'),
-    path('request/success/', TemplateView.as_view(template_name='app/request_success.html'), name='request_success'),
+    path('request/success/', TemplateView.as_view(template_name='App/request_success.html'), name='request_success'),
     # path('resources/', ApprovedResourceListView.as_view(), name='resources-list'),
     path('forums/', ForumPostListView.as_view(), name='forum_post_list'),
     path('forums/create/', ForumPostCreateView.as_view(), name='forum_post_create'),
