@@ -98,9 +98,7 @@ body {
                             <a class="nav-link" href="{% url 'forum_post_list' %}">Forums</a>
                         </li>
                         
-                        <li>
-                            <a class="nav-link" href="{% url 'contact_list' %}">Contacts</a>
-                        </li>
+
     
                         
                     </ul>
@@ -150,7 +148,7 @@ body {
         {% endblock %}
     </div>
 
-
+    {% include 'App/footer.html' %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

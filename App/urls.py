@@ -1,5 +1,6 @@
 
 from django.urls import path, include
+from django.shortcuts import redirect
 from . import views
 from .views import ussd_callback
 
@@ -14,7 +15,7 @@ from django.contrib.auth.views import LoginView
 
 
 from .views import(HomeView,   UserLogoutView, ResourceListView, ResourceCreateView,
-                   ResourceUpdateView, ResourceDeleteView, EmergencyContactListView, ProfileDetailView, 
+                   ResourceUpdateView, ResourceDeleteView, ProfileDetailView, 
                    ResourceDetailView, AlertListView, AlertCreateView, AlertUpdateView, AlertDetailView,
                    LatestAlertsView, ResourceRequestCreateView, ResourceRequestListView,
                    ForumPostListView, ForumPostCreateView, ForumPostDetailView,  AddCommentView, UserEditView, ApprovedAlertListView,
@@ -31,7 +32,7 @@ urlpatterns = [
     path('resource/edit/<int:pk>/', ResourceUpdateView.as_view(), name='resource_update'),
     path('resource/delete/<int:pk>/', ResourceDeleteView.as_view(), name='resource_delete'),
     path('resources/<int:pk>/', ResourceDetailView.as_view(), name='resource_detail'),
-    path('contacts/', EmergencyContactListView.as_view(), name='contact_list'),
+
     path('profile/', ProfileDetailView.as_view(), name='profile_detail'),
     path('request-verification/', request_verification, name='request_verification'),
     # path('profile/remove_picture/', remove_profile_picture, name='remove_profile_picture'),
@@ -69,6 +70,9 @@ urlpatterns = [
     ), name='password_reset'),
 
     path('accounts/login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
+    
+    # Redirect old contacts URL to home page footer
+    path('contacts/', lambda request: redirect('/#footer-contact')),
 
 
 

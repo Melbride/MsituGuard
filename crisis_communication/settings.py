@@ -169,12 +169,18 @@ LOGIN_REDIRECT_URL = '/'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 
+# Gmail SMTP Configuration - Real email delivery
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='melbrideb@gmail.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_HOST_USER = 'melbrideb@gmail.com'
+EMAIL_HOST_PASSWORD = 'jqplujcnekpbemvl'  # Your Gmail App Password
+DEFAULT_FROM_EMAIL = 'CrisisConnect <melbrideb@gmail.com>'
+SERVER_EMAIL = 'melbrideb@gmail.com'
+
+# Fallback to console if needed
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

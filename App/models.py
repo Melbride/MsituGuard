@@ -8,6 +8,17 @@ from django.dispatch import receiver
 
 # Create your models here.
 class Profile(models.Model):
+    ACCOUNT_TYPES = [
+        ('community', 'Community Member'),
+        ('donor', 'Donor/Supporter'),
+    ]
+    
+    DONOR_TIERS = [
+        ('basic', 'Basic Supporter - $5/month'),
+        ('standard', 'Standard Donor - $10/month'),
+        ('premium', 'Premium Supporter - $25/month'),
+    ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phoneNumber = models.CharField(
         max_length=17,
@@ -22,8 +33,36 @@ class Profile(models.Model):
     last_name = models.CharField(max_length=100, default='')
     is_verified = models.BooleanField(default=False)
     verification_requested = models.BooleanField(default=False)
+    
+    # New fields for monetization
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES, default='community')
+    donor_tier = models.CharField(max_length=20, choices=DONOR_TIERS, blank=True, null=True)
+    monthly_contribution = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_donated = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    donor_since = models.DateTimeField(blank=True, null=True)
+    
+    @property
+    def is_donor(self):
+        return self.account_type == 'donor'
+    
+    @property
+    def donor_badge(self):
+        # Only show badge if they've actually contributed money
+        if not self.is_donor or self.total_donated <= 0:
+            return None
+        badges = {
+            'basic': '🥉 Basic Supporter',
+            'standard': '🥈 Community Donor', 
+            'premium': '🥇 Premium Supporter'
+        }
+        return badges.get(self.donor_tier, '💝 Supporter')
+    
+    @property
+    def is_active_donor(self):
+        """Check if user is a donor who has actually contributed"""
+        return self.is_donor and self.total_donated > 0
 
-    # last_namee = models.CharField(max_length=100, default='')
+
 
 
     def __str__(self):
@@ -59,11 +98,15 @@ class Alert(models.Model):
 
 class Resource(models.Model):
     RESOURCE_TYPES = [
-    ('Food', 'Food'),
-    ('Clothes', 'Clothes'),
-    ('Shelter', 'Shelter'),
-    ('Medical', 'Medical'),
-]
+        ('Food', 'Food'),
+        ('Water', 'Water'),
+        ('Clothes', 'Clothes'),
+        ('Shelter', 'Shelter'),
+        ('Medical', 'Medical'),
+        ('Transportation', 'Transportation'),
+        ('Tools', 'Tools'),
+        ('Other', 'Other'),
+    ]
     # Resource_Name = models.CharField(max_length=250)
     contributor = models.ForeignKey(User, on_delete=models.CASCADE)  # Who contributed
     resource_type = models.CharField(max_length=100, choices=RESOURCE_TYPES)
@@ -106,10 +149,12 @@ class ResourceRequest(models.Model):
 
     HELP_TYPES = [
         ('Food', 'Food'),
+        ('Water', 'Water'),
         ('Clothes', 'Clothes'),
         ('Shelter', 'Shelter'),
-        ('Medical Aid', 'Medical Aid'),
-        ('Water', 'Water'),
+        ('Medical', 'Medical'),
+        ('Transportation', 'Transportation'),
+        ('Tools', 'Tools'),
         ('Other', 'Other'),
     ]
 

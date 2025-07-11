@@ -24,7 +24,7 @@ def approve_resources(modeladmin, request, queryset):
     queryset.update(is_approved=True)
 
 class ResourceAdmin(admin.ModelAdmin):
-    list_display = ('resource_type', 'contributor', 'description', 'location', 'available', 'phoneNumber', 'is_approved')
+    list_display = ('resource_type', 'contributor', 'quantity', 'description', 'location', 'available', 'phoneNumber', 'is_approved')
     actions = [approve_resources]
 
 

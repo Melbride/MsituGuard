@@ -1,29 +1,241 @@
 {% extends "App/base.html" %}
 {% block content %}
-<a href="{% url 'forum_post_list' %}" class="btn btn-outline-secondary">← Back to Forums</a>
 
-<h2>{{ post.title }}</h2>
-<p>{{ post.content }}</p>
-<p><small>Posted by {{ post.user.username }} on {{ post.created_at }}</small></p>
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        padding: 3rem 0 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+    
+    .post-card {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.1);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+        margin-bottom: 2rem;
+    }
+    
+    .post-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #8b5cf6, #7c3aed, #8b5cf6);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200px 0; }
+        100% { background-position: calc(200px + 100%) 0; }
+    }
+    
+    .author-avatar {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+    
+    .comment-card {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(139, 92, 246, 0.1);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .comment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(139, 92, 246, 0.15);
+    }
+    
+    .comment-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-right: 1rem;
+    }
+    
+    .btn-back {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(139, 92, 246, 0.2);
+        display: inline-block;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-back:hover {
+        background: #8b5cf6;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-comment {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        display: inline-block;
+    }
+    
+    .btn-comment:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+        color: white;
+    }
+    
+    .empty-comments {
+        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        border-left: 4px solid #8b5cf6;
+    }
+    
+    .comment-card:nth-child(odd) { animation-delay: 0.1s; }
+    .comment-card:nth-child(even) { animation-delay: 0.2s; }
+</style>
 
-<hr>
-<div id="comments">
-  <h4>Comments</h4>
-
-  {% if post.comments.all %}
-    {% for comment in post.comments.all %}
-      <div class="card mb-2">
-        <div class="card-body">
-          <strong>{{ comment.user.username }}</strong>
-          <span class="text-muted float-end">{{ comment.created_at }}</span>
-          <p class="mt-2">{{ comment.content }}</p>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
+            <i class="fas fa-comment-dots"></i>
         </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No comments yet...</p>
-  {% endif %}
+        <h1 class="display-5 fw-bold mb-3">Community Discussion</h1>
+        <p class="lead fs-6">Join the conversation and share your thoughts</p>
+    </div>
 </div>
 
-<a href="{% url 'add_comment' post.pk %}" class="btn btn-primary mt-3">Add Comment</a>
+<!-- Post Detail Section -->
+<section class="py-5">
+    <div class="container">
+        <a href="{% url 'forum_post_list' %}" class="btn-back">
+            <i class="fas fa-arrow-left me-2"></i>Back to Forums
+        </a>
+        
+        <!-- Main Post -->
+        <div class="post-card">
+            <div class="d-flex align-items-start mb-4">
+                <div class="author-avatar">
+                    {{ post.user.username|first|upper }}
+                </div>
+                <div class="flex-grow-1">
+                    <h2 class="fw-bold mb-2" style="color: #1f2937;">{{ post.title }}</h2>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem 1rem; border-radius: 20px;">
+                            <i class="fas fa-user me-1"></i>{{ post.user.username }}
+                        </span>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ post.created_at|date:"M d, Y H:i" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-content" style="color: #374151; line-height: 1.8; font-size: 1.1rem;">
+                {{ post.content|linebreaks }}
+            </div>
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="mt-5">
+            <h3 class="fw-bold mb-4" style="color: #1f2937;">
+                <i class="fas fa-comments me-2" style="color: #8b5cf6;"></i>Comments
+                <span class="badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; font-size: 0.8rem; margin-left: 1rem;">{{ post.comments.count }}</span>
+            </h3>
+            
+            {% if post.comments.all %}
+                {% for comment in post.comments.all %}
+                    <div class="comment-card">
+                        <div class="d-flex align-items-start">
+                            <div class="comment-avatar">
+                                {{ comment.user.username|first|upper }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold" style="color: #1f2937;">{{ comment.user.username }}</span>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ comment.created_at|date:"M d, H:i" }}
+                                    </small>
+                                </div>
+                                <div style="color: #6b7280; line-height: 1.6;">
+                                    {{ comment.content|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-comments">
+                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
+                        <i class="fas fa-comment-slash"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color: #7c3aed;">No Comments Yet</h5>
+                    <p class="mb-0" style="color: #6b21a8;">Be the first to share your thoughts on this post!</p>
+                </div>
+            {% endif %}
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'add_comment' post.pk %}" class="btn-comment">
+                    <i class="fas fa-plus me-2"></i>Add Comment
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}

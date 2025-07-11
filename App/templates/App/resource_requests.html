@@ -1,84 +1,201 @@
-{% extends "App/base2.html" %}
+{% extends "App/base.html" %}
 
 {% block content %}
 <style>
-    .ur_response {
-        background-color: #3c8773;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        margin: 30px auto;
-        width: 90%;
-        max-width: 800px;
-        color: #f0f0f0;
-        font-family: Arial, sans-serif;
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-
-    .ur_response h2 {
-        color: #ffffff;
+    
+    .page-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 4rem 0 2rem;
         text-align: center;
-        margin-bottom: 20px;
-        font-size: 28px;
+        position: relative;
+        overflow: hidden;
     }
-
-    .request-item {
-        background-color: #4ca88d;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        transition: background-color 0.3s;
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
     }
-
-    .request-item:hover {
-        background-color: #43987e;
+    
+    .request-card {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border: 1px solid rgba(59, 130, 246, 0.1);
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
     }
-
-    .request-item strong {
-        font-size: 18px;
-        color: #ffffff;
+    
+    .request-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(59,130,246,0.05), transparent);
+        transition: left 0.8s ease;
     }
-
-    .request-item em {
-        color: #e0e0e0;
-        font-style: normal;
+    
+    .request-card:hover::after {
+        left: 100%;
     }
-
-    .status-message {
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #ffffff10;
-        border-radius: 5px;
-        font-style: italic;
+    
+    .request-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        border-color: #3b82f6;
     }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-pending {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+    
+    .status-matched {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+    
+    .status-rejected {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+    
+    .request-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .request-card:nth-child(odd) { animation-delay: 0.1s; }
+    .request-card:nth-child(even) { animation-delay: 0.2s; }
 </style>
 
-<div class="ur_response">
-    <h2>Your Resource Requests</h2>
-    {% if requests %}
-        {% for request in requests %}
-            <div class="request-item">
-                <strong>{{ request.resource_type }}</strong><br>
-                {{ request.description }}<br>
-                <em>Date:</em> {{ request.date_requested|date:"M d, Y" }}<br>
-                <em>Status:</em> {{ request.status|title }}
-
-                {% if request.response_message %}
-                    <br><em>Message:</em> {{ request.response_message }}
-                {% endif %}
-
-                {% if request.status == 'matched' %}
-                    <div class="status-message">
-                        <strong>Good news:</strong> Your request has been matched. Help is on the way!
-                    </div>
-                {% elif request.status == 'rejected' %}
-                    <div class="status-message">
-                        <strong>Update:</strong> Your request was rejected. Reason: {{ request.response_message }}
-                    </div>
-                {% endif %}
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No requests made yet.</p>
-    {% endif %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container" style="position: relative; z-index: 2;">
+        <h1 class="display-4 fw-bold mb-3">My Requests</h1>
+        <p class="lead fs-5">Track the status of your help requests and community responses</p>
+    </div>
 </div>
+
+<!-- Requests Section -->
+<section class="py-5">
+    <div class="container">
+        {% if requests %}
+            <div class="row">
+                {% for request in requests %}
+                    <div class="col-lg-6 col-12">
+                        <div class="request-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="request-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                                    {% if 'food' in request.resource_type|lower %}
+                                        <i class="fas fa-utensils"></i>
+                                    {% elif 'shelter' in request.resource_type|lower %}
+                                        <i class="fas fa-home"></i>
+                                    {% elif 'medical' in request.resource_type|lower %}
+                                        <i class="fas fa-medkit"></i>
+                                    {% elif 'transport' in request.resource_type|lower %}
+                                        <i class="fas fa-car"></i>
+                                    {% else %}
+                                        <i class="fas fa-hand-holding-heart"></i>
+                                    {% endif %}
+                                </div>
+                                <span class="status-badge status-{{ request.status|lower }}">
+                                    {{ request.status|title }}
+                                </span>
+                            </div>
+                            
+                            <h4 class="fw-bold mb-2" style="color: #1f2937;">{{ request.resource_type }}</h4>
+                            <p class="text-muted mb-3">{{ request.description }}</p>
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Date Requested</small>
+                                    <span class="fw-semibold">{{ request.date_requested|date:"M d, Y" }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Request ID</small>
+                                    <span class="fw-semibold">#{{ request.id|stringformat:"04d" }}</span>
+                                </div>
+                            </div>
+                            
+                            {% if request.response_message %}
+                                <div class="p-3 rounded-3" style="background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6;">
+                                    <small class="text-muted d-block mb-1">Community Response</small>
+                                    <p class="mb-0" style="color: #1f2937;">{{ request.response_message }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            {% if request.status == 'matched' %}
+                                <div class="mt-3 p-3 rounded-3" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-left: 3px solid #10b981;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-2" style="color: #10b981;"></i>
+                                        <strong style="color: #166534;">Great news! Your request has been matched with available help.</strong>
+                                    </div>
+                                </div>
+                            {% elif request.status == 'rejected' %}
+                                <div class="mt-3 p-3 rounded-3" style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border-left: 3px solid #ef4444;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle me-2" style="color: #ef4444;"></i>
+                                        <strong style="color: #991b1b;">Request could not be fulfilled at this time.</strong>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: white; font-size: 2.5rem;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3 class="fw-bold mb-3" style="color: #1f2937;">No Requests Yet</h3>
+                <p class="text-muted mb-4">You haven't made any help requests. When you need assistance, your requests will appear here.</p>
+                <a href="{% url 'request_resource' %}" class="btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 1rem 2rem; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                    <i class="fas fa-plus me-2"></i>Make Your First Request
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
 {% endblock %}

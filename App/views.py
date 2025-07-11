@@ -61,10 +61,11 @@ class UserLogoutView(LogoutView):
 
 
 
-class ResourceListView(ListView):
+class ResourceListView(LoginRequiredMixin, ListView):
     model = Resource
     template_name = 'App/resource_list.html'
     context_object_name = 'resources'
+    login_url = 'login'
 
     
     def get_queryset(self):
@@ -78,6 +79,13 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
     template_name = 'App/resource_form.html'
     success_url = reverse_lazy('resource_list')
 
+    def get_initial(self):
+        initial = super().get_initial()
+        if hasattr(self.request.user, 'profile'):
+            initial['phoneNumber'] = self.request.user.profile.phoneNumber
+            initial['location'] = self.request.user.profile.location
+        return initial
+
     def dispatch(self, request, *args, **kwargs):
         # First, ensure user is authenticated
         if not request.user.is_authenticated:
@@ -85,15 +93,26 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
 
         # Then check if user is verified
         if not request.user.profile.is_verified:
-            messages.warning(request, "You must verify your account before contributing resources.")
+            if request.user.profile.verification_requested:
+                messages.info(request, "Verification request submitted. Admin will review and verify your account.")
+            else:
+                messages.warning(request, "You must verify your account before contributing resources.")
             return redirect('profile_detail')
 
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        # Validate phone number matches profile
+        if form.cleaned_data['phoneNumber'] != self.request.user.profile.phoneNumber:
+            form.add_error('phoneNumber', 'Use the phone number you used to register your account. If you lost access to this number, please update your profile first.')
+            return self.form_invalid(form)
+        
         form.instance.contributor = self.request.user
         form.instance.is_approved = False  # Admin will approve manually
-        return super().form_valid(form)
+        self.object = form.save()
+        return render(self.request, self.template_name, {
+            'submitted': True  # Pass a flag to the template
+        })
 
 
 class ResourceUpdateView(LoginRequiredMixin, UpdateView):
@@ -127,10 +146,7 @@ def request_verification(request):
         messages.success(request, "Verification request submitted. Admin will review and verify your account.")
     return redirect('profile_detail')
 
-class EmergencyContactListView(ListView):
-    model = EmergencyContact
-    template_name = 'App/contact_list.html'
-    context_object_name = 'contacts'
+
     
 class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
     model = Profile
@@ -154,6 +170,15 @@ class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            self.object.profile_picture = request.FILES['profile_picture']
+            self.object.save()
+            messages.success(request, "Profile picture updated successfully!")
+            return redirect('profile_detail')
+        
+        # Handle regular form submission
         form = self.get_form_class()(request.POST, request.FILES, instance=self.object)
         if form.is_valid():
             return self.form_valid(form)
@@ -195,12 +220,12 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
         initial = super().get_initial()
         if hasattr(self.request.user, 'profile'):
             initial['phoneNumber'] = self.request.user.profile.phoneNumber
+            # Don't auto-populate location - emergencies happen anywhere
         return initial
         
     def form_valid(self, form):
         form.instance.user = self.request.user
         self.object = form.save()
-        messages.success(self.request, "Your alert has been submitted successfully. We will get to it.")
         return render(self.request, self.template_name, {
             'submitted': True  # Pass a flag to the template
         })
@@ -240,18 +265,31 @@ def remove_profile_picture(request):
     return redirect('profile_detail')
 
 
-class ResourceRequestCreateView(CreateView):
+class ResourceRequestCreateView(LoginRequiredMixin, CreateView):
     model = ResourceRequest
     form_class = ResourceRequestForm
     template_name = 'App/request_resource.html'
     success_url = reverse_lazy('request_success')
+    login_url = 'login'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if hasattr(self.request.user, 'profile'):
+            initial['phoneNumber'] = self.request.user.profile.phoneNumber
+            initial['location'] = self.request.user.profile.location
+        return initial
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect('login')  # Redirect to login page if user is not authenticated
+            return redirect('login')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        # Validate phone number matches profile
+        if form.cleaned_data['phoneNumber'] != self.request.user.profile.phoneNumber:
+            form.add_error('phoneNumber', 'Use the phone number you used to register your account. If you lost access to this number, please update your profile first.')
+            return self.form_invalid(form)
+        
         form.instance.user = self.request.user
         return super().form_valid(form)
 
@@ -276,18 +314,20 @@ class UseRegisterView(generic.CreateView):
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):
-        # Save the user instance first (this will create the user)
-        user = form.save(commit=False)  # We save the user object but don't commit yet
-        user.save()  # Save the user now to get a valid user object
-
-        # Create or update the profile instance
-        profile, created = Profile.objects.get_or_create(user=user)
-        profile.phoneNumber = form.cleaned_data['phoneNumber']
-        profile.location = form.cleaned_data['location']
-        profile.save()  # Save the profile instance
-
-        # Proceed with the standard form processing
-        return super().form_valid(form)  # Let the parent class handle the rest (redirect, etc.)
+        # Check if this is a donor with payment confirmation
+        if (form.cleaned_data.get('account_type') == 'donor' and 
+            self.request.POST.get('payment_confirmed') == 'true'):
+            
+            # Set initial payment amount for donor
+            initial_payment = self.request.POST.get('initial_payment', '0')
+            form.initial_payment_amount = float(initial_payment)
+            
+            messages.success(self.request, "Payment successful! Welcome to CrisisConnect as a valued donor.")
+        else:
+            messages.success(self.request, "Registration successful! Welcome to CrisisConnect.")
+        
+        response = super().form_valid(form)
+        return response
 
 
 class ForumPostListView(LoginRequiredMixin, ListView):
@@ -320,10 +360,11 @@ class ForumPostCreateView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-class ForumPostDetailView(DetailView):
+class ForumPostDetailView(LoginRequiredMixin, DetailView):
     model = ForumPost
     template_name = 'App/forum_post_detail.html'
     context_object_name = 'post'
+    login_url = 'login'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -331,10 +372,12 @@ class ForumPostDetailView(DetailView):
         return context
 
 
-class AddCommentView(CreateView):
+class AddCommentView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = FormComment
     template_name = 'App/add_comment.html'
+    login_url = 'login'
+    
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.post_id = self.kwargs['pk']

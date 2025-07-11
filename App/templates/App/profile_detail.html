@@ -2,164 +2,509 @@
 {% block content %}
 
 <style>
-/* Heading above the card */
-.profile-heading {
-    text-align: center;
-    font-size: 2.5em;
-    margin: 40px 0 20px 0;
-    color: #2c3e50; /* Dark text */
-    font-weight: 700;
-}
-
-/* Profile card container */
-.profile-card {
-    background-color: rgb(60, 135, 115);
-    padding: 30px 40px;
-    color: white;
-    border-radius: 10px;
-    margin: 0 auto 40px auto;
-    max-width: 600px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-    font-family: Arial, sans-serif;
-}
-
-/* Spacing and alignment for each profile field */
-.profile-field {
-    margin-bottom: 18px;
-    font-size: 1.1em;
-}
-
-/* Label and value inline with uniform spacing */
-.profile-label {
-    font-weight: 600;
-    display: inline-block;
-    width: 130px;  /* fixed width for uniform alignment */
-    color: #d0e8d0; /* slightly lighter label color */
-}
-
-.profile-value {
-    display: inline-block;
-    color: #f0f9f0; /* value text color */
-}
-
-/* Verified message styling */
-.verified-message {
-    color: #b6f7a4;  /* bright light green */
-    background-color: rgba(255, 255, 255, 0.15);
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 600;
-    margin-bottom: 30px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Buttons */
-.btn-primary {
-    background-color: #004d3a;
-    color: white;
-    padding: 10px 25px;
-    margin-right: 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.btn-primary:hover {
-    background-color: #006f55;
-}
-
-.alert-warning {
-    max-width: 600px;
-    margin: 0 auto 30px auto;
-    padding: 15px 20px;
-    border-radius: 8px;
-    background-color: rgb(60, 135, 115);
-    color: #006f55;
-    font-weight: 600;
-    text-align: center;
-}
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 4rem 0 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+    
+    .profile-card {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.1);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #1d4ed8, #3b82f6);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200px 0; }
+        100% { background-position: calc(200px + 100%) 0; }
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        color: white;
+        font-size: 3rem;
+        font-weight: bold;
+        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.3);
+    }
+    
+    .profile-field {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .profile-field:last-child {
+        border-bottom: none;
+    }
+    
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+        font-size: 1rem;
+    }
+    
+    .profile-label {
+        font-weight: 600;
+        color: #1f2937;
+        min-width: 120px;
+        margin-right: 1rem;
+    }
+    
+    .profile-value {
+        color: #6b7280;
+        flex: 1;
+    }
+    
+    .activity-card {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .activity-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .stat-item {
+        padding: 1rem;
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: 15px;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #3b82f6;
+        display: block;
+    }
+    
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .verified-badge {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-align: center;
+        margin: 2rem 0;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-action {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin: 0.5rem;
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        box-shadow: 0 8px 25px rgba(107, 114, 128, 0.3);
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 2rem 0 1rem;
+        }
+        
+        .profile-card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+        }
+        
+        .row {
+            margin: 0;
+        }
+        
+        .col-md-6 {
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+        
+        .activity-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .btn-action {
+            display: block;
+            width: 100%;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .profile-card {
+            padding: 1.5rem 1rem;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+        
+        .profile-field {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.75rem 0;
+        }
+        
+        .profile-icon {
+            margin-bottom: 0.5rem;
+            margin-right: 0;
+        }
+        
+        .profile-label {
+            min-width: auto;
+            margin-bottom: 0.25rem;
+        }
+        
+        .activity-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .media-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .profile-picture-upload {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .upload-overlay {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+    
+    .upload-overlay:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
 </style>
 
-<!-- Separate heading -->
-<h2 class="profile-heading">{{ object.user.username }} Profile Details</h2>
-
-<!-- Profile card -->
-<div class="profile-card">
-    <div class="profile-field">
-        <span class="profile-label">Username:</span>
-        <span class="profile-value">{{ object.user.username }}</span>
-    </div>
-    <div class="profile-field">
-        <span class="profile-label">First name:</span>
-        <span class="profile-value">{{ object.first_name }}</span>
-    </div>
-    <div class="profile-field">
-        <span class="profile-label">Last name:</span>
-        <span class="profile-value">{{ object.last_name }}</span>
-    </div>
-    <div class="profile-field">
-        <span class="profile-label">Email:</span>
-        <span class="profile-value">{{ object.email }}</span>
-    </div>
-    <div class="profile-field">
-        <span class="profile-label">Last login:</span>
-        <span class="profile-value">{{ object.user.last_login }}</span>
-    </div>
-    {% comment %} <div class="profile-field">
-        <span class="profile-label">Is superuser:</span>
-        <span class="profile-value">{% if object.user.is_superuser %}Yes{% else %}No{% endif %}</span>
-    </div> {% endcomment %}
-    {% comment %} <div class="profile-field">
-        <span class="profile-label">Is staff:</span>
-        <span class="profile-value">{% if object.user.is_staff %}Yes{% else %}No{% endif %}</span>
-    </div> {% endcomment %}
-    {% comment %} <div class="profile-field">
-        <span class="profile-label">Is active:</span>
-        <span class="profile-value">{% if object.user.is_active %}Yes{% else %}No{% endif %}</span>
-    </div> {% endcomment %}
-    <div class="profile-field">
-        <span class="profile-label">Date joined:</span>
-        <span class="profile-value">{{ object.user.date_joined }}</span>
-    </div>
-    <div class="profile-field">
-        <span class="profile-label">Location:</span>
-        <span class="profile-value">{{ object.location }}</span>
-    </div>
-    <div class="profile-field">
-        <span class="profile-label">Phone Number:</span>
-        <span class="profile-value">{{ object.phoneNumber }}</span>
-    </div>
-    <div class="profile-field">
-        <span class="profile-label">Bio:</span>
-        <span class="profile-value">{{ object.bio }}</span>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="profile-avatar" style="position: relative; cursor: pointer;" onclick="openProfilePictureModal()">
+            {% if object.profile_picture %}
+                <img src="{{ object.profile_picture.url }}" alt="{{ object.user.username }}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+                {{ object.user.username|first|upper }}
+            {% endif %}
+            <div class="camera-overlay" style="position: absolute; bottom: 5px; right: 5px; width: 35px; height: 35px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                <i class="fas fa-camera" style="font-size: 0.9rem;"></i>
+            </div>
+        </div>
+        <h1 class="display-4 fw-bold mb-3">{{ object.user.username }}</h1>
+        <p class="lead fs-5">Community Member Profile</p>
     </div>
 </div>
 
-<!-- Account verification -->
-{% if not object.is_verified %}
-    <div class="alert-warning mt-3">
-        <p>Your account is not verified. Please verify your account to contribute resources or post alerts.</p>
-        <form method="post" action="{% url 'request_verification' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn-primary">Request Verification</button>
-        </form>
+<!-- Profile Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="profile-card">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="fw-bold mb-4" style="color: #1f2937;">Personal Information</h4>
+                    
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-label">Username</div>
+                        <div class="profile-value">{{ object.user.username }}</div>
+                    </div>
+                    
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="profile-label">Full Name</div>
+                        <div class="profile-value">{{ object.first_name }} {{ object.last_name }}</div>
+                    </div>
+                    
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="profile-label">Email</div>
+                        <div class="profile-value">{{ object.email }}</div>
+                    </div>
+                    
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="profile-label">Phone</div>
+                        <div class="profile-value">{{ object.phoneNumber|default:"Not provided" }}</div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h4 class="fw-bold mb-4" style="color: #1f2937;">Account Details</h4>
+                    
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="profile-label">Location</div>
+                        <div class="profile-value">{{ object.location|default:"Not specified" }}</div>
+                    </div>
+                    
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="profile-label">Joined</div>
+                        <div class="profile-value">{{ object.user.date_joined|date:"M d, Y" }}</div>
+                    </div>
+                    
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="profile-label">Last Login</div>
+                        <div class="profile-value">{{ object.user.last_login|date:"M d, Y H:i"|default:"Never" }}</div>
+                    </div>
+                    
+                    {% if object.bio %}
+                    <div class="profile-field">
+                        <div class="profile-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="profile-label">Bio</div>
+                        <div class="profile-value">{{ object.bio }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account Verification -->
+        {% if object.is_verified %}
+            <div class="verified-badge">
+                <i class="fas fa-check-circle me-2"></i>Verified Community Member
+            </div>
+        {% endif %}
+        
+        <!-- Donor Badge -->
+        {% if object.donor_badge %}
+            <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.5rem 1rem; border-radius: 15px; text-align: center; margin: 1rem 0; font-weight: 600; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); font-size: 0.85rem; display: inline-block; max-width: 300px;">
+                {{ object.donor_badge }}
+            </div>
+        {% elif object.is_donor %}
+            <div style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; padding: 0.5rem 1rem; border-radius: 15px; text-align: center; margin: 1rem 0; font-weight: 600; box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3); font-size: 0.85rem; display: inline-block; max-width: 300px;">
+                💳 Payment Pending
+            </div>
+        {% endif %}
+        
+        <!-- Activity Summary -->
+        <div class="activity-card">
+            <h4 class="fw-bold mb-4 text-center" style="color: #1f2937;">Community Activity</h4>
+            <div class="activity-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ object.user.alert_set.count }}</span>
+                    <div class="stat-label">Emergency Alerts Posted</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ object.user.resource_set.count }}</span>
+                    <div class="stat-label">Resources Shared</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ object.user.resourcerequest_set.count }}</span>
+                    <div class="stat-label">Help Requests Made</div>
+                </div>
+                {% if object.is_active_donor %}
+                <div class="stat-item">
+                    <span class="stat-number">${{ object.total_donated|floatformat:0 }}</span>
+                    <div class="stat-label">Total Contributed</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+
+        
+        <!-- Action Buttons -->
+        <div class="text-center">
+            <a href="{% url 'edit_profile' %}" class="btn-action">
+                <i class="fas fa-edit me-2"></i>Edit Profile
+            </a>
+            <a href="{% url 'password_change' %}" class="btn-action btn-secondary">
+                <i class="fas fa-key me-2"></i>Change Password
+            </a>
+
+        </div>
+        
+        <!-- Profile Picture Upload Modal -->
+        <div id="profile-picture-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+            <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 400px; width: 90%; text-align: center;">
+                <h4 style="margin-bottom: 1.5rem; color: #1f2937;">Update Profile Picture</h4>
+                <form id="profile-picture-form" method="post" enctype="multipart/form-data" action="{% url 'profile_detail' %}">
+                    {% csrf_token %}
+                    <div style="margin-bottom: 1.5rem;">
+                        <input type="file" id="profile-picture-input" name="profile_picture" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                        <div id="image-preview" style="width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 1rem; border: 3px dashed #d1d5db; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;" onclick="document.getElementById('profile-picture-input').click()">
+                            <i class="fas fa-camera" style="font-size: 2rem; color: #9ca3af;"></i>
+                        </div>
+                        <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">Click to select image</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button type="submit" style="background: #10b981; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-check me-1"></i>Update
+                        </button>
+                        <button type="button" onclick="closeProfilePictureModal()" style="background: #6b7280; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-{% else %}
-    <div class="verified-message">✅ Your account is verified.</div>
-{% endif %}
+</section>
 
-<!-- Buttons -->
-<div style="max-width:600px; margin: 0 auto 40px auto; text-align:center;">
-    <a href="{% url 'edit_profile' %}" class="btn-primary">Edit Profile</a>
-    <a href="{% url 'password_change' %}" class="btn-primary">Change Password</a>
-</div>
+<script>
+function openProfilePictureModal() {
+    const modal = document.getElementById('profile-picture-modal');
+    modal.style.display = 'flex';
+}
 
-{% include './footer.html' %}
+function closeProfilePictureModal() {
+    const modal = document.getElementById('profile-picture-modal');
+    const preview = document.getElementById('image-preview');
+    const input = document.getElementById('profile-picture-input');
+    
+    modal.style.display = 'none';
+    input.value = '';
+    preview.innerHTML = '<i class="fas fa-camera" style="font-size: 2rem; color: #9ca3af;"></i>';
+    preview.style.backgroundImage = 'none';
+    preview.style.border = '3px dashed #d1d5db';
+}
+
+function previewImage(input) {
+    const preview = document.getElementById('image-preview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.style.backgroundImage = `url(${e.target.result})`;
+            preview.style.backgroundSize = 'cover';
+            preview.style.backgroundPosition = 'center';
+            preview.style.border = '3px solid #10b981';
+            preview.innerHTML = '';
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Close modal when clicking outside
+document.getElementById('profile-picture-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeProfilePictureModal();
+    }
+});
+</script>
 
 {% endblock %}

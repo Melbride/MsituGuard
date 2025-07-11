@@ -4,40 +4,605 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 4rem 0 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+    
+    .register-form {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.1);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .register-form::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #1d4ed8, #3b82f6);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200px 0; }
+        100% { background-position: calc(200px + 100%) 0; }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    @keyframes loading {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(0); }
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #ffffff;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .password-input-group {
+        position: relative;
+        display: block;
+        width: 100%;
+    }
+    
+    .password-toggle-btn {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6b7280;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+    
+    .password-toggle-btn:hover {
+        color: #3b82f6;
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 1.2rem 2.5rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        width: 100%;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+    }
+    
+    .auth-links {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .auth-links a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .auth-links a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+    
+    .register-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 2rem 0 1rem;
+        }
+        
+        .register-form {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+        
+        .account-options {
+            grid-template-columns: 1fr !important;
+            gap: 1rem;
+        }
+        
+        .account-option {
+            padding: 1rem !important;
+        }
+        
+        .register-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .register-form {
+            padding: 1.5rem 1rem;
+            margin: 0.5rem;
+        }
+        
+        .form-control {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-register {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+        
+        .account-type-section {
+            padding: 1rem !important;
+        }
+    }
+</style>
 
-<div class="register">
-    <div class="register-inner">
-        <div>
-            <h1>Register</h1>
-            <div class="separator"></div>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="register-icon">
+            <i class="fas fa-user-plus"></i>
         </div>
-
-        <form method="POST" class="register-form">
-            {% csrf_token %}
-            {{ form.as_p }}
-
-            <div class="password-toggle">
-                <button type="button" onclick="togglePasswords()" class="see-button">See</button>
-            </div>
-
-            <button type="submit" class="register-button">Register</button>
-        </form>
-
+        <h1 class="display-4 fw-bold mb-3">Join Our Community</h1>
+        <p class="lead fs-5">Create your account and become part of a stronger, more connected neighborhood</p>
     </div>
 </div>
 
+<!-- Registration Form Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="register-form">
+            <div class="info-card">
+                <h5 class="fw-bold mb-2" style="color: #1d4ed8;"><i class="fas fa-info-circle me-2"></i>Welcome to CrisisConnect</h5>
+                <p class="mb-0" style="color: #1e40af;">Join thousands of community members who are building stronger, more resilient neighborhoods. Your participation helps create a network of support that's ready when emergencies strike.</p>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Account Type Selection -->
+                <div class="account-type-section" style="margin: 2rem 0; padding: 1.5rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 15px; border-left: 4px solid #3b82f6;">
+                    <h5 class="fw-bold mb-3" style="color: #1d4ed8;"><i class="fas fa-users me-2"></i>Choose Your Account Type</h5>
+                    
+                    <div class="account-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="account-option" style="background: white; padding: 1.5rem; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.3s ease;" onclick="selectAccountType('community')">
+                            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                                {{ form.account_type.0.tag }}
+                                <label for="{{ form.account_type.0.id_for_label }}" style="font-weight: 600; color: #1f2937; margin: 0; margin-left: 0.5rem;">Community Member</label>
+                            </div>
+                            <div style="color: #10b981; font-size: 1.5rem; margin-bottom: 0.5rem;">🏠</div>
+                            <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">Free access to emergency alerts, resource sharing, and community forums.</p>
+                        </div>
+                        
+                        <div class="account-option" style="background: white; padding: 1.5rem; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.3s ease;" onclick="selectAccountType('donor')">
+                            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                                {{ form.account_type.1.tag }}
+                                <label for="{{ form.account_type.1.id_for_label }}" style="font-weight: 600; color: #1f2937; margin: 0; margin-left: 0.5rem;">Donor/Supporter</label>
+                            </div>
+                            <div style="color: #f59e0b; font-size: 1.5rem; margin-bottom: 0.5rem;">💝</div>
+                            <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">Choose to support the platform. Payment setup comes after registration.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Donor Tier Selection (hidden by default) -->
+                    <div id="donor-tiers" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+                        <h6 class="fw-bold mb-2" style="color: #1d4ed8;">Choose Your Support Level:</h6>
+                        <div class="form-group">
+                            {{ form.donor_tier }}
+                            {% if form.donor_tier.errors %}
+                                <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                    {{ form.donor_tier.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <small style="color: #6b7280;">💡 Payment required to complete donor registration. Secure payment via M-Pesa or Card.</small>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.username.label }}</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.username.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.first_name.label }}</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.first_name.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.last_name.label }}</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.last_name.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.phoneNumber.label }}</label>
+                        {{ form.phoneNumber }}
+                        {% if form.phoneNumber.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.phoneNumber.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.location.label }}</label>
+                        {{ form.location }}
+                        {% if form.location.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.location.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">{{ form.bio.label }}</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                        <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.bio.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.password1.label }}</label>
+                        <div class="password-input-group">
+                            {{ form.password1 }}
+                            <button type="button" onclick="togglePassword1()" class="password-toggle-btn">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password1.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.password1.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.password2.label }}</label>
+                        <div class="password-input-group">
+                            {{ form.password2 }}
+                            <button type="button" onclick="togglePassword2()" class="password-toggle-btn">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}
+                            <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                {{ form.password2.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if form.captcha %}
+                <div class="form-group">
+                    <label class="form-label">Security Verification</label>
+                    {{ form.captcha }}
+                </div>
+                {% endif %}
+                
+                <script>
+                function selectAccountType(type) {
+                    const communityRadio = document.querySelector('input[value="community"]');
+                    const donorRadio = document.querySelector('input[value="donor"]');
+                    
+                    if (type === 'community') {
+                        communityRadio.checked = true;
+                        donorRadio.checked = false;
+                    } else {
+                        communityRadio.checked = false;
+                        donorRadio.checked = true;
+                    }
+                    
+                    const donorTiers = document.getElementById('donor-tiers');
+                    const accountOptions = document.querySelectorAll('.account-option');
+                    
+                    // Update visual selection
+                    accountOptions.forEach(option => {
+                        option.style.borderColor = '#e2e8f0';
+                        option.style.backgroundColor = 'white';
+                    });
+                    
+                    if (type === 'community') {
+                        accountOptions[0].style.borderColor = '#10b981';
+                        accountOptions[0].style.backgroundColor = '#f0fdf4';
+                        donorTiers.style.display = 'none';
+                    } else {
+                        accountOptions[1].style.borderColor = '#f59e0b';
+                        accountOptions[1].style.backgroundColor = '#fffbeb';
+                        donorTiers.style.display = 'block';
+                    }
+                }
+                
+                // Initialize on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    selectAccountType('community');
+                });
+                
+                // Payment modal functions
+                function showPaymentModal() {
+                    const modal = document.getElementById('payment-modal');
+                    const donorTier = document.querySelector('select[name="donor_tier"]').value;
+                    
+                    if (!donorTier) {
+                        alert('Please select a donation level first.');
+                        return false;
+                    }
+                    
+                    // Update payment details
+                    const tierInfo = {
+                        'basic': { name: 'Basic Supporter', amount: '$5.00' },
+                        'standard': { name: 'Community Donor', amount: '$10.00' },
+                        'premium': { name: 'Premium Supporter', amount: '$25.00' }
+                    };
+                    
+                    document.getElementById('selected-plan').textContent = tierInfo[donorTier].name;
+                    document.getElementById('payment-amount').textContent = tierInfo[donorTier].amount;
+                    
+                    modal.style.display = 'flex';
+                    return false; // Prevent form submission
+                }
+                
+                function closePaymentModal() {
+                    document.getElementById('payment-modal').style.display = 'none';
+                }
+                
+                function processPayment(method) {
+                    // Simulate payment processing
+                    const modal = document.getElementById('payment-modal');
+                    const modalContent = modal.querySelector('div > div');
+                    
+                    modalContent.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem; animation: pulse 1s infinite;">✓</div>
+                            <h3 style="color: #10b981; margin-bottom: 1rem;">Payment Successful!</h3>
+                            <p style="color: #6b7280; margin-bottom: 2rem;">Your donor account has been activated. Completing registration...</p>
+                            <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                                <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); animation: loading 2s ease-out;"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Complete registration after 2 seconds
+                    setTimeout(() => {
+                        // Set total_donated to first payment amount
+                        const tierAmounts = { 'basic': 5, 'standard': 10, 'premium': 25 };
+                        const donorTier = document.querySelector('select[name="donor_tier"]').value;
+                        
+                        // Add hidden field for payment confirmation
+                        const paymentConfirmed = document.createElement('input');
+                        paymentConfirmed.type = 'hidden';
+                        paymentConfirmed.name = 'payment_confirmed';
+                        paymentConfirmed.value = 'true';
+                        document.querySelector('form').appendChild(paymentConfirmed);
+                        
+                        const initialPayment = document.createElement('input');
+                        initialPayment.type = 'hidden';
+                        initialPayment.name = 'initial_payment';
+                        initialPayment.value = tierAmounts[donorTier] || 0;
+                        document.querySelector('form').appendChild(initialPayment);
+                        
+                        // Submit the form
+                        document.querySelector('form').submit();
+                    }, 2000);
+                }
+                
+                // Intercept form submission for donors
+                document.querySelector('form').addEventListener('submit', function(e) {
+                    const accountType = document.querySelector('input[name="account_type"]:checked').value;
+                    const paymentConfirmed = document.querySelector('input[name="payment_confirmed"]');
+                    
+                    if (accountType === 'donor' && !paymentConfirmed) {
+                        e.preventDefault();
+                        return showPaymentModal();
+                    }
+                });
+                </script>
+
+                <button type="submit" class="btn-register" id="register-btn">
+                    <i class="fas fa-user-plus me-2"></i>Create Account
+                </button>
+                
+                <!-- Payment Modal -->
+                <div id="payment-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+                    <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 500px; width: 90%; position: relative;">
+                        <button onclick="closePaymentModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                        
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">💳</div>
+                            <h3 style="color: #1f2937; margin-bottom: 0.5rem;">Complete Your Donor Registration</h3>
+                            <p style="color: #6b7280; margin: 0;">Secure payment to activate your donor account</p>
+                        </div>
+                        
+                        <div id="payment-details" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <span style="font-weight: 600;">Selected Plan:</span>
+                                <span id="selected-plan" style="color: #f59e0b; font-weight: 600;">Basic Supporter</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: 700; color: #1f2937;">
+                                <span>Monthly Amount:</span>
+                                <span id="payment-amount">$5.00</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                            <button onclick="processPayment('mpesa')" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1rem; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                📱 M-Pesa
+                            </button>
+                            <button onclick="processPayment('card')" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 1rem; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                💳 Card
+                            </button>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <small style="color: #6b7280;">🔒 Secure payment processing • Cancel anytime • Tax receipts provided</small>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="auth-links">
+                <p>Already have an account? <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt me-1"></i>Sign In</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
 <script>
-function togglePasswords() {
-    var passwordFields = ['id_password1', 'id_password2'];
-    passwordFields.forEach(function(fieldId) {
-        var passwordField = document.getElementById(fieldId);
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';
-        } else {
-            passwordField.type = 'password';
-        }
-    });
+function togglePassword1() {
+    var passwordInput = document.getElementById('id_password1');
+    var toggleIcon = document.querySelector(".password-input-group:first-of-type .password-toggle-btn i");
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.className = 'fas fa-eye-slash';
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.className = 'fas fa-eye';
+    }
+}
+
+function togglePassword2() {
+    var passwordInput = document.getElementById('id_password2');
+    var toggleIcon = document.querySelector(".password-input-group:last-of-type .password-toggle-btn i");
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.className = 'fas fa-eye-slash';
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.className = 'fas fa-eye';
+    }
 }
 </script>
 
