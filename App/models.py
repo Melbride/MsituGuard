@@ -14,9 +14,9 @@ class Profile(models.Model):
     ]
     
     DONOR_TIERS = [
-        ('basic', 'Basic Supporter - $5/month'),
-        ('standard', 'Standard Donor - $10/month'),
-        ('premium', 'Premium Supporter - $25/month'),
+        ('basic', 'Basic Supporter'),
+        ('standard', 'Standard Donor'),
+        ('premium', 'Premium Supporter'),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -36,7 +36,7 @@ class Profile(models.Model):
     
     # New fields for monetization
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES, default='community')
-    donor_tier = models.CharField(max_length=20, choices=DONOR_TIERS, blank=True, null=True)
+    donor_tier = models.CharField(max_length=50, choices=DONOR_TIERS, blank=True, null=True)
     monthly_contribution = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_donated = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     donor_since = models.DateTimeField(blank=True, null=True)
