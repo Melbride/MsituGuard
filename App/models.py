@@ -35,7 +35,7 @@ class Profile(models.Model):
     verification_requested = models.BooleanField(default=False)
     
     # New fields for monetization
-    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES, default='community')
+    account_type = models.CharField(max_length=50, choices=ACCOUNT_TYPES, default='community')
     donor_tier = models.CharField(max_length=50, choices=DONOR_TIERS, blank=True, null=True)
     monthly_contribution = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_donated = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -80,13 +80,13 @@ class Alert(models.Model):
         ('medical', 'Medical'),
         ('other', 'Other'),
     ]
-    emergency_type = models.CharField(max_length=20, choices=EMERGENCY_CHOICES, default='other')
+    emergency_type = models.CharField(max_length=50, choices=EMERGENCY_CHOICES, default='other')
     description = models.TextField()
     location = models.CharField(max_length=200)
     date_created = models.DateTimeField(auto_now_add=True)
     is_approved = models.BooleanField(default=False)  
     is_active = models.BooleanField(default=True)
-    visibility = models.CharField(max_length=20, choices=[('public', 'Public'), ('private', 'Private')], default='public')
+    visibility = models.CharField(max_length=50, choices=[('public', 'Public'), ('private', 'Private')], default='public')
     phoneNumber = models.CharField(
         default = ' ',
         max_length=17,
@@ -122,7 +122,7 @@ class Resource(models.Model):
     is_allocated = models.BooleanField(default=False)  # Optional: if resource is already allocated
     available = models.BooleanField(default=True)
     STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
 
 
     def __str__(self):
@@ -131,7 +131,7 @@ class Resource(models.Model):
 
 class EmergencyContact(models.Model):
     name = models.CharField(max_length=250)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=50)
     email = models.EmailField(default='contact@example.com')
     organization = models.CharField(max_length=250)
 
@@ -163,7 +163,7 @@ class ResourceRequest(models.Model):
     description = models.TextField()
     quantity_requested = models.PositiveIntegerField(default=1)
     date_requested = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
     matched_contribution = models.ForeignKey(Resource, null=True, blank=True, on_delete=models.SET_NULL)
     response_message = models.TextField(blank=True, null=True)
     is_fulfilled = models.BooleanField(default=False)
