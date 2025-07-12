@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a#((2n(2x!ytaj+a0#&y%jn!l!+9k9_v#=qg&zk3pq#m1pt6er'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com', '*.onrender.com', '*.railway.app', '*.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'App',  # This is the correct way to add your app
     'App.apps.AppConfig',  # This is how to add the AppConfig
+    'captcha',
 ]
 
 
@@ -82,20 +82,12 @@ WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Database configuration
-if 'DATABASE_URL' in os.environ:
-    # Production database (Render)
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    # Development database (local)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation
