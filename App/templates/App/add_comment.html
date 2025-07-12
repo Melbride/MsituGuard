@@ -1,14 +1,116 @@
-{% extends 'App/base2.html' %}
+{% extends 'App/base.html' %}
 {% load static %}
-{% block title %}Comment on the Post{% endblock %}
+{% block title %}Add Comment{% endblock %}
 
 {% block content %}
-  <div class="container">
-    <h1>Add Comment</h1>
-    <form method="POST">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button class="btn btn-secondary">Add Comment</button>
-    </form>
-  </div>
+<style>
+    .comment-form-container {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        margin: 2rem 0;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-control:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        outline: none;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-cancel {
+        background: #6b7280;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #4b5563;
+        color: white;
+        text-decoration: none;
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="comment-form-container">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold mb-2">Add Your Comment</h2>
+                    <p class="text-muted">Share your thoughts and engage with the community</p>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="fas fa-comment me-2"></i>Your Comment
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger mt-2">
+                                {% for error in form.content.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="javascript:history.back()" class="btn-cancel">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane me-2"></i>Post Comment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
