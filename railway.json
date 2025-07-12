@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn crisis_communication.wsgi:application",
+    "startCommand": "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn crisis_communication.wsgi:application",
     "healthcheckPath": "/",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
