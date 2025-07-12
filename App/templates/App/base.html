@@ -548,13 +548,39 @@
             }
             
             /* Mobile header profile adjustments */
-            .btn-auth span {
+            .btn-auth .btn-text {
                 display: none;
             }
             
             .btn-auth {
-                padding: 0.4rem 0.6rem;
-                min-width: auto;
+                padding: 0.6rem;
+                min-width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50% !important;
+            }
+            
+            .btn-auth i {
+                margin: 0 !important;
+                font-size: 1.1rem;
+            }
+            
+            .btn-logout .btn-text {
+                display: none;
+            }
+            
+            .btn-logout {
+                padding: 0.6rem !important;
+                min-width: 44px;
+                height: 44px;
+                border-radius: 50% !important;
+            }
+            
+            .btn-logout i {
+                margin: 0 !important;
+                font-size: 1.1rem;
             }
             
             .navbar-brand-text {
@@ -664,7 +690,7 @@
                 {% if 'password_reset' not in request.path and 'reset' not in request.path %}
                 <div class="auth-buttons">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'profile_detail' %}" class="btn-auth btn-login" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <a href="{% url 'profile_detail' %}" class="btn-auth btn-login" style="display: flex; align-items: center; gap: 0.5rem;" title="Profile - {{ user.username }}">
                             <div style="width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.3);">
                                 {% if user.profile.profile_picture %}
                                     <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -674,20 +700,20 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            <span>{{ user.username }}</span>
+                            <span class="btn-text">{{ user.username }}</span>
                         </a>
                         <form method="post" action="{% url 'logout' %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn-logout">
-                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            <button type="submit" class="btn-logout" title="Logout">
+                                <i class="fas fa-sign-out-alt me-1"></i><span class="btn-text">Logout</span>
                             </button>
                         </form>
                     {% else %}
-                        <a href="{% url 'login' %}" class="btn-auth btn-login">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        <a href="{% url 'login' %}" class="btn-auth btn-login" title="Login">
+                            <i class="fas fa-sign-in-alt me-1"></i><span class="btn-text">Login</span>
                         </a>
-                        <a href="{% url 'register' %}" class="btn-auth btn-register">
-                            <i class="fas fa-user-plus me-1"></i>Register
+                        <a href="{% url 'register' %}" class="btn-auth btn-register" title="Register">
+                            <i class="fas fa-user-plus me-1"></i><span class="btn-text">Register</span>
                         </a>
                     {% endif %}
                 </div>
