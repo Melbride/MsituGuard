@@ -21,7 +21,7 @@ class Profile(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phoneNumber = models.CharField(
-        max_length=17,
+        max_length=50,
         default=' ',
         validators=[RegexValidator(regex=r'^\d*$', message='Only numeric values are allowed')]
     )
@@ -89,7 +89,7 @@ class Alert(models.Model):
     visibility = models.CharField(max_length=50, choices=[('public', 'Public'), ('private', 'Private')], default='public')
     phoneNumber = models.CharField(
         default = ' ',
-        max_length=17,
+        max_length=50,
         validators=[RegexValidator(regex=r'^\d+$', message='Only numeric values are allowed')]
     )
 
@@ -169,7 +169,7 @@ class ResourceRequest(models.Model):
     is_fulfilled = models.BooleanField(default=False)
 
     phoneNumber = models.CharField(
-        max_length=17,
+        max_length=50,
         default='',
         validators=[RegexValidator(regex=r'^\d+$', message='Only numeric values are allowed')]
     )
