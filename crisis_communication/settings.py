@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
+import dj_database_url
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +29,7 @@ SECRET_KEY = 'django-insecure-a#((2n(2x!ytaj+a0#&y%jn!l!+9k9_v#=qg&zk3pq#m1pt6er
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com', 'www.crisisconnect.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com']
 
 
 
@@ -84,11 +86,14 @@ WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'community_crisis_db',
+        'USER': 'community_crisis_db_user',
+        'PASSWORD': 'XeHd4ncQDOdZoCyfYd6383sy1IhVtWWQ',  # your Render password
+        'HOST': 'dpg-d1olm4bipnbc73f6nung-a.oregon-postgres.render.com',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -174,7 +179,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'melbrideb@gmail.com'
-EMAIL_HOST_PASSWORD = 'jqplujcnekpbemvl'  # Your Gmail App Password
+EMAIL_HOST_PASSWORD = 'jqplujcnekpbemvl'  # Gmail App Password
 DEFAULT_FROM_EMAIL = 'CrisisConnect <melbrideb@gmail.com>'
 SERVER_EMAIL = 'melbrideb@gmail.com'
 
