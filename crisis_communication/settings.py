@@ -189,3 +189,10 @@ SERVER_EMAIL = 'melbrideb@gmail.com'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Detect if running on Render
+if os.environ.get('RENDER') == 'true':
+    # Tell Django to not use old migrations and create tables fresh
+    MIGRATION_MODULES = {
+        'App': None,  # Replace App with your app name if different
+    }
+
