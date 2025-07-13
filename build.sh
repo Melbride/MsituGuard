@@ -6,5 +6,5 @@ pip install -r requirements.txt
 
 python manage.py collectstatic --no-input
 
-# Run our custom migration command
-python manage.py migrate_production
+# Run migrations directly
+python manage.py migrate --run-syncdb
