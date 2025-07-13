@@ -84,16 +84,25 @@ WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'community_crisis_db',
-        'USER': 'community_crisis_db_user',
-        'PASSWORD': 'XeHd4ncQDOdZoCyfYd6383sy1IhVtWWQ',  # your Render password
-        'HOST': 'dpg-d1olm4bipnbc73f6nung-a.oregon-postgres.render.com',
-        'PORT': '5432',
+# Use SQLite locally, PostgreSQL on Render
+if os.environ.get('RENDER') == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'community_crisis_db',
+            'USER': 'community_crisis_db_user',
+            'PASSWORD': 'XeHd4ncQDOdZoCyfYd6383sy1IhVtWWQ',
+            'HOST': 'dpg-d1olm4bipnbc73f6nung-a.oregon-postgres.render.com',
+            'PORT': '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -137,7 +146,7 @@ USE_TZ = True
 AFRICASTALKING_USERNAME = 'sandbox'  
 AFRICASTALKING_API_KEY = 'atsk_eef06dd8b22f21b0b0c8bff1052725a83c40db660c6d6b2d11f06fbca788a83a28551eb7' 
 
-CSRF_TRUSTED_ORIGINS = ['https://9ebb-102-0-14-102.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['https://9ebb-102-0-14-102.ngrok-free.app', 'https://crisisconnect.onrender.com']
 
 
 
@@ -189,10 +198,5 @@ SERVER_EMAIL = 'melbrideb@gmail.com'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Detect if running on Render
-if os.environ.get('RENDER') == 'true':
-    # Tell Django to not use old migrations and create tables fresh
-    MIGRATION_MODULES = {
-        'App': None,  # Replace App with your app name if different
-    }
+
 
