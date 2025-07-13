@@ -84,25 +84,13 @@ WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Use SQLite locally, PostgreSQL on Render
-if os.environ.get('RENDER') == 'true':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'community_crisis_db',
-            'USER': 'community_crisis_db_user',
-            'PASSWORD': 'XeHd4ncQDOdZoCyfYd6383sy1IhVtWWQ',
-            'HOST': 'dpg-d1olm4bipnbc73f6nung-a.oregon-postgres.render.com',
-            'PORT': '5432',
-        }
+# Use SQLite for both local and production (simpler for hackathon)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
