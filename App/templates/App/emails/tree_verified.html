@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+        .badge { background: #22c55e; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; }
+        .footer { text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Tree Planting Verified!</h1>
+            <p>Your environmental contribution has been officially verified</p>
+        </div>
+        
+        <div class="content">
+            <p>Hello {{ user.first_name }},</p>
+            
+            <p>Great news! Your tree planting contribution has been verified by our local organization partners.</p>
+            
+            <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #22c55e;">
+                <h3 style="color: #22c55e; margin-top: 0;">{{ tree_planting.title }}</h3>
+                <p><strong>Location:</strong> {{ tree_planting.location_name }}</p>
+                <p><strong>Trees Planted:</strong> {{ tree_planting.number_of_trees }}</p>
+                <p><strong>Tree Type:</strong> {{ tree_planting.get_tree_type_display }}</p>
+                <span class="badge">✅ VERIFIED</span>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #fef3c7, #fbbf24); padding: 25px; border-radius: 15px; margin: 20px 0; text-align: center;">
+                <h3 style="color: #92400e; margin-top: 0;">🎉 Congratulations! You've Earned Rewards!</h3>
+                <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 15px; margin: 15px 0;">
+                    <div style="background: white; padding: 15px; border-radius: 10px; min-width: 120px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #22c55e;">{{ points_earned }}</div>
+                        <div style="color: #6b7280; font-size: 14px;">Points Earned</div>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; min-width: 120px;">
+                        <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">{{ badge_earned }}</div>
+                        <div style="color: #6b7280; font-size: 14px;">New Badge</div>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; min-width: 120px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #3b82f6;">{{ total_points }}</div>
+                        <div style="color: #6b7280; font-size: 14px;">Total Points</div>
+                    </div>
+                </div>
+                <p style="color: #92400e; margin: 10px 0; font-weight: 600;">Your Level: {{ environmental_level }}</p>
+            </div>
+            
+            <p>Your contribution to Kenya's 15 billion trees initiative is now officially recognized. Thank you for being an environmental guardian!</p>
+            
+            <p>Keep up the great work protecting our forests and environment.</p>
+            
+            <p>Best regards,<br>
+            <strong>MsituGuard Team</strong><br>
+            <em>Protecting Kenya's Environment Together</em></p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message from MsituGuard Environmental Platform</p>
+        </div>
+    </div>
+</body>
+</html>

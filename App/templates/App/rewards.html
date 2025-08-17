@@ -1,0 +1,426 @@
+{% extends 'App/base.html' %}
+{% load static %}
+
+{% block title %}Rewards - MsituGuard{% endblock %}
+
+{% block content %}
+<style>
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .display-4 {
+            font-size: 2rem !important;
+        }
+        
+        .display-3 {
+            font-size: 2.5rem !important;
+        }
+        
+        .h2 {
+            font-size: 1.5rem !important;
+        }
+        
+        .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .row.align-items-center .col-md-3,
+        .row.align-items-center .col-md-6 {
+            margin-bottom: 1rem;
+            text-align: center !important;
+        }
+        
+        .col-md-6.col-xl-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .p-4 {
+            padding: 1.5rem !important;
+        }
+        
+        .bg-white.rounded-3 {
+            max-height: 150px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container-fluid {
+            padding: 1rem !important;
+        }
+        
+        .display-4 {
+            font-size: 1.8rem !important;
+        }
+        
+        .display-3 {
+            font-size: 2rem !important;
+        }
+        
+        .h2 {
+            font-size: 1.3rem !important;
+        }
+        
+        .h3 {
+            font-size: 1.2rem !important;
+        }
+        
+        .h4 {
+            font-size: 1.1rem !important;
+        }
+        
+        .h5 {
+            font-size: 1rem !important;
+        }
+        
+        .card-body {
+            padding: 1rem !important;
+        }
+        
+        .card-header {
+            padding: 1rem !important;
+        }
+        
+        .p-4 {
+            padding: 1rem !important;
+        }
+        
+        .p-3 {
+            padding: 0.8rem !important;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+        
+        .mb-5 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .bg-white.rounded-3 {
+            max-height: 120px !important;
+            padding: 0.8rem !important;
+        }
+        
+        .badge {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.6rem !important;
+        }
+        
+        .btn {
+            padding: 0.6rem 1rem !important;
+            font-size: 0.85rem !important;
+        }
+        
+        .card-title {
+            font-size: 1rem !important;
+        }
+        
+        .card-text {
+            font-size: 0.8rem !important;
+        }
+        
+        .small {
+            font-size: 0.75rem !important;
+        }
+        
+        .fs-4 {
+            font-size: 1.2rem !important;
+        }
+        
+        .fs-5 {
+            font-size: 1rem !important;
+        }
+        
+        .rounded-circle.p-3 {
+            padding: 0.8rem !important;
+        }
+        
+        .rounded-circle.p-2 {
+            padding: 0.6rem !important;
+        }
+    }
+</style>
+<div class="container-fluid py-4" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); min-height: 100vh;">
+    <div class="container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-success mb-3">🏆 Rewards Center</h1>
+            <p class="lead text-muted">Redeem your tokens for amazing rewards and recognition</p>
+        </div>
+
+        <!-- Token Balance Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                    <div class="card-body text-white p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div class="display-3 fw-bold">{{ token_balance }}</div>
+                                <div class="h5 mb-0">Available Tokens</div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="h2 fw-bold">{{ total_tokens_earned }}</div>
+                                <div class="h6 mb-0">Total Earned</div>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <div class="h4 mb-2">{{ conservation_rank }}</div>
+                                <div class="small opacity-75">Your Conservation Rank</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Rewards -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-lg" style="background: linear-gradient(135deg, #ffffff, #f8fafc);">
+                    <div class="card-header bg-transparent border-0 py-4">
+                        <div class="text-center">
+                            <h2 class="h3 fw-bold text-success mb-2">🎁 Available Rewards</h2>
+                            <p class="text-muted mb-0">Redeem your tokens for exclusive environmental rewards</p>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-4">
+                        <!-- Environmental Reporting Rewards -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-success rounded-circle p-2 me-3">
+                                    <i class="fas fa-camera text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="fw-bold text-success mb-1">Environmental Reporting Rewards</h4>
+                                    <p class="text-muted small mb-0">Exclusive rewards for environmental guardians</p>
+                                </div>
+                            </div>
+                            <div class="row g-4">
+                                {% for reward in rewards %}
+                                    {% if reward.program_type == 'environmental' or reward.program_type == 'both' %}
+                                        {% if "15 Billion" not in reward.name and "Tree" not in reward.name and "Initiative" not in reward.name %}
+                                        <div class="col-md-6 col-xl-4">
+                                            <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden" style="transition: all 0.3s ease;">
+                                                <div class="position-absolute top-0 start-0 w-100 h-2" style="background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                                                <div class="card-body p-4">
+                                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                                        <div class="flex-grow-1">
+                                                            <h5 class="card-title fw-bold mb-1" style="color: #1f2937;">{{ reward.name }}</h5>
+                                                            <div class="d-flex align-items-center">
+                                                                <span class="badge" style="background: linear-gradient(135deg, #22c55e, #16a34a); font-size: 0.75rem;">{{ reward.token_cost }} tokens</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-success fs-4">
+                                                            {% if reward.reward_type == 'data_bundle' %}📶
+                                                            {% elif reward.reward_type == 'workshop' %}🏫
+                                                            {% elif reward.reward_type == 'certificate' %}🏅
+                                                            {% else %}🎁
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <p class="card-text text-muted mb-4" style="font-size: 0.9rem; line-height: 1.5;">{{ reward.description }}</p>
+                                                    <div class="mt-auto">
+                                                        {% if user.profile.token_balance >= reward.token_cost %}
+                                                            <form method="post" action="{% url 'redeem_reward' reward.id %}">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn w-100 py-2 fw-semibold" style="background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: white; border-radius: 8px; transition: all 0.3s ease;" onclick="return confirm('Redeem {{ reward.name }} for {{ reward.token_cost }} tokens?')" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(34, 197, 94, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                                                    🎁 Redeem Now
+                                                                </button>
+                                                            </form>
+                                                        {% else %}
+                                                            <button class="btn btn-outline-secondary w-100 py-2" disabled style="border-radius: 8px;">
+                                                                Need {{ reward.token_cost|add:"-"|add:user.profile.token_balance }} more tokens
+                                                            </button>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% empty %}
+                                <div class="col-12">
+                                    <div class="text-center py-5">
+                                        <div class="display-1 text-muted mb-3">🎁</div>
+                                        <h4 class="text-muted">No rewards available</h4>
+                                        <p class="text-muted">Check back later for new rewards!</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Rewards Dashboard -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-transparent border-0 py-4">
+                        <div class="text-center">
+                            <h2 class="h3 fw-bold text-dark mb-2">🏆 My Rewards Dashboard</h2>
+                            <p class="text-muted mb-0">Track your environmental impact and achievements</p>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <!-- Environmental Reporting Section -->
+                            <div class="col-lg-6">
+                                <div class="p-4 h-100" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-right: 1px solid #e5e7eb;">
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="bg-success rounded-circle p-3 me-3">
+                                            <i class="fas fa-camera text-white fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="h5 fw-bold text-success mb-1">Environmental Reporting</h3>
+                                            <p class="text-muted small mb-0">Tokens from verified environmental reports</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Environmental Report Token History -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold text-success mb-3 d-flex align-items-center">
+                                            <i class="fas fa-coins me-2"></i>Recent Earnings
+                                        </h6>
+                                        <div class="bg-white rounded-3 p-3" style="max-height: 200px; overflow-y: auto; border: 1px solid #d1fae5;">
+                                            {% for token in token_history %}
+                                                {% if token.action_type == 'report_photo' or token.action_type == 'forum_post' %}
+                                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-semibold small text-dark">{{ token.description }}</div>
+                                                        <small class="text-muted">{{ token.earned_at|date:"M d, Y" }}</small>
+                                                    </div>
+                                                    <span class="badge bg-success rounded-pill">+{{ token.tokens_earned }}</span>
+                                                </div>
+                                                {% endif %}
+                                            {% empty %}
+                                            <div class="text-center py-3">
+                                                <i class="fas fa-leaf text-muted fs-3 mb-2"></i>
+                                                <p class="text-muted small mb-0">No environmental reports yet</p>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Environmental Badges -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold text-success mb-3 d-flex align-items-center">
+                                            <i class="fas fa-medal me-2"></i>Environmental Badges
+                                        </h6>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% if user.profile.badges_list %}
+                                                {% for badge in user.profile.badges_list %}
+                                                    {% if "Report" in badge or "Environmental" in badge or "Eco" in badge %}
+                                                    <span class="badge bg-white text-success border border-success px-3 py-2 rounded-pill" style="font-size: 0.8rem;">{{ badge }}</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                            <div class="text-center w-100 py-2">
+                                                <small class="text-muted">Submit environmental reports to earn badges</small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Redeemed Rewards -->
+                                    <div>
+                                        <h6 class="fw-semibold text-success mb-3 d-flex align-items-center">
+                                            <i class="fas fa-gift me-2"></i>Redeemed Rewards
+                                        </h6>
+                                        <div class="bg-white rounded-3 p-3" style="max-height: 150px; overflow-y: auto; border: 1px solid #d1fae5;">
+                                            {% for user_reward in redeemed_rewards %}
+                                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-semibold small text-dark">{{ user_reward.reward.name }}</div>
+                                                    <small class="text-muted">{{ user_reward.redeemed_at|date:"M d, Y" }}</small>
+                                                </div>
+                                                <span class="badge {% if user_reward.status == 'delivered' %}bg-success{% else %}bg-warning{% endif %} rounded-pill small">
+                                                    {% if user_reward.status == 'delivered' %}
+                                                        <i class="fas fa-check me-1"></i>{{ user_reward.get_status_display }}
+                                                    {% else %}
+                                                        <i class="fas fa-clock me-1"></i>{{ user_reward.get_status_display }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            {% empty %}
+                                            <div class="text-center py-3">
+                                                <i class="fas fa-gift text-muted fs-3 mb-2"></i>
+                                                <p class="text-muted small mb-0">No rewards redeemed yet</p>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 15 Billion Trees Initiative Section -->
+                            <div class="col-lg-6">
+                                <div class="p-4 h-100" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="bg-primary rounded-circle p-3 me-3">
+                                            <i class="fas fa-tree text-white fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="h5 fw-bold text-primary mb-1">15 Billion Trees Initiative</h3>
+                                            <p class="text-muted small mb-0">Tokens from verified tree plantings</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tree Planting Token History -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-semibold text-primary mb-3 d-flex align-items-center">
+                                            <i class="fas fa-coins me-2"></i>Recent Earnings
+                                        </h6>
+                                        <div class="bg-white rounded-3 p-3" style="max-height: 200px; overflow-y: auto; border: 1px solid #bfdbfe;">
+                                            {% for token in token_history %}
+                                                {% if token.action_type == 'tree_planting' or token.action_type == 'resource_share' %}
+                                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-semibold small text-dark">{{ token.description }}</div>
+                                                        <small class="text-muted">{{ token.earned_at|date:"M d, Y" }}</small>
+                                                    </div>
+                                                    <span class="badge bg-primary rounded-pill">+{{ token.tokens_earned }}</span>
+                                                </div>
+                                                {% endif %}
+                                            {% empty %}
+                                            <div class="text-center py-3">
+                                                <i class="fas fa-seedling text-muted fs-3 mb-2"></i>
+                                                <p class="text-muted small mb-0">No tree plantings yet</p>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tree Initiative Badges -->
+                                    <div>
+                                        <h6 class="fw-semibold text-primary mb-3 d-flex align-items-center">
+                                            <i class="fas fa-medal me-2"></i>Tree Initiative Badges
+                                        </h6>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% if user.profile.badges_list %}
+                                                {% for badge in user.profile.badges_list %}
+                                                    {% if "Tree" in badge or "Forest" in badge or "15 Billion" in badge or "Initiative" in badge or "Green" in badge or "Nature" in badge %}
+                                                    <span class="badge bg-white text-primary border border-primary px-3 py-2 rounded-pill" style="font-size: 0.8rem;">{{ badge }}</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                            <div class="text-center w-100 py-2">
+                                                <small class="text-muted">Plant trees to earn initiative badges</small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+
+
+    </div>
+</div>
+{% endblock %}

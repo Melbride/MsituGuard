@@ -35,8 +35,9 @@
         position: relative;
         overflow: hidden;
         animation: fadeInUp 0.8s ease-out;
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
+        backdrop-filter: blur(10px);
     }
     
     .profile-card::before {
@@ -74,8 +75,17 @@
     .profile-field {
         display: flex;
         align-items: center;
-        padding: 1rem 0;
+        padding: 1.2rem 0;
         border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+    }
+    
+    .profile-field:hover {
+        background: rgba(59, 130, 246, 0.05);
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
     
     .profile-field:last-child {
@@ -105,6 +115,22 @@
     .profile-value {
         color: #6b7280;
         flex: 1;
+        font-weight: 500;
+    }
+    
+    .profile-value.missing {
+        color: #ef4444;
+        font-style: italic;
+        background: rgba(239, 68, 68, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        border-left: 4px solid #ef4444;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
     }
     
     .activity-card {
@@ -217,8 +243,21 @@
     }
     
     @media (max-width: 480px) {
+        .page-header {
+            padding: 1.5rem 0 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .page-header p {
+            font-size: 1rem;
+        }
+        
         .profile-card {
             padding: 1.5rem 1rem;
+            border-radius: 20px;
         }
         
         .profile-avatar {
@@ -233,18 +272,80 @@
             padding: 0.75rem 0;
         }
         
+        .urgent-update-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .urgent-icon {
+            margin: 0 auto;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .missing-items {
+            justify-content: center;
+        }
+        
         .profile-icon {
             margin-bottom: 0.5rem;
             margin-right: 0;
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
         }
         
         .profile-label {
             min-width: auto;
             margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .profile-value {
+            font-size: 0.9rem;
         }
         
         .activity-stats {
             grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            padding: 0.8rem;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+        }
+        
+        .quick-edit-modal-content {
+            width: 95%;
+            margin: 1rem;
+        }
+        
+        .modal-actions {
+            flex-direction: column;
+        }
+        
+        .btn-save, .btn-cancel {
+            width: 100%;
+        }
+        
+        .btn-action {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .activity-card {
+            padding: 1.5rem;
+        }
+        
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
         }
     }
     
@@ -278,6 +379,221 @@
     .upload-overlay:hover {
         transform: scale(1.1);
         box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+    
+    .urgent-update-card {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+        animation: urgentPulse 3s infinite;
+    }
+    
+    @keyframes urgentPulse {
+        0%, 100% { box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2); }
+        50% { box-shadow: 0 15px 40px rgba(245, 158, 11, 0.4); }
+    }
+    
+    .urgent-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+    
+    .urgent-content h5 {
+        color: #92400e;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .urgent-content p {
+        color: #78350f;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+    
+    .missing-items {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .missing-item {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .urgent-btn {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+    
+    .urgent-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+    }
+    
+    .quick-edit-modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 0;
+        max-width: 550px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .modal-header h4 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+    
+    .modal-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+    
+    .quick-edit-form {
+        padding: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+    
+    .form-input:focus {
+        border-color: #10b981;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        outline: none;
+    }
+    
+    .form-help {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+    
+    .btn-cancel {
+        background: #6b7280;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
     }
 </style>
 
@@ -336,7 +652,19 @@
                             <i class="fas fa-phone"></i>
                         </div>
                         <div class="profile-label">Phone</div>
-                        <div class="profile-value">{{ object.phoneNumber|default:"Not provided" }}</div>
+                        <div class="profile-value {% if not object.phoneNumber or object.phoneNumber == ' ' %}missing{% endif %}">
+                            {% if object.phoneNumber and object.phoneNumber != ' ' %}
+                                <a href="tel:{{ object.phoneNumber }}" style="color: #10b981; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <span>{{ object.phoneNumber }}</span>
+                                    <span style="background: #10b981; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem;">Verified</span>
+                                </a>
+                            {% else %}
+                                <span class="missing">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Emergency contact required - Update immediately
+                                </span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 
@@ -348,7 +676,19 @@
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div class="profile-label">Location</div>
-                        <div class="profile-value">{{ object.location|default:"Not specified" }}</div>
+                        <div class="profile-value {% if not object.location or object.location == ' ' %}missing{% endif %}">
+                            {% if object.location and object.location != ' ' %}
+                                <span style="color: #6b7280; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-map-pin" style="color: #ef4444;"></i>
+                                    <span>{{ object.location }}</span>
+                                    <span style="background: #3b82f6; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem;">Active</span>
+                                </span>
+                            {% else %}
+                                <span class="missing">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Location required for emergency response
+                                </span>
+                            {% endif %}
+                        </div>
                     </div>
                     
                     <div class="profile-field">
@@ -398,30 +738,43 @@
             </div>
         {% endif %}
         
-        <!-- Activity Summary -->
+        <!-- Environmental Impact Summary -->
         <div class="activity-card">
-            <h4 class="fw-bold mb-4 text-center" style="color: #1f2937;">Community Activity</h4>
+            <h4 class="fw-bold mb-4 text-center" style="color: #1f2937;">Environmental Impact</h4>
             <div class="activity-stats">
                 <div class="stat-item">
-                    <span class="stat-number">{{ object.user.alert_set.count }}</span>
-                    <div class="stat-label">Emergency Alerts Posted</div>
+                    <span class="stat-number">{{ object.user.report_set.count }}</span>
+                    <div class="stat-label">Environmental Reports</div>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">{{ object.user.resource_set.count }}</span>
-                    <div class="stat-label">Resources Shared</div>
+                    <span class="stat-number">{{ object.user.treeplanting_set.count }}</span>
+                    <div class="stat-label">Trees Planted</div>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">{{ object.user.resourcerequest_set.count }}</span>
-                    <div class="stat-label">Help Requests Made</div>
+                    <span class="stat-number">{{ object.token_balance|default:0 }}</span>
+                    <div class="stat-label">Available Tokens</div>
                 </div>
-                {% if object.is_active_donor %}
                 <div class="stat-item">
-                    <span class="stat-number">${{ object.total_donated|floatformat:0 }}</span>
-                    <div class="stat-label">Total Contributed</div>
+                    <span class="stat-number">{{ object.total_tokens_earned|default:0 }}</span>
+                    <div class="stat-label">Total Tokens Earned</div>
                 </div>
-                {% endif %}
+            </div>
+            <div class="text-center mt-3">
+                <div class="mb-3">
+                    <span class="badge" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.9rem; font-weight: 600;">
+                        {{ object.conservation_rank }}
+                    </span>
+                </div>
+                <a href="{% url 'my_reports' %}" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <i class="fas fa-chart-line me-2"></i>View Detailed Activity
+                </a>
+                <a href="{% url 'rewards' %}" class="btn-action" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i class="fas fa-trophy me-2"></i>Rewards Center
+                </a>
             </div>
         </div>
+        
+
         
 
         
@@ -460,6 +813,8 @@
                 </form>
             </div>
         </div>
+        
+
     </div>
 </section>
 
@@ -499,12 +854,33 @@ function previewImage(input) {
     }
 }
 
-// Close modal when clicking outside
+
+
+// Close modals when clicking outside
 document.getElementById('profile-picture-modal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeProfilePictureModal();
     }
 });
+
+
+
+
+
+// Add CSS animations for notifications
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
 </script>
 
 {% endblock %}

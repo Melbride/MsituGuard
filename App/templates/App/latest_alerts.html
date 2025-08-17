@@ -1,4 +1,5 @@
 {% extends 'App/base.html' %}
+{% load static %}
 
 {% block content %}
 <style>
@@ -187,12 +188,46 @@
     }
     
     @media (max-width: 480px) {
+        .page-header {
+            padding: 1.5rem 0 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .page-header p {
+            font-size: 1rem;
+        }
+        
+        .page-header .d-flex {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .page-header .ms-4 {
+            margin-left: 0 !important;
+            margin-top: 1rem;
+        }
+        
         .alert-card {
             padding: 1rem;
+            border-radius: 15px;
         }
         
         .alert-card h4 {
             font-size: 1.1rem;
+        }
+        
+        .alert-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+        }
+        
+        .severity-badge {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
         }
         
         .row.g-3 {
@@ -202,17 +237,55 @@
         .row.g-3 > div {
             padding: 0.25rem;
         }
+        
+        .col-lg-6 {
+            padding: 0.5rem;
+        }
+        
+        .p-4.rounded-3 {
+            padding: 1rem !important;
+        }
+        
+        .p-4.rounded-3 h5 {
+            font-size: 1rem;
+        }
+        
+        .p-4.rounded-3 p {
+            font-size: 0.85rem;
+        }
+        
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
     }
 </style>
 
 <!-- Page Header -->
-<div class="page-header">
+<div class="page-header" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.4), rgba(22, 163, 74, 0.4)), url('{% static 'images/Reporting 2.jpg' %}'); background-size: cover; background-position: center;">
     <div class="container" style="position: relative; z-index: 2;">
-        <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
-            <i class="fas fa-exclamation-triangle"></i>
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div class="text-center flex-grow-1">
+                <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h1 class="display-4 fw-bold mb-3">Environmental Reports</h1>
+                <p class="lead fs-5">Community-verified environmental threats and protection efforts</p>
+            </div>
+            <div class="ms-4">
+                <a href="{% url 'alert_create' %}" class="btn" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3); padding: 0.8rem 1.5rem; border-radius: 25px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='translateY(0)';">
+                    <i class="fas fa-plus me-2"></i>New Report
+                </a>
+            </div>
         </div>
-        <h1 class="display-4 fw-bold mb-3" style="color: #ef4444;">Emergency Alerts</h1>
-        <p class="lead fs-5">Stay informed about current emergencies and crisis situations in your area</p>
     </div>
 </div>
 
@@ -221,12 +294,12 @@
     <div class="container">
         <div class="row mb-4">
             <div class="col-12">
-                <div class="p-4 rounded-3" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #f59e0b;">
+                <div class="p-4 rounded-3" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-left: 4px solid #22c55e;">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-info-circle me-3" style="color: #d97706; font-size: 1.5rem;"></i>
+                        <i class="fas fa-shield-alt me-3" style="color: #16a34a; font-size: 1.5rem;"></i>
                         <div>
-                            <h5 class="fw-bold mb-1" style="color: #92400e;">Community Alert System</h5>
-                            <p class="mb-0" style="color: #78350f;">Stay informed about current emergencies and crisis situations. Click on any alert to view full details and see how you can help your community.</p>
+                            <h5 class="fw-bold mb-1" style="color: #166534;">Environmental Protection System</h5>
+                            <p class="mb-0" style="color: #15803d;">Stay informed about environmental threats and protection efforts. Click on any report to view full details and see how you can help protect our environment.</p>
                         </div>
                     </div>
                 </div>
@@ -237,25 +310,45 @@
             <div class="row">
                 {% for alert in alerts %}
                     <div class="col-lg-6 col-12">
-                        <div class="alert-card {% if alert.severity == 'critical' %}critical{% elif alert.severity == 'high' %}high{% else %}medium{% endif %}">
+                        <div class="alert-card {% if alert.status == 'verified' %}high{% else %}medium{% endif %}">
                             <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="alert-icon {% if alert.severity == 'critical' %}critical{% elif alert.severity == 'high' %}high{% else %}medium{% endif %}">
-                                    <i class="fas fa-exclamation-triangle"></i>
+                                <div class="alert-icon {% if alert.status == 'verified' %}high{% else %}medium{% endif %}">
+                                    {% if alert.report_type == 'fire' %}<i class="fas fa-fire"></i>
+                                    {% elif alert.report_type == 'illegal_logging' %}<i class="fas fa-tree"></i>
+                                    {% elif alert.report_type == 'pollution' %}<i class="fas fa-smog"></i>
+                                    {% elif alert.report_type == 'deforestation' %}<i class="fas fa-cut"></i>
+                                    {% else %}<i class="fas fa-leaf"></i>{% endif %}
                                 </div>
-                                <span class="severity-badge severity-{% if alert.severity %}{{ alert.severity }}{% else %}high{% endif %}">
-                                    {% if alert.severity %}{{ alert.severity }}{% else %}High{% endif %} Priority
+                                <span class="severity-badge severity-{% if alert.status == 'verified' %}high{% else %}medium{% endif %}">
+                                    {{ alert.status|title }}
                                 </span>
                             </div>
                             
                             <div class="mb-2">
-                                <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #d97706; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
-                                    {{ alert.emergency_type|title }} Emergency
+                                <span class="badge" style="background: rgba(34, 197, 94, 0.1); color: #16a34a; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                                    {{ alert.get_report_type_display }}
                                 </span>
                             </div>
                             
                             <h4 class="fw-bold mb-3" style="color: #1f2937;">
                                 <a href="{% url 'alert_detail' alert.pk %}" style="color: #1f2937; text-decoration: none;">{{ alert.title }}</a>
                             </h4>
+                            
+                            {% if alert.image %}
+                            <div class="mb-3">
+                                <div class="position-relative">
+                                    <img src="{{ alert.image.url }}" alt="{{ alert.title }}" class="img-fluid rounded shadow" style="width: 100%; height: 220px; object-fit: cover; border: 3px solid #22c55e; cursor: pointer;" onclick="openImageModal('{{ alert.image.url }}', '{{ alert.title }}')">
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="badge bg-success"><i class="fas fa-camera me-1"></i>Photo Evidence</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="mb-3 text-center p-3" style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 10px;">
+                                <i class="fas fa-camera text-muted mb-2" style="font-size: 2rem;"></i>
+                                <p class="text-muted mb-0">No photo provided with this report</p>
+                            </div>
+                            {% endif %}
                             
                             {% if alert.description %}
                                 <p class="text-muted mb-3">{{ alert.description|truncatewords:20 }}</p>
@@ -264,11 +357,11 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-6">
                                     <small class="text-muted d-block"><i class="fas fa-map-marker-alt me-1"></i>Location</small>
-                                    <span class="fw-semibold">{{ alert.location }}</span>
+                                    <span class="fw-semibold">{{ alert.location_name }}</span>
                                 </div>
                                 <div class="col-6">
                                     <small class="text-muted d-block"><i class="fas fa-clock me-1"></i>Reported</small>
-                                    <span class="fw-semibold">{{ alert.date_created|date:"M d, H:i" }}</span>
+                                    <span class="fw-semibold">{{ alert.timestamp|date:"M d, H:i" }}</span>
                                 </div>
                             </div>
                             
@@ -284,8 +377,8 @@
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <div style="font-weight: 600; color: #1f2937; font-size: 0.9rem;">{{ alert.user.username }}</div>
-                                    <div style="color: #6b7280; font-size: 0.8rem;">Community Member</div>
+                                    <div style="font-weight: 600; color: #1f2937; font-size: 0.9rem;">{{ alert.reporter.username }}</div>
+                                    <div style="color: #6b7280; font-size: 0.8rem;">Environmental Reporter</div>
                                 </div>
                             </div>
                         </div>
@@ -302,19 +395,31 @@
             </div>
         {% endif %}
         
-        <!-- Create Alert CTA -->
-        <div class="row mt-5">
-            <div class="col-12 text-center">
-                <div class="p-4 rounded-3" style="background: linear-gradient(135deg, #1f2937, #111827); color: white;">
-                    <h4 class="fw-bold mb-3">Report an Emergency</h4>
-                    <p class="mb-4">Witnessed an emergency or crisis situation? Alert your community immediately to help coordinate response efforts.</p>
-                    <a href="{% url 'alert_create' %}" class="btn-create-alert">
-                        <i class="fas fa-plus me-2"></i>Create Emergency Alert
-                    </a>
-                </div>
+
+    </div>
+</section>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalTitle">Report Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" class="img-fluid rounded" style="max-width: 100%; max-height: 70vh;">
             </div>
         </div>
     </div>
-</section>
+</div>
+
+<script>
+function openImageModal(imageUrl, title) {
+    document.getElementById('modalImage').src = imageUrl;
+    document.getElementById('imageModalTitle').textContent = title;
+    new bootstrap.Modal(document.getElementById('imageModal')).show();
+}
+</script>
 
 {% endblock %}

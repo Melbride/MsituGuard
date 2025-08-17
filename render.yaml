@@ -1,11 +1,20 @@
+databases:
+  - name: msituguard-db
+    databaseName: msituguard
+    user: msituguard
+
 services:
   - type: web
-    name: CrisisConnect
+    name: msituguard
     env: python
-    buildCommand: ./build.sh
-    startCommand: gunicorn crisis_communication.wsgi:application
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn crisis_communication.wsgi:application"
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: crisis_communication.settings
-      - key: PYTHON_VERSION
-        value: 3.10
+      - key: DATABASE_URL
+        fromDatabase:
+          name: msituguard-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4

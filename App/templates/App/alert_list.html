@@ -5,14 +5,12 @@
   <ul>
     {% for alert in alerts %}
       <li>
-        <a href="{% url 'alert_update' alert.pk %}">{{ alert.title }}</a>
-        | <a href="{% url 'alert_delete' alert.pk %}">Delete</a>
-        <p>{{ alert.description }}</p>
-        <p>{{ alert.location }}</p>
-        <p>{{ alert.phoneNumber}}</p>
-        <p>{{ alert.date_created }}</p>
-        <p>{{ alert.is_active }}</p>
-        <p>{{ alert.visibility }}</p>
+        <h3>{{ alert.title }}</h3>
+        <p><strong>Description:</strong> {{ alert.description }}</p>
+        <p><strong>Location:</strong> {{ alert.location }}</p>
+        <p><strong>Contact:</strong> {{ alert.phoneNumber}}</p>
+        <p><strong>Date:</strong> {{ alert.date_created }}</p>
+        <p><strong>Status:</strong> {% if alert.is_active %}Active{% else %}Inactive{% endif %}</p>
       </li>
     {% endfor %}
   </ul>

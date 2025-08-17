@@ -1,0 +1,173 @@
+{% extends 'App/base.html' %}
+
+{% block content %}
+<style>
+    .planting-form {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.1);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 1.2rem 2.5rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        width: 100%;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
+            <i class="fas fa-seedling"></i>
+        </div>
+        <h1 class="display-5 fw-bold mb-3">Plant Trees Initiative</h1>
+        <p class="lead">Contribute to Kenya's 15 billion trees goal</p>
+    </div>
+
+    {% if submitted %}
+    <div class="alert alert-success text-center" style="border-radius: 20px; padding: 2rem;">
+        <div style="width: 60px; height: 60px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white;">
+            <i class="fas fa-check"></i>
+        </div>
+        <h4>Tree Planting Registered Successfully!</h4>
+        <p>Your contribution to the 15 billion trees initiative has been recorded. Organizations will verify your planting soon.</p>
+        <a href="{% url 'tree_initiative' %}" class="btn btn-success">Back to Initiative</a>
+    </div>
+    {% else %}
+    <div class="planting-form">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Hidden GPS coordinate fields -->
+            <input type="hidden" id="latitudeField" name="latitude">
+            <input type="hidden" id="longitudeField" name="longitude">
+            
+            {% for field in form %}
+                {% if field.name != 'latitude' and field.name != 'longitude' %}
+            <div class="form-group mb-3">
+                <label class="form-label fw-bold">{{ field.label }}</label>
+                {% if field.name == 'description' %}
+                    <textarea name="{{ field.name }}" class="form-control" rows="4" placeholder="Describe the planting area, purpose, and any special considerations..." required>{{ field.value|default:'' }}</textarea>
+                {% elif field.name == 'tree_type' %}
+                    <select name="{{ field.name }}" class="form-control" required>
+                        <option value="">Select tree type...</option>
+                        <option value="indigenous">Indigenous Species</option>
+                        <option value="exotic">Exotic Species</option>
+                        <option value="fruit">Fruit Trees</option>
+                        <option value="bamboo">Bamboo</option>
+                        <option value="other">Other</option>
+                    </select>
+                {% elif field.name == 'number_of_trees' %}
+                    <input type="number" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'1' }}" min="1" required placeholder="Number of trees to plant">
+                {% elif field.name == 'phoneNumber' %}
+                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" readonly style="background-color: #f8f9fa;" placeholder="Your registered phone number">
+                    <small class="text-muted">Using your registered phone number</small>
+                {% elif field.name == 'before_image' %}
+                    <input type="file" name="{{ field.name }}" class="form-control" accept="image/*">
+                    <small class="text-muted">Photo of the area before planting (optional)</small>
+                {% elif field.name == 'after_image' %}
+                    <input type="file" name="{{ field.name }}" class="form-control" accept="image/*">
+                    <small class="text-muted">Photo after planting trees (upload later if not planted yet)</small>
+                {% elif field.name == 'location_name' %}
+                    <div style="position: relative;">
+                        <input type="text" id="locationInput" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" required placeholder="Type location (e.g., Karura Forest, Nairobi)" style="padding-right: 120px;">
+                        <button type="button" id="getLocationBtn" class="btn" style="position: absolute; right: 5px; top: 5px; background: #22c55e; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.9rem;">
+                            <i class="fas fa-map-marker-alt me-1"></i>GPS
+                        </button>
+                    </div>
+                    <small class="text-muted mt-1">Click GPS to auto-detect your planting location</small>
+                {% else %}
+                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" {% if field.field.required %}required{% endif %} placeholder="{{ field.label }}...">
+                {% endif %}
+                {% endif %}
+                {% if field.errors %}
+                    <div class="text-danger mt-1">{{ field.errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <div class="alert alert-info" style="border-radius: 15px;">
+                <h6><i class="fas fa-info-circle me-2"></i>Tree Planting Guidelines</h6>
+                <ul class="mb-0">
+                    <li>Choose native/indigenous species when possible</li>
+                    <li>Ensure adequate spacing between trees</li>
+                    <li>Plant during the rainy season for better survival</li>
+                    <li>Take clear photos for verification</li>
+                </ul>
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-seedling me-2"></i>Register Tree Planting
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// GPS Location Detection for Tree Planting
+document.getElementById('getLocationBtn').addEventListener('click', function() {
+    const btn = this;
+    const locationInput = document.getElementById('locationInput');
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>...';
+    btn.disabled = true;
+    
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lng = position.coords.longitude.toFixed(6);
+                
+                // Store coordinates in hidden fields
+                document.getElementById('latitudeField').value = lat;
+                document.getElementById('longitudeField').value = lng;
+                
+                // Use coordinates as location name
+                locationInput.value = `${lat}, ${lng}`;
+                
+                btn.innerHTML = '<i class="fas fa-check me-1"></i>✓';
+                btn.style.background = '#10b981';
+                btn.disabled = true;
+            },
+            function(error) {
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>!';
+                btn.style.background = '#ef4444';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-map-marker-alt me-1"></i>GPS';
+                    btn.style.background = '#22c55e';
+                    btn.disabled = false;
+                }, 2000);
+                
+                alert('Location access denied. Please type your location manually.');
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            }
+        );
+    } else {
+        alert('GPS not supported by this browser. Please type your location manually.');
+    }
+});
+</script>
+
+{% endblock %}

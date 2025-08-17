@@ -1,21 +1,74 @@
-<!-- App/templates/App/profile.html -->
 {% extends 'App/base.html' %}
 {% block title %}Your Profile{% endblock title %}
 
 {% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>{{ user.get_full_name|default:user.username }}'s Profile</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Personal Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3"><i class="fas fa-info-circle me-2"></i>Personal Information</h6>
+                            <p><strong>Name:</strong> {{ user.get_full_name|default:"Not provided" }}</p>
+                            <p><strong>Username:</strong> {{ user.username }}</p>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3"><i class="fas fa-map-marker-alt me-2"></i>Contact Details</h6>
+                            <p><strong>Location:</strong> {{ user.profile.location|default:"Not provided" }}</p>
+                            <p><strong>Phone Number:</strong> {{ user.profile.phoneNumber|default:"Not provided" }}</p>
+                        </div>
+                    </div>
 
-<h2>{{ user.username }} Profile</h2>
+                    <!-- Environmental Impact Summary -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-success mb-3"><i class="fas fa-leaf me-2"></i>Environmental Impact</h6>
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <h5 class="text-success mb-1">{{ user.report_set.count }}</h5>
+                                        <small class="text-muted">Environmental Reports</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <h5 class="text-success mb-1">{{ user.treeplanting_set.count }}</h5>
+                                        <small class="text-muted">Trees Planted</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <h5 class="text-success mb-1">{{ user.profile.tree_points|default:0 }}</h5>
+                                        <small class="text-muted">Reward Points</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{% url 'my_reports' %}" class="btn btn-outline-success">
+                                    <i class="fas fa-chart-line me-2"></i>View Detailed Activity
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-
-<!-- User details -->
-<p><strong>Username:</strong> {{ user.username }}</p>
-<p><strong>Email:</strong> {{ user.email }}</p>
-<p><strong>Location:</strong> {{ user.profile.location }}</p>
-<p><strong>Phone Number:</strong> {{ user.profile.phoneNumber }}</p>
-
-<!-- Buttons -->
-<a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
-<a href="{% url 'password_change' %}" class="btn btn-secondary">Change Password</a>
-
-
+                    <!-- Action Buttons -->
+                    <div class="text-center">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-success me-2">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                        <a href="{% url 'password_change' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

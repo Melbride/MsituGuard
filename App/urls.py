@@ -16,16 +16,18 @@ from django.contrib.auth.views import LoginView
 
 from .views import(HomeView,   UserLogoutView, ResourceListView, ResourceCreateView,
                    ResourceUpdateView, ResourceDeleteView, ProfileDetailView, 
-                   ResourceDetailView, AlertListView, AlertCreateView, AlertUpdateView, AlertDetailView,
+                   ResourceDetailView, AlertListView, AlertCreateView, AlertDetailView,
                    LatestAlertsView, ResourceRequestCreateView, ResourceRequestListView,
                    ForumPostListView, ForumPostCreateView, ForumPostDetailView,  AddCommentView, UserEditView, ApprovedAlertListView,
-                   ApprovedContributeListView, TemplateView)
+                   ApprovedContributeListView, TemplateView, OrganizationDashboardView, update_report_status,
+                   TreeInitiativeView, TreePlantingFormView, TreePlantingsListView, MyReportsView, RewardsView, redeem_reward)
 #,UserRegisterView
                    
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),  
     # path('', include('django.contrib.auth.urls')), 
     path('register/', UseRegisterView.as_view(), name='register'),
+    path('register/organization/', UseRegisterView.as_view(), {'organization_only': True}, name='organization_register'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('resources/', ResourceListView.as_view(), name='resource_list'),
     path('resources/new/', ResourceCreateView.as_view(), name='resource_create'),
@@ -37,13 +39,26 @@ urlpatterns = [
     path('request-verification/', request_verification, name='request_verification'),
     # path('profile/remove_picture/', remove_profile_picture, name='remove_profile_picture'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('alerts/', AlertListView.as_view(), name='alert_list'),
-    path('alerts/new/', AlertCreateView.as_view(), name='alert_create'),  # Use alert_create
-    path('alert/edit/<int:pk>/', AlertUpdateView.as_view(), name='alert_update'),
-    path('latest-alerts/', LatestAlertsView.as_view(), name='latest_alerts'),
-    path('alerts/<int:pk>/', AlertDetailView.as_view(), name='alert_detail'),
+    path('reports/', AlertListView.as_view(), name='alert_list'),
+    path('reports/new/', AlertCreateView.as_view(), name='alert_create'),  # Use alert_create
+    path('my-reports/', MyReportsView.as_view(), name='my_reports'),
+
+
+    path('environmental-reports/', LatestAlertsView.as_view(), name='latest_alerts'),
+    path('reports/<int:pk>/', AlertDetailView.as_view(), name='alert_detail'),
     path('approved-alerts/', ApprovedAlertListView.as_view(), name='approved_alerts'),
     path('approved-contributes/', ApprovedContributeListView.as_view(), name='approved_contributes'),
+    path('organization-dashboard/', OrganizationDashboardView.as_view(), name='organization_dashboard'),
+    path('update-report-status/<int:report_id>/', update_report_status, name='update_report_status'),
+    path('update-tree-status/<int:tree_id>/', views.update_tree_status, name='update_tree_status'),
+    
+    # Tree Planting Initiative URLs
+    path('tree-initiative/', TreeInitiativeView.as_view(), name='tree_initiative'),
+    path('plant-trees/', TreePlantingFormView.as_view(), name='tree_planting_form'),
+    path('tree-plantings/', TreePlantingsListView.as_view(), name='tree_plantings_list'),
+    path('plant-trees-public/', views.PublicTreeFormView.as_view(), name='public_tree_form'),
+    path('public-tree-planting/', views.public_tree_planting, name='public_tree_planting'),
+    path('verify-tree-account/<uidb64>/<token>/', views.verify_tree_planting_account, name='verify_tree_planting_account'),
     path('request-resource/', ResourceRequestCreateView.as_view(), name='request_resource'),
     path('resource-requests/', ResourceRequestListView.as_view(), name='resource_requests'),
     path('request/success/', TemplateView.as_view(template_name='App/request_success.html'), name='request_success'),
@@ -73,6 +88,22 @@ urlpatterns = [
     
     # Redirect old contacts URL to home page footer
     path('contacts/', lambda request: redirect('/#footer-contact')),
+    
+    # Rewards system URLs
+    path('rewards/', RewardsView.as_view(), name='rewards'),
+    path('redeem-reward/<int:reward_id>/', redeem_reward, name='redeem_reward'),
+    
+    # Fire Risk Prediction URLs
+    path('fire-risk/', views.FireRiskView.as_view(), name='fire_risk'),
+    path('report-fire/', views.report_fire_observation, name='report_fire_observation'),
+    path('report-fire-public/', TemplateView.as_view(template_name='App/public_fire_report.html'), name='public_fire_report'),
+    path('field-assessment/', views.FieldAssessmentView.as_view(), name='field_assessment'),
+    
+    # Export URLs
+    path('export/reports/', views.export_reports, name='export_reports'),
+    path('export/tree-data/', views.export_tree_data, name='export_tree_data'),
+    path('export/fire-data/', views.export_fire_data, name='export_fire_data'),
+    path('export/fire-reports/', views.export_fire_reports, name='export_fire_reports'),
 
 
 

@@ -1,0 +1,187 @@
+{% extends 'App/base.html' %}
+
+{% block content %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+    }
+    .initiative-card {
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: none;
+        overflow: hidden;
+    }
+    .tree-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 2rem;
+    }
+    .btn-plant {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    .btn-plant:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        color: white;
+    }
+    .stats-card {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="hero-section">
+    <div class="container">
+        <div class="tree-icon">
+            <i class="fas fa-tree"></i>
+        </div>
+        <h1 class="display-4 fw-bold mb-3">15 Billion Trees Initiative</h1>
+        <p class="lead fs-5 mb-4">Join Kenya's ambitious goal to plant 15 billion trees by 2032</p>
+        <p class="mb-4">Help restore our forests, combat climate change, and create a greener future for generations to come.</p>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+        <!-- Progress Stats -->
+        <div class="row mb-5">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-success">{{ total_trees }}</h3>
+                    <p class="mb-0">Trees Planted</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-primary">{{ total_planters }}</h3>
+                    <p class="mb-0">Community Planters</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-warning">{{ verified_plantings }}</h3>
+                    <p class="mb-0">Verified Plantings</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-info">15B</h3>
+                    <p class="mb-0">Target Goal</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="text-center mb-5">How It Works</h2>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card initiative-card h-100">
+                    <div class="card-body text-center p-4">
+                        <div style="width: 60px; height: 60px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white;">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h5>1. Choose Location</h5>
+                        <p class="text-muted">Select an area suitable for tree planting in your community</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card initiative-card h-100">
+                    <div class="card-body text-center p-4">
+                        <div style="width: 60px; height: 60px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white;">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <h5>2. Plant Trees</h5>
+                        <p class="text-muted">Plant indigenous or suitable tree species in the selected area</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card initiative-card h-100">
+                    <div class="card-body text-center p-4">
+                        <div style="width: 60px; height: 60px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white;">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h5>3. Document & Verify</h5>
+                        <p class="text-muted">Upload photos and get your planting verified by local organizations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <h3 class="mb-4">Get Started Today</h3>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'tree_planting_form' %}" class="btn-plant">
+                        <i class="fas fa-plus me-2"></i>Plant Trees
+                    </a>
+                    <a href="{% url 'tree_plantings_list' %}" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-list me-2"></i>View All Plantings
+                    </a>
+                    {% if user.profile.account_type == 'organization' %}
+                    <a href="{% url 'organization_dashboard' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-chart-line me-2"></i>Organization Dashboard
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Plantings -->
+        {% if recent_plantings %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4">Recent Tree Plantings</h3>
+            </div>
+            {% for planting in recent_plantings %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card initiative-card">
+                    {% if planting.after_image %}
+                    <img src="{{ planting.after_image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title">{{ planting.title }}</h6>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ planting.location_name }}<br>
+                                <i class="fas fa-tree me-1"></i>{{ planting.number_of_trees }} {{ planting.get_tree_type_display }}<br>
+                                <i class="fas fa-user me-1"></i>{{ planting.planter.username }}
+                            </small>
+                        </p>
+                        <span class="badge bg-{% if planting.status == 'verified' %}success{% elif planting.status == 'planted' %}warning{% else %}secondary{% endif %}">
+                            {{ planting.status|title }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

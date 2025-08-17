@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Tree Planting Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #22c55e;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 24px;
+        }
+        .title {
+            color: #22c55e;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 16px;
+            margin: 5px 0 0 0;
+        }
+        .content {
+            margin: 25px 0;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        .message {
+            color: #4b5563;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .verify-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        .verify-button:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+        .stats-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .stats-title {
+            color: #16a34a;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .stats-text {
+            color: #15803d;
+            font-size: 14px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .footer-links {
+            margin: 15px 0;
+        }
+        .footer-links a {
+            color: #22c55e;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .social-icons {
+            margin: 15px 0;
+        }
+        .social-icons span {
+            display: inline-block;
+            margin: 0 5px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">🌱</div>
+            <h1 class="title">MsituGuard</h1>
+            <p class="subtitle">Environmental Protection Platform</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hello {{ user.first_name }}! 🌿
+            </div>
+            
+            <div class="message">
+                <p>Thank you for contributing to Kenya's <strong>15 Billion Trees Initiative</strong>! Your commitment to environmental protection makes a real difference.</p>
+                
+                <p>Your tree planting contribution has been recorded and is now part of Kenya's national environmental restoration efforts. To confirm your contribution, please verify your submission using the button below.</p>
+            </div>
+            
+            <div class="stats-box">
+                <div class="stats-title">🎯 Your Impact Matters</div>
+                <div class="stats-text">
+                    Join thousands of environmental guardians protecting Kenya's forests and contributing to our national tree planting goals.
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{{ verification_url }}" class="verify-button">
+                    ✅ Verify My Account
+                </a>
+            </div>
+            
+            <div class="message">
+                <p><strong>After verification, you can choose to:</strong></p>
+                <ul style="color: #4b5563; padding-left: 20px;">
+                    <li><strong>Create a full account</strong> - Track your environmental impact, report threats, and connect with conservation efforts</li>
+                    <li><strong>Explore the platform</strong> - Browse environmental reports and learn about conservation in Kenya</li>
+                    <li><strong>Continue later</strong> - Your tree planting contribution is already confirmed!</li>
+                </ul>
+                
+                <p style="margin-top: 20px;"><strong>What happens next:</strong></p>
+                <ol style="color: #4b5563; padding-left: 20px;">
+                    <li>Click the verification button above</li>
+                    <li>Choose whether to create an account or explore</li>
+                    <li>Your tree planting is confirmed either way!</li>
+                </ol>
+            </div>
+            
+            <div class="message">
+                <p><strong>No pressure!</strong> Your tree planting contribution is valuable regardless of whether you create an account. We just want to confirm it's legitimate.</p>
+                
+                <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                <p style="word-break: break-all; color: #22c55e; font-size: 14px;">{{ verification_url }}</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="social-icons">
+                <span>🌍</span> <span>🌱</span> <span>🌳</span> <span>🦋</span> <span>🐦</span>
+            </div>
+            <p><strong>MsituGuard - Environmental Protection Platform</strong></p>
+            <p>Protecting Kenya's forests through community-driven conservation</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a> |
+                <a href="#">Terms of Service</a> |
+                <a href="#">Contact Support</a>
+            </div>
+            <p style="font-size: 12px; color: #9ca3af;">
+                This email was sent because you registered for the 15 Billion Trees Initiative through MsituGuard.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

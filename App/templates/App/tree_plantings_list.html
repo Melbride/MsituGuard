@@ -1,0 +1,112 @@
+{% extends 'App/base.html' %}
+
+{% block content %}
+<style>
+    .planting-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: none;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    .planting-card:hover {
+        transform: translateY(-5px);
+    }
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
+            <i class="fas fa-tree"></i>
+        </div>
+        <h1 class="display-5 fw-bold mb-3">Community Tree Plantings</h1>
+        <p class="lead">See how our community is contributing to the 15 billion trees goal</p>
+    </div>
+
+    <div class="row">
+        {% for planting in plantings %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card planting-card h-100">
+                <div class="position-relative">
+                    {% if planting.after_image %}
+                    <img src="{{ planting.after_image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% elif planting.before_image %}
+                    <img src="{{ planting.before_image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 200px; background: linear-gradient(135deg, #22c55e, #16a34a);">
+                        <i class="fas fa-seedling fa-3x text-white"></i>
+                    </div>
+                    {% endif %}
+                    <span class="badge status-badge bg-{% if planting.status == 'verified' %}success{% elif planting.status == 'planted' %}warning{% else %}secondary{% endif %}">
+                        {{ planting.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ planting.title }}</h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ planting.location_name }}<br>
+                            <i class="fas fa-tree me-1"></i>{{ planting.number_of_trees }} {{ planting.get_tree_type_display }}<br>
+                            <i class="fas fa-user me-1"></i>{{ planting.planter.username }}<br>
+                            <i class="fas fa-calendar me-1"></i>{{ planting.planted_date|date:"M d, Y" }}
+                        </small>
+                    </p>
+                    {% if planting.description %}
+                    <p class="card-text">{{ planting.description|truncatewords:15 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+            <h4>No tree plantings yet</h4>
+            <p class="text-muted">Be the first to contribute to the 15 billion trees initiative!</p>
+            <a href="{% url 'tree_planting_form' %}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Plant Trees
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-5">
+        <a href="{% url 'tree_initiative' %}" class="btn btn-outline-success me-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Initiative
+        </a>
+        <a href="{% url 'tree_planting_form' %}" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Plant Trees
+        </a>
+    </div>
+</div>
+{% endblock %}

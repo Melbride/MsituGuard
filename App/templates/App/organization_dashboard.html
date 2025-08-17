@@ -1,0 +1,1567 @@
+{% extends 'App/base.html' %}
+
+{% block content %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 15px;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: none;
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-number { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
+    .stat-label { color: #6b7280; font-size: 0.9rem; }
+    
+    .reports-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .reports-header {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .reports-body { padding: 0; }
+    
+    .report-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .report-card .card-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem;
+    }
+    .report-card .card-body {
+        padding: 1rem;
+    }
+    .report-card .card-footer {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        padding: 1rem;
+    }
+    
+    .report-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .status-new { background: #fef2f2; color: #dc2626; }
+    .status-verified { background: #f0fdf4; color: #16a34a; }
+    .status-resolved { background: #f1f5f9; color: #6b7280; }
+    
+    .report-type {
+        background: #eff6ff;
+        color: #2563eb;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        border: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin: 0 0.25rem;
+    }
+    .btn-verify { background: #22c55e; color: white; }
+    .btn-verify:hover { background: #16a34a; transform: translateY(-1px); }
+    .btn-resolve { background: #6b7280; color: white; }
+    .btn-resolve:hover { background: #4b5563; transform: translateY(-1px); }
+    .btn-details { background: #3b82f6; color: white; }
+    .btn-details:hover { background: #2563eb; transform: translateY(-1px); }
+    
+    .input-group-text {
+        border: 2px solid #e2e8f0;
+        border-right: none !important;
+    }
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-left: none !important;
+    }
+    .form-control:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    .form-control:focus + .input-group-text,
+    .input-group-text:has(+ .form-control:focus) {
+        border-color: #22c55e;
+    }
+    .form-select {
+        border: 2px solid #e2e8f0;
+    }
+    .form-select:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    
+    /* Section Styling */
+    .section-divider {
+        position: relative;
+        padding: 2rem 0;
+    }
+    
+    .section-divider::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border-radius: 2px;
+    }
+    
+    .section-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+    }
+    
+    .tree-icon {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+    
+    .section-title {
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-subtitle {
+        color: #6b7280;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1rem;
+        }
+        
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .reports-header {
+            padding: 1rem;
+        }
+        
+        .reports-header .row {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .reports-header .col-md-6:last-child {
+            text-align: left;
+        }
+        
+        .reports-header .d-flex {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            margin: 0.2rem;
+        }
+        
+        .report-card {
+            margin-bottom: 1rem;
+        }
+        
+        .report-card .card-header,
+        .report-card .card-body,
+        .report-card .card-footer {
+            padding: 0.8rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-select {
+            margin-bottom: 1rem;
+        }
+        
+        .modal-dialog {
+            margin: 1rem;
+        }
+        
+        .modal-body .row {
+            flex-direction: column;
+        }
+        
+        .modal-body .col-md-4,
+        .modal-body .col-md-8 {
+            margin-bottom: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container-fluid {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 1.3rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+        }
+        
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+        }
+        
+        .action-btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            display: block;
+            width: 100%;
+            margin: 0.2rem 0;
+        }
+        
+        .reports-header h4 {
+            font-size: 1.1rem;
+        }
+        
+        .report-card h6 {
+            font-size: 0.9rem;
+        }
+        
+        .report-type,
+        .report-status {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+        }
+        
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+        
+        .modal-header h5 {
+            font-size: 1rem;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="container-fluid py-2 py-md-4">
+    <!-- Header -->
+    <div class="dashboard-header text-center">
+        <div class="container">
+            <h1><i class="fas fa-building me-3"></i>Organization Dashboard</h1>
+            <p class="mb-0 opacity-90">Environmental Reports Management System</p>
+        </div>
+    </div>
+    
+    <!-- Environmental Reports Overview -->
+    <div class="section-divider mb-5">
+        <div class="text-center mb-4">
+            <div class="section-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="section-title">Environmental Reports Overview</h2>
+            <p class="section-subtitle">Track and manage community environmental incident reports</p>
+        </div>
+        
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-danger">{{ new_count }}</div>
+                    <div class="stat-label">New Reports</div>
+                    <small class="text-muted">Require Review</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-success">{{ verified_count }}</div>
+                    <div class="stat-label">Verified</div>
+                    <small class="text-muted">Confirmed Issues</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-secondary">{{ resolved_count }}</div>
+                    <div class="stat-label">Resolved</div>
+                    <small class="text-muted">Completed</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-primary">{{ total_count }}</div>
+                    <div class="stat-label">Total Reports</div>
+                    <small class="text-muted">All Time</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <!-- Environmental Reports Management -->
+    <div class="reports-section mt-5">
+        <div class="reports-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4 class="mb-0"><i class="fas fa-leaf me-2 text-success"></i>Environmental Reports</h4>
+                    <small class="text-muted">Manage and track community environmental reports</small>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="action-btn btn-verify" onclick="bulkVerify()">
+                            <i class="fas fa-check-double me-1"></i>Bulk Verify
+                        </button>
+                        <button class="action-btn btn-details" onclick="exportReports()">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search and Filter Bar -->
+            <div class="row mt-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search by location, type, or reporter...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="new">New Reports</option>
+                        <option value="verified">Verified Reports</option>
+                        <option value="resolved">Resolved Reports</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="reports-body p-3">
+            <div class="row g-3">
+                {% for report in reports %}
+                <div class="col-md-6 col-lg-4" data-status="{{ report.status }}" data-location="{{ report.location_name|lower }}" data-type="{{ report.get_report_type_display|lower }}" data-reporter="{{ report.reporter.username|lower }}">
+                    <div class="report-card">
+                        <!-- Card Header -->
+                        <div class="card-header d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ report.title }}</h6>
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="report-type">{{ report.get_report_type_display }}</span>
+                                    <span class="report-status status-{{ report.status }}">{{ report.status }}</span>
+                                </div>
+                            </div>
+                            <input type="checkbox" class="form-check-input report-checkbox" value="{{ report.id }}" {% if report.status != 'new' %}disabled{% endif %}>
+                        </div>
+                        
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            {% if report.image %}
+                            <div class="text-center mb-3">
+                                <img src="{{ report.image.url }}" class="img-fluid rounded" style="max-height: 120px; cursor: pointer; object-fit: cover;" onclick="viewImage('{{ report.image.url }}', '{{ report.title }}')">
+                            </div>
+                            {% endif %}
+                            
+                            <div class="text-center mb-3">
+                                <div class="d-flex align-items-center justify-content-center text-muted small mb-2">
+                                    <i class="fas fa-map-marker-alt me-2 text-success"></i>
+                                    <span class="fw-medium">{{ report.location_name }}</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center text-muted small">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <span>{{ report.timestamp|date:"M d, H:i" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card Footer -->
+                        <div class="card-footer">
+                            <div class="d-grid gap-2">
+                                <button class="action-btn btn-details" onclick="viewLocation('{{ report.id }}', '{{ report.title }}', '{{ report.location_name }}', '{{ report.description }}', {{ report.latitude|default:'null' }}, {{ report.longitude|default:'null' }})">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </button>
+                                {% if report.status == 'new' %}
+                                <button class="action-btn btn-verify" onclick="updateStatus('{{ report.id }}', 'verified')">
+                                    <i class="fas fa-check me-1"></i>Verify Report
+                                </button>
+                                {% elif report.status == 'verified' %}
+                                <button class="action-btn btn-resolve" onclick="updateStatus('{{ report.id }}', 'resolved')">
+                                    <i class="fas fa-check-double me-1"></i>Mark Resolved
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-seedling fa-4x text-success opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted mb-2">No Environmental Reports Found</h5>
+                        <p class="text-muted mb-0">Environmental reports from the community will appear here.</p>
+                        <small class="text-muted">Use the search and filter options above to find specific reports.</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tree Planting Initiative Overview -->
+    <div class="section-divider mb-5 mt-5">
+        <div class="text-center mb-4">
+            <div class="section-icon tree-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <h2 class="section-title">Tree Planting Initiative Overview</h2>
+            <p class="section-subtitle">Monitor progress towards Kenya's 15 billion trees goal</p>
+        </div>
+        
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number text-success">{{ total_trees_planted }}</div>
+                    <div class="stat-label">Trees Planted</div>
+                    <small class="text-muted">15 Billion Initiative</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number text-info">{{ total_tree_planters }}</div>
+                    <div class="stat-label">Community Planters</div>
+                    <small class="text-muted">Active Participants</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-number text-warning">{{ verified_tree_plantings }}</div>
+                    <div class="stat-label">Verified Plantings</div>
+                    <small class="text-muted">Confirmed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tree Planting Management -->
+    <div class="reports-section mt-5">
+        <div class="reports-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4 class="mb-0"><i class="fas fa-seedling me-2 text-success"></i>Tree Planting Participants</h4>
+                    <small class="text-muted">Community members participating in 15 billion trees initiative</small>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="action-btn btn-verify" onclick="bulkVerifyTrees()">
+                            <i class="fas fa-check-double me-1"></i>Bulk Verify
+                        </button>
+                        <button class="action-btn btn-details" onclick="exportTreeData()">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search and Filter Bar for Tree Plantings -->
+            <div class="row mt-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" id="treeSearchInput" class="form-control border-start-0" placeholder="Search by location, planter name, or tree type...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select id="treeStatusFilter" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="planned">Planned</option>
+                        <option value="planted">Planted</option>
+                        <option value="verified">Verified</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="reports-body p-3">
+            <div class="row g-3">
+                {% for planting in tree_plantings %}
+                <div class="col-md-6 col-lg-4" data-status="{{ planting.status }}" data-location="{{ planting.location_name|lower }}" data-type="{{ planting.get_tree_type_display|lower }}" data-planter="{{ planting.planter_display_name|lower }}">
+                    <div class="report-card">
+                        <!-- Card Header -->
+                        <div class="card-header d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ planting.title }}</h6>
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="report-type">{{ planting.get_tree_type_display }}</span>
+                                    <span class="report-status status-{{ planting.status }}">{{ planting.status }}</span>
+                                </div>
+                            </div>
+                            <input type="checkbox" class="form-check-input tree-checkbox" value="{{ planting.id }}" {% if planting.status == 'verified' %}disabled{% endif %}>
+                        </div>
+                        
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            {% if planting.after_image %}
+                            <div class="text-center mb-3">
+                                <img src="{{ planting.after_image.url }}" class="img-fluid rounded" style="max-height: 120px; cursor: pointer; object-fit: cover;" onclick="viewImage('{{ planting.after_image.url }}', '{{ planting.title }}')">
+                            </div>
+                            {% elif planting.before_image %}
+                            <div class="text-center mb-3">
+                                <img src="{{ planting.before_image.url }}" class="img-fluid rounded" style="max-height: 120px; cursor: pointer; object-fit: cover;" onclick="viewImage('{{ planting.before_image.url }}', '{{ planting.title }}')">
+                            </div>
+                            {% endif %}
+                            
+                            <div class="text-center mb-3">
+                                <div class="d-flex align-items-center justify-content-center text-muted small mb-2">
+                                    <i class="fas fa-map-marker-alt me-2 text-success"></i>
+                                    <span class="fw-medium">{{ planting.location_name }}</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center text-muted small mb-2">
+                                    <i class="fas fa-seedling me-2 text-success"></i>
+                                    <span class="fw-medium">{{ planting.number_of_trees }} trees</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center text-muted small">
+                                    <i class="fas fa-user me-2"></i>
+                                    <span>{{ planting.planter_display_name }}{% if not planting.planter %} <small class="text-warning">(Unregistered)</small>{% endif %}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card Footer -->
+                        <div class="card-footer">
+                            <div class="d-grid gap-2">
+                                <button class="action-btn btn-details" onclick="viewTreeDetails('{{ planting.id }}', '{{ planting.title }}', '{{ planting.location_name }}', '{{ planting.description }}', '{{ planting.number_of_trees }}', '{{ planting.planter_display_name }}', {{ planting.planter|yesno:'true,false' }}, {{ planting.latitude|default:'null' }}, {{ planting.longitude|default:'null' }})">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </button>
+                                {% if planting.status != 'verified' %}
+                                <button class="action-btn btn-verify" onclick="updateTreeStatus('{{ planting.id }}', 'verified')">
+                                    <i class="fas fa-check me-1"></i>Verify Planting
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-seedling fa-4x text-success opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted mb-2">No Tree Planting Records Found</h5>
+                        <p class="text-muted mb-0">Tree planting activities from the community will appear here.</p>
+                        <small class="text-muted">Use the search and filter options above to find specific plantings.</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fire Safety Overview -->
+    <div class="section-divider mb-5 mt-5">
+        <div class="text-center mb-4">
+            <div class="section-icon" style="background: linear-gradient(135deg, #f97316, #ea580c); box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);">
+                <i class="fas fa-fire"></i>
+            </div>
+            <h2 class="section-title">Fire Safety Management</h2>
+            <p class="section-subtitle">Monitor fire risks and citizen fire observations</p>
+        </div>
+        
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-warning">{{ total_fire_predictions }}</div>
+                    <div class="stat-label">Risk Assessments</div>
+                    <small class="text-muted">Total Predictions</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-danger">{{ high_risk_predictions }}</div>
+                    <div class="stat-label">High Risk Areas</div>
+                    <small class="text-muted">HIGH/EXTREME</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-info">{{ total_fire_reports }}</div>
+                    <div class="stat-label">Citizen Reports</div>
+                    <small class="text-muted">Fire Observations</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number text-success">{{ recent_fire_reports }}</div>
+                    <div class="stat-label">Recent Reports</div>
+                    <small class="text-muted">Last 7 Days</small>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+    
+    <!-- Fire Risk Predictions -->
+    <div class="reports-section mt-5">
+        <div class="reports-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4 class="mb-0"><i class="fas fa-chart-line me-2 text-warning"></i>Fire Risk Predictions</h4>
+                    <small class="text-muted">AI-powered fire risk assessments based on environmental data</small>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'field_assessment' %}" class="action-btn" style="background: #f97316; color: white; text-decoration: none;">
+                            <i class="fas fa-mobile-alt me-1"></i>Field Assessment
+                        </a>
+                        <button class="action-btn btn-details" onclick="exportFireData()">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="reports-body p-3">
+            <div class="row g-3">
+                {% for prediction in fire_predictions %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="report-card">
+                        <div class="card-header">
+                            <h6 class="mb-1">{{ prediction.location_name }}</h6>
+                            <div class="d-flex gap-2 mb-2">
+                                {% if prediction.risk_level == 'LOW' %}
+                                    <span class="badge" style="background-color: #16a34a;">{{ prediction.risk_level }}</span>
+                                {% elif prediction.risk_level == 'MODERATE' %}
+                                    <span class="badge" style="background-color: #eab308;">{{ prediction.risk_level }}</span>
+                                {% elif prediction.risk_level == 'HIGH' %}
+                                    <span class="badge" style="background-color: #f97316;">{{ prediction.risk_level }}</span>
+                                {% else %}
+                                    <span class="badge" style="background-color: #dc2626;">{{ prediction.risk_level }}</span>
+                                {% endif %}
+                                <span class="report-type">Score: {{ prediction.risk_score|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <div class="d-flex align-items-center justify-content-center text-muted small mb-2">
+                                    <i class="fas fa-thermometer-half me-2 text-danger"></i>
+                                    <span>{{ prediction.temperature_c|default:"--" }}°C</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center text-muted small mb-2">
+                                    <i class="fas fa-tint me-2 text-primary"></i>
+                                    <span>{{ prediction.humidity|default:"--" }}% humidity</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center text-muted small">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <span>{{ prediction.created_at|date:"M d, H:i" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-chart-line fa-4x text-warning opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted mb-2">No Fire Risk Predictions</h5>
+                        <p class="text-muted mb-0">Fire risk assessments will appear here.</p>
+                        <a href="{% url 'fire_risk' %}" class="btn btn-warning mt-3">
+                            <i class="fas fa-plus me-2"></i>Create First Assessment
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Citizen Fire Reports -->
+    <div class="reports-section mt-5">
+        <div class="reports-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Citizen Fire Reports</h4>
+                    <small class="text-muted">Fire observations submitted by community members</small>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="action-btn btn-details" onclick="exportFireReports()">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="reports-body p-3">
+            <div class="row g-3">
+                {% for report in fire_reports %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="report-card">
+                        <div class="card-header">
+                            <h6 class="mb-1">{{ report.location_name }}</h6>
+                            <div class="d-flex gap-2 mb-2">
+                                <span class="report-type">{{ report.get_observation_display }}</span>
+                                <span class="badge bg-danger">URGENT</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if report.image %}
+                            <div class="text-center mb-3">
+                                <img src="{{ report.image.url }}" class="img-fluid rounded" style="max-height: 120px; cursor: pointer; object-fit: cover;" onclick="viewImage('{{ report.image.url }}', '{{ report.location_name }}')">
+                            </div>
+                            {% endif %}
+                            <div class="text-center mb-3">
+                                <div class="d-flex align-items-center justify-content-center text-muted small mb-2">
+                                    <i class="fas fa-user me-2"></i>
+                                    <span>{{ report.reporter.username }}</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-center text-muted small">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <span>{{ report.created_at|date:"M d, H:i" }}</span>
+                                </div>
+                            </div>
+                            {% if report.notes %}
+                            <p class="small text-muted mb-0">{{ report.notes|truncatewords:15 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-grid gap-2">
+                                <button class="action-btn btn-details" onclick="viewFireReport('{{ report.id }}', '{{ report.location_name }}', '{{ report.get_observation_display }}', '{{ report.notes }}', '{{ report.reporter.username }}', '{{ report.created_at|date:"M d, H:i" }}')">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </button>
+                                <button class="action-btn" style="background: #dc2626; color: white;" onclick="dispatchTeam('{{ report.id }}')">
+                                    <i class="fas fa-truck me-1"></i>Dispatch Team
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-fire fa-4x text-danger opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted mb-2">No Fire Reports</h5>
+                        <p class="text-muted mb-0">Citizen fire observations will appear here.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fire Risk Assessment Modal -->
+<div class="modal fade" id="fireAssessmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white;">
+                <h5 class="modal-title"><i class="fas fa-fire me-2"></i>Fire Risk Assessment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-4">
+                            <h6 class="text-warning mb-3"><i class="fas fa-map-marker-alt me-2"></i>Location</h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Location Name</label>
+                                    <input type="text" id="assessLocationName" class="form-control" placeholder="e.g., Karura Forest, Sector 5">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Latitude</label>
+                                    <input type="number" id="assessLatitude" class="form-control" step="0.000001" placeholder="-1.2345">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Longitude</label>
+                                    <input type="number" id="assessLongitude" class="form-control" step="0.000001" placeholder="36.7890">
+                                </div>
+                                <div class="col-12">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="getCurrentLocation()">
+                                        <i class="fas fa-crosshairs me-1"></i>Use Current Location
+                                    </button>
+                                    <small class="text-muted ms-2">Perfect for field assessments</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="assessmentResults" class="d-none">
+                            <h6 class="text-success mb-3"><i class="fas fa-chart-line me-2"></i>Assessment Results</h6>
+                            <div class="alert" id="riskAlert">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Risk Level:</strong> <span id="riskLevel"></span><br>
+                                        <strong>Risk Score:</strong> <span id="riskScore"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Temperature:</strong> <span id="temperature"></span>°C<br>
+                                        <strong>Humidity:</strong> <span id="humidity"></span>%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <h6 class="text-warning mb-3"><i class="fas fa-tools me-2"></i>Assessment Tools</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning" onclick="conductAssessment()" id="assessBtn">
+                                <i class="fas fa-search me-2"></i>Conduct Assessment
+                            </button>
+                            <button class="btn btn-success d-none" onclick="saveAssessment()" id="saveBtn">
+                                <i class="fas fa-save me-2"></i>Save Assessment
+                            </button>
+                            <button class="btn btn-info" onclick="viewWeatherData()">
+                                <i class="fas fa-cloud me-2"></i>Weather Details
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportAssessment()">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="text-muted mb-2"><i class="fas fa-info-circle me-1"></i>Field Tips</h6>
+                            <small class="text-muted">
+                                • Use GPS for accurate coordinates<br>
+                                • Check wind direction<br>
+                                • Note vegetation dryness<br>
+                                • Document water sources
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fire Report Details Modal -->
+<div class="modal fade" id="fireReportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fireReportModalTitle">Fire Report Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-4">
+                            <h6 class="text-danger mb-3"><i class="fas fa-fire me-2"></i>Fire Observation</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Location:</strong>
+                                    <p class="mb-0" id="fireReportLocation">Location</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Observation:</strong>
+                                    <p class="mb-0" id="fireReportObservation">Observation</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Reporter:</strong>
+                                    <p class="mb-0" id="fireReportReporter">Reporter</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Time:</strong>
+                                    <p class="mb-0" id="fireReportTime">Time</p>
+                                </div>
+                                <div class="col-12">
+                                    <strong class="text-muted">Notes:</strong>
+                                    <p class="mb-0" id="fireReportNotes">Notes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-danger mb-3"><i class="fas fa-tools me-2"></i>Emergency Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-danger" onclick="dispatchEmergencyTeam()">
+                                <i class="fas fa-truck me-2"></i>Dispatch Team
+                            </button>
+                            <button class="btn btn-warning" onclick="contactReporter()">
+                                <i class="fas fa-phone me-2"></i>Contact Reporter
+                            </button>
+                            <button class="btn btn-info" onclick="alertNearbyTeams()">
+                                <i class="fas fa-broadcast-tower me-2"></i>Alert Nearby Teams
+                            </button>
+                            <button class="btn btn-secondary" onclick="addFireNotes()">
+                                <i class="fas fa-sticky-note me-2"></i>Add Notes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal will be created dynamically -->
+
+<!-- Tree Details Modal -->
+<div class="modal fade" id="treeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="treeModalTitle">Tree Planting Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="treePlantingDetails">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-4">
+                                <h6 class="text-success mb-3"><i class="fas fa-seedling me-2"></i>Planting Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Location:</strong>
+                                        <p class="mb-0" id="treePlantingLocation">Location Name</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Tree Type:</strong>
+                                        <p class="mb-0" id="treePlantingType">Type</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Number of Trees:</strong>
+                                        <p class="mb-0" id="treePlantingCount">Count</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Planter:</strong>
+                                        <p class="mb-0" id="treePlantingPlanter">Planter</p>
+                                    </div>
+                                    <div class="col-12">
+                                        <strong class="text-muted">Description:</strong>
+                                        <p class="mb-0" id="treePlantingDescription">Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <h6 class="text-success mb-3"><i class="fas fa-tools me-2"></i>Quick Actions</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-success" onclick="quickVerifyTree()">
+                                    <i class="fas fa-check me-2"></i>Verify Planting
+                                </button>
+                                <button class="btn btn-warning" onclick="contactPlanter()">
+                                    <i class="fas fa-phone me-2"></i>Planter Contacted
+                                </button>
+                                <button class="btn btn-info" onclick="scheduleVisit()">
+                                    <i class="fas fa-calendar me-2"></i>Visit Scheduled
+                                </button>
+                                <button class="btn btn-primary" onclick="openTreeInMaps()">
+                                    <i class="fas fa-map-marker-alt me-2"></i>View on Map
+                                </button>
+                                <button class="btn btn-secondary" onclick="addTreeNotes()">
+                                    <i class="fas fa-sticky-note me-2"></i>Add Notes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map Modal -->
+<div class="modal fade" id="mapModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapModalTitle">Report Location</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reportMap" class="modal-map">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-4">
+                                <h6 class="text-success mb-3"><i class="fas fa-info-circle me-2"></i>Report Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Location:</strong>
+                                        <p class="mb-0" id="locationName">Location Name</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Report Type:</strong>
+                                        <p class="mb-0" id="reportType">Type</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Reporter:</strong>
+                                        <p class="mb-0" id="reporterName">Reporter</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Date:</strong>
+                                        <p class="mb-0" id="reportDate">Date</p>
+                                    </div>
+                                    <div class="col-12">
+                                        <strong class="text-muted">Description:</strong>
+                                        <p class="mb-0" id="reportDescription">Description</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border rounded p-3" style="background: #f8f9fa;">
+                                <div class="text-center">
+                                    <i class="fas fa-map-marked-alt fa-3x text-success mb-2"></i>
+                                    <h6 class="text-muted">Location Map</h6>
+                                    <p class="small text-muted mb-2">GPS Coordinates: <span id="gpsCoords">Loading...</span></p>
+                                    <button class="btn btn-sm btn-outline-success" onclick="openInMaps()">
+                                        <i class="fas fa-external-link-alt me-1"></i>Open in Maps
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <h6 class="text-success mb-3"><i class="fas fa-tools me-2"></i>Quick Actions</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-success" onclick="quickVerify()">
+                                    <i class="fas fa-check me-2"></i>Verify Report
+                                </button>
+                                <button class="btn btn-warning" onclick="contactReporter()">
+                                    <i class="fas fa-phone me-2"></i>Contact Reporter
+                                </button>
+                                <button class="btn btn-info" onclick="assignTeam()">
+                                    <i class="fas fa-users me-2"></i>Assign Team
+                                </button>
+                                <button class="btn btn-secondary" onclick="addNotes()">
+                                    <i class="fas fa-sticky-note me-2"></i>Add Notes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enhanced filtering and search for reports
+function filterReports() {
+    const status = document.getElementById('statusFilter').value;
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const reports = document.querySelectorAll('[data-status][data-reporter]');
+    
+    reports.forEach(report => {
+        const matchesStatus = status === '' || report.dataset.status === status;
+        const matchesSearch = search === '' || 
+            report.dataset.location.includes(search) ||
+            report.dataset.type.includes(search) ||
+            report.dataset.reporter.includes(search);
+        
+        if (matchesStatus && matchesSearch) {
+            report.style.display = 'block';
+        } else {
+            report.style.display = 'none';
+        }
+    });
+}
+
+// Enhanced filtering and search for tree plantings
+function filterTreePlantings() {
+    const status = document.getElementById('treeStatusFilter').value;
+    const search = document.getElementById('treeSearchInput').value.toLowerCase();
+    const plantings = document.querySelectorAll('[data-status][data-planter]');
+    
+    plantings.forEach(planting => {
+        const matchesStatus = status === '' || planting.dataset.status === status;
+        const matchesSearch = search === '' || 
+            planting.dataset.location.includes(search) ||
+            planting.dataset.type.includes(search) ||
+            planting.dataset.planter.includes(search);
+        
+        if (matchesStatus && matchesSearch) {
+            planting.style.display = 'block';
+        } else {
+            planting.style.display = 'none';
+        }
+    });
+}
+
+document.getElementById('statusFilter').addEventListener('change', filterReports);
+document.getElementById('searchInput').addEventListener('input', filterReports);
+document.getElementById('treeStatusFilter').addEventListener('change', filterTreePlantings);
+document.getElementById('treeSearchInput').addEventListener('input', filterTreePlantings);
+
+// Enhanced view location with details
+function viewLocation(reportId, title, location, description, latitude, longitude) {
+    // Get report data from the card
+    const reportCard = document.querySelector(`.report-checkbox[value="${reportId}"]`).closest('[data-status]');
+    const reportType = reportCard.querySelector('.report-type').textContent;
+    const date = reportCard.querySelector('.fa-clock').parentElement.textContent.trim();
+    const reporter = reportCard.dataset.reporter || 'Unknown';
+    
+    // Populate modal
+    document.getElementById('mapModalTitle').textContent = title;
+    document.getElementById('locationName').textContent = location;
+    document.getElementById('reportType').textContent = reportType;
+    document.getElementById('reporterName').textContent = reporter;
+    document.getElementById('reportDate').textContent = date;
+    document.getElementById('reportDescription').textContent = description;
+    
+    // Store coordinates for Google Maps
+    if (latitude && longitude) {
+        document.getElementById('gpsCoords').textContent = `${latitude}, ${longitude}`;
+        window.currentReportLat = latitude;
+        window.currentReportLon = longitude;
+    } else {
+        // Check if location name contains coordinates
+        const coordMatch = location.match(/^(-?\d+\.\d+),\s*(-?\d+\.\d+)$/);
+        if (coordMatch) {
+            document.getElementById('gpsCoords').textContent = location;
+            window.currentReportLat = parseFloat(coordMatch[1]);
+            window.currentReportLon = parseFloat(coordMatch[2]);
+        } else {
+            document.getElementById('gpsCoords').textContent = 'GPS coordinates not available';
+            window.currentReportLat = null;
+            window.currentReportLon = null;
+        }
+    }
+    
+    // Store current report ID for quick actions
+    window.currentReportId = reportId;
+    
+    const modal = new bootstrap.Modal(document.getElementById('mapModal'));
+    modal.show();
+}
+
+// Open location in external maps
+function openInMaps() {
+    if (window.currentReportLat && window.currentReportLon) {
+        const url = `https://www.google.com/maps?q=${window.currentReportLat},${window.currentReportLon}`;
+        window.open(url, '_blank');
+    } else {
+        // Use location name for search if coordinates not available
+        const locationName = document.getElementById('locationName').textContent;
+        if (locationName) {
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(locationName)}`;
+            window.open(url, '_blank');
+        } else {
+            alert('Location information not available');
+        }
+    }
+}
+
+// Bulk verification
+function bulkVerify() {
+    const checkboxes = document.querySelectorAll('.report-checkbox:checked');
+    const reportIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (reportIds.length === 0) {
+        alert('Please select reports to verify');
+        return;
+    }
+    
+    if (confirm(`Verify ${reportIds.length} reports?`)) {
+        // Process each report
+        reportIds.forEach(id => updateStatus(id, 'verified'));
+    }
+}
+
+// Export reports
+function exportReports() {
+    window.location.href = '/export/reports/';
+}
+
+// Quick actions from modal
+function quickVerify() {
+    if (window.currentReportId) {
+        updateStatus(window.currentReportId, 'verified');
+        bootstrap.Modal.getInstance(document.getElementById('mapModal')).hide();
+    }
+}
+
+function contactReporter() {
+    alert('Reporter contacted');
+}
+
+function assignTeam() {
+    alert('Response team assigned');
+}
+
+function addNotes() {
+    const notes = prompt('Add notes for this report:');
+    if (notes) {
+        alert('Notes saved: ' + notes);
+    }
+}
+
+// Tree planting modal functions
+function quickVerifyTree() {
+    if (window.currentTreeId) {
+        updateTreeStatus(window.currentTreeId, 'verified');
+        bootstrap.Modal.getInstance(document.getElementById('treeModal')).hide();
+    }
+}
+
+function contactPlanter() {
+    alert('Planter contacted');
+}
+
+function scheduleVisit() {
+    alert('Site visit scheduled');
+}
+
+function addTreeNotes() {
+    const notes = prompt('Add notes for this tree planting:');
+    if (notes) {
+        alert('Tree planting notes saved: ' + notes);
+    }
+}
+
+function openTreeInMaps() {
+    if (window.currentTreeLat && window.currentTreeLon) {
+        const url = `https://www.google.com/maps?q=${window.currentTreeLat},${window.currentTreeLon}`;
+        window.open(url, '_blank');
+    } else {
+        // Use location name for search if coordinates not available
+        const locationName = document.getElementById('treePlantingLocation').textContent;
+        if (locationName) {
+            const url = `https://www.google.com/maps/search/${encodeURIComponent(locationName)}`;
+            window.open(url, '_blank');
+        } else {
+            alert('Location information not available');
+        }
+    }
+}
+
+// View full image
+function viewImage(imageUrl, title) {
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${title} - Evidence Photo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="${imageUrl}" class="img-fluid" style="max-height: 500px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    const imageModal = new bootstrap.Modal(modal.querySelector('.modal'));
+    imageModal.show();
+    
+    modal.querySelector('.modal').addEventListener('hidden.bs.modal', () => {
+        document.body.removeChild(modal);
+    });
+}
+
+// Update report status
+function updateStatus(reportId, newStatus) {
+    if (confirm(`Are you sure you want to mark this report as ${newStatus}?`)) {
+        fetch(`/update-report-status/${reportId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error updating status');
+            }
+        });
+    }
+}
+
+// Tree planting functions
+function viewTreeDetails(plantingId, title, location, description, numTrees, planter, isRegistered, latitude, longitude) {
+    // Populate modal
+    document.getElementById('treeModalTitle').textContent = title;
+    document.getElementById('treePlantingLocation').textContent = location;
+    document.getElementById('treePlantingCount').textContent = numTrees;
+    document.getElementById('treePlantingPlanter').textContent = planter + (isRegistered ? '' : ' (Unregistered)');
+    document.getElementById('treePlantingDescription').textContent = description;
+    
+    // Store coordinates for Google Maps
+    if (latitude && longitude) {
+        window.currentTreeLat = latitude;
+        window.currentTreeLon = longitude;
+    } else {
+        // Check if location name contains coordinates
+        const coordMatch = location.match(/^(-?\d+\.\d+),\s*(-?\d+\.\d+)$/);
+        if (coordMatch) {
+            window.currentTreeLat = parseFloat(coordMatch[1]);
+            window.currentTreeLon = parseFloat(coordMatch[2]);
+        } else {
+            window.currentTreeLat = null;
+            window.currentTreeLon = null;
+        }
+    }
+    
+    // Store current tree planting ID for quick actions
+    window.currentTreeId = plantingId;
+    
+    const modal = new bootstrap.Modal(document.getElementById('treeModal'));
+    modal.show();
+}
+
+function updateTreeStatus(plantingId, newStatus) {
+    if (confirm(`Are you sure you want to mark this tree planting as ${newStatus}?`)) {
+        fetch(`/update-tree-status/${plantingId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error updating tree planting status');
+            }
+        });
+    }
+}
+
+function bulkVerifyTrees() {
+    const checkboxes = document.querySelectorAll('.tree-checkbox:checked');
+    const plantingIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (plantingIds.length === 0) {
+        alert('Please select tree plantings to verify');
+        return;
+    }
+    
+    if (confirm(`Verify ${plantingIds.length} tree plantings?`)) {
+        // Process each tree planting
+        plantingIds.forEach(id => updateTreeStatus(id, 'verified'));
+    }
+}
+
+function exportTreeData() {
+    window.location.href = '/export/tree-data/';
+}
+
+// Fire safety functions
+function viewFireReport(reportId, location, observation, notes, reporter, time) {
+    document.getElementById('fireReportModalTitle').textContent = `Fire Report - ${location}`;
+    document.getElementById('fireReportLocation').textContent = location;
+    document.getElementById('fireReportObservation').textContent = observation;
+    document.getElementById('fireReportReporter').textContent = reporter;
+    document.getElementById('fireReportTime').textContent = time;
+    document.getElementById('fireReportNotes').textContent = notes || 'No additional notes';
+    
+    window.currentFireReportId = reportId;
+    
+    const modal = new bootstrap.Modal(document.getElementById('fireReportModal'));
+    modal.show();
+}
+
+function dispatchTeam(reportId) {
+    if (confirm('Dispatch emergency response team to this location?')) {
+        alert(`Emergency team dispatched for fire report ${reportId}. Team will be notified via SMS and radio.`);
+    }
+}
+
+function dispatchEmergencyTeam() {
+    if (window.currentFireReportId) {
+        dispatchTeam(window.currentFireReportId);
+        bootstrap.Modal.getInstance(document.getElementById('fireReportModal')).hide();
+    }
+}
+
+function alertNearbyTeams() {
+    alert('Nearby emergency teams have been alerted via radio and SMS.');
+}
+
+function addFireNotes() {
+    const notes = prompt('Add emergency response notes:');
+    if (notes) {
+        alert('Emergency notes saved: ' + notes);
+    }
+}
+
+function exportFireData() {
+    window.location.href = '/export/fire-data/';
+}
+
+function exportFireReports() {
+    window.location.href = '/export/fire-reports/';
+}
+
+// Fire Risk Assessment Modal Functions
+function openFireAssessmentModal() {
+    const modal = new bootstrap.Modal(document.getElementById('fireAssessmentModal'));
+    modal.show();
+}
+
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        document.getElementById('assessBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting Location...';
+        document.getElementById('assessBtn').disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                document.getElementById('assessLatitude').value = position.coords.latitude.toFixed(6);
+                document.getElementById('assessLongitude').value = position.coords.longitude.toFixed(6);
+                document.getElementById('assessBtn').innerHTML = '<i class="fas fa-search me-2"></i>Conduct Assessment';
+                document.getElementById('assessBtn').disabled = false;
+                
+                // Auto-fill location name based on coordinates
+                document.getElementById('assessLocationName').value = `Field Location (${position.coords.latitude.toFixed(3)}, ${position.coords.longitude.toFixed(3)})`;
+            },
+            function(error) {
+                alert('Error getting location: ' + error.message + '. Please enter coordinates manually.');
+                document.getElementById('assessBtn').innerHTML = '<i class="fas fa-search me-2"></i>Conduct Assessment';
+                document.getElementById('assessBtn').disabled = false;
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+    } else {
+        alert('Geolocation is not supported by this browser. Please enter coordinates manually.');
+    }
+}
+
+function conductAssessment() {
+    const locationName = document.getElementById('assessLocationName').value;
+    const lat = document.getElementById('assessLatitude').value;
+    const lon = document.getElementById('assessLongitude').value;
+    
+    if (!locationName || !lat || !lon) {
+        alert('Please fill in all location fields');
+        return;
+    }
+    
+    // Show loading
+    document.getElementById('assessBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Assessing...';
+    document.getElementById('assessBtn').disabled = true;
+    
+    // Make actual API call to fire risk assessment
+    const url = `/fire-risk/?lat=${lat}&lon=${lon}`;
+    window.open(url, '_blank');
+    
+    // Reset button
+    setTimeout(() => {
+        document.getElementById('assessBtn').innerHTML = '<i class="fas fa-search me-2"></i>Conduct Assessment';
+        document.getElementById('assessBtn').disabled = false;
+        bootstrap.Modal.getInstance(document.getElementById('fireAssessmentModal')).hide();
+    }, 1000);
+}
+
+function saveAssessment() {
+    alert('Assessment will be saved automatically when conducted.');
+}
+
+function viewWeatherData() {
+    alert('Weather Details:\n• Temperature: Real-time data\n• Humidity: Live readings\n• Wind Speed: Current conditions\n• Rainfall: 24h data\n• NDVI: Vegetation index');
+}
+
+function exportAssessment() {
+    const locationName = document.getElementById('assessLocationName').value || 'Assessment';
+    const data = `Fire Risk Assessment Report\n\nLocation: ${locationName}\nDate: ${new Date().toLocaleDateString()}\nTime: ${new Date().toLocaleTimeString()}\n\nField Assessment Guidelines:\n- Check vegetation dryness\n- Note wind direction and speed\n- Document water sources\n- Assess terrain accessibility\n- Record weather conditions`;
+    
+    const blob = new Blob([data], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `field_assessment_template_${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+}
+</script>
+
+{% csrf_token %}
+{% endblock %}

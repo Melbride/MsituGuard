@@ -9,7 +9,9 @@
     }
     
     .page-header {
-        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.6), rgba(22, 163, 74, 0.6)), url('{% static 'images/tree planting.jpg' %}');
+        background-size: cover;
+        background-position: center;
         color: white;
         padding: 4rem 0 2rem;
         text-align: center;
@@ -33,7 +35,7 @@
         padding: 2rem;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        border: 1px solid rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.1);
         margin-bottom: 1.5rem;
         position: relative;
         overflow: hidden;
@@ -47,7 +49,7 @@
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(139,92,246,0.05), transparent);
+        background: linear-gradient(90deg, transparent, rgba(34,197,94,0.05), transparent);
         transition: left 0.8s ease;
     }
     
@@ -57,14 +59,14 @@
     
     .forum-post:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
-        border-color: #8b5cf6;
+        box-shadow: 0 20px 40px rgba(34, 197, 94, 0.15);
+        border-color: #22c55e;
     }
     
     .user-avatar {
         width: 50px;
         height: 50px;
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        background: linear-gradient(135deg, #22c55e, #16a34a);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -75,7 +77,7 @@
     }
     
     .btn-create-post {
-        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         color: white;
         padding: 1rem 2rem;
         border-radius: 50px;
@@ -83,29 +85,29 @@
         font-weight: 600;
         font-size: 1.1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
         border: none;
     }
     
     .btn-create-post:hover {
         transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+        box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
         color: white;
     }
     
     .btn-view-post {
-        background: rgba(139, 92, 246, 0.1);
-        color: #8b5cf6;
+        background: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
         padding: 0.75rem 1.5rem;
         border-radius: 25px;
         text-decoration: none;
         font-weight: 600;
         transition: all 0.3s ease;
-        border: 2px solid rgba(139, 92, 246, 0.2);
+        border: 2px solid rgba(34, 197, 94, 0.2);
     }
     
     .btn-view-post:hover {
-        background: #8b5cf6;
+        background: #22c55e;
         color: white;
         transform: translateY(-2px);
     }
@@ -171,8 +173,21 @@
     }
     
     @media (max-width: 480px) {
+        .page-header {
+            padding: 1.5rem 0 1rem;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .page-header p {
+            font-size: 1rem;
+        }
+        
         .forum-post {
             padding: 1rem;
+            border-radius: 15px;
         }
         
         .forum-post h4 {
@@ -188,6 +203,8 @@
             align-self: flex-start;
             width: 100%;
             text-align: center;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
         }
         
         .d-flex.align-items-center.gap-3 {
@@ -198,6 +215,27 @@
         
         .badge {
             margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-create-post {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+        
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
         }
     }
 </style>
@@ -208,8 +246,8 @@
         <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
             <i class="fas fa-comments"></i>
         </div>
-        <h1 class="display-4 fw-bold mb-3">Community Forum</h1>
-        <p class="lead fs-5">Connect with neighbors, share experiences, and build stronger community bonds</p>
+        <h1 class="display-4 fw-bold mb-3">Environmental Community Forum</h1>
+        <p class="lead fs-5">Connect with environmental guardians, share conservation experiences, and collaborate on protecting Kenya's natural heritage</p>
     </div>
 </div>
 
@@ -218,12 +256,12 @@
     <div class="container">
         <div class="row mb-4">
             <div class="col-12">
-                <div class="p-4 rounded-3" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe); border-left: 4px solid #8b5cf6;">
+                <div class="p-4 rounded-3" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-left: 4px solid #22c55e;">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-users me-3" style="color: #7c3aed; font-size: 1.5rem;"></i>
+                        <i class="fas fa-users me-3" style="color: #16a34a; font-size: 1.5rem;"></i>
                         <div>
-                            <h5 class="fw-bold mb-1" style="color: #5b21b6;">Community Discussion Space</h5>
-                            <p class="mb-0" style="color: #6b21a8;">Share experiences, ask questions, and discuss topics that matter to your community. A space for open conversation and mutual support.</p>
+                            <h5 class="fw-bold mb-1" style="color: #166534;">MsituGuard Community Hub</h5>
+                            <p class="mb-0" style="color: #15803d;">Share environmental reports, discuss conservation strategies, and connect with fellow environmental guardians across Kenya.</p>
                         </div>
                     </div>
                 </div>
@@ -237,12 +275,12 @@
                         <i class="fas fa-plus me-2"></i>Create New Post
                     </a>
                     
-                    <button type="button" class="btn" style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; padding: 0.75rem 1.5rem; border-radius: 25px; border: none;" data-bs-toggle="modal" data-bs-target="#twitterModal">
-                        <i class="fas fa-rss me-2"></i>Emergency Updates
-                    </button>
-                    
                     <button type="button" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.75rem 1.5rem; border-radius: 25px; border: none;" data-bs-toggle="modal" data-bs-target="#communityModal">
                         <i class="fas fa-users me-2"></i>Community Updates
+                    </button>
+                    
+                    <button type="button" class="btn" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 0.75rem 1.5rem; border-radius: 25px; border: none;" data-bs-toggle="modal" data-bs-target="#resourcesModal">
+                        <i class="fas fa-leaf me-2"></i>Environmental Resources
                     </button>
                 </div>
             </div>
@@ -259,7 +297,7 @@
                                         {% if post.user.profile.profile_picture %}
                                             <img src="{{ post.user.profile.profile_picture.url }}" alt="{{ post.user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                                         {% else %}
-                                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
+                                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
                                                 {{ post.user.username|first|upper }}
                                             </div>
                                         {% endif %}
@@ -270,7 +308,7 @@
                                             <p class="text-muted mb-3">{{ post.content|truncatewords:30 }}</p>
                                         {% endif %}
                                         <div class="d-flex align-items-center gap-3">
-                                            <span class="badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem 1rem; border-radius: 20px;">
+                                            <span class="badge" style="background: rgba(34, 197, 94, 0.1); color: #16a34a; padding: 0.5rem 1rem; border-radius: 20px;">
                                                 <i class="fas fa-user me-1"></i>{{ post.user.username }}
                                             </span>
                                             <small class="text-muted">
@@ -289,11 +327,11 @@
             </div>
         {% else %}
             <div class="empty-state">
-                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: white; font-size: 2.5rem;">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: white; font-size: 2.5rem;">
                     <i class="fas fa-comment-dots"></i>
                 </div>
-                <h3 class="fw-bold mb-3" style="color: #1f2937;">Start the Conversation</h3>
-                <p class="text-muted mb-4">No posts yet. Be the first to share something with your community and get the discussion started!</p>
+                <h3 class="fw-bold mb-3" style="color: #1f2937;">Start Environmental Discussions</h3>
+                <p class="text-muted mb-4">No posts yet. Be the first to share environmental insights, conservation tips, or discuss local environmental challenges!</p>
                 <a href="{% url 'forum_post_create' %}" class="btn-create-post">
                     <i class="fas fa-plus me-2"></i>Create First Post
                 </a>
@@ -302,22 +340,87 @@
     </div>
 </section>
 
-<!-- Twitter Feed Modal -->
-<div class="modal fade" id="twitterModal" tabindex="-1" aria-labelledby="twitterModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-scrollable">
+<!-- Environmental Resources Modal -->
+<div class="modal fade" id="resourcesModal" tabindex="-1" aria-labelledby="resourcesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="twitterModalLabel">Live Emergency Updates</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white;">
+        <h5 class="modal-title" id="resourcesModalLabel"><i class="fas fa-leaf me-2"></i>Environmental Resources & Tips</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <a class="twitter-timeline"
-           data-height="400"
-           href="https://twitter.com/KenyaRedCross?ref_src=twsrc%5Etfw"
-           rel="noopener noreferrer"
-           target="_blank">
-          Tweets by KenyaRedCross
-        </a>
+        <!-- Conservation Tips -->
+        <div class="mb-4">
+          <h6 class="fw-bold mb-3" style="color: #16a34a;"><i class="fas fa-lightbulb me-2"></i>Conservation Tips</h6>
+          
+          <div class="tip-item" style="background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #22c55e;">
+            <div class="d-flex align-items-center mb-2">
+              <div style="width: 40px; height: 40px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                <i class="fas fa-tint" style="color: white;"></i>
+              </div>
+              <div>
+                <h6 class="mb-0" style="color: #166534;">Water Conservation</h6>
+                <small class="text-muted">Save up to 30% on water usage</small>
+              </div>
+            </div>
+            <p class="mb-0 text-sm" style="color: #15803d;">Fix leaks immediately, use water-efficient appliances, and collect rainwater for gardening.</p>
+          </div>
+          
+          <div class="tip-item" style="background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #10b981;">
+            <div class="d-flex align-items-center mb-2">
+              <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                <i class="fas fa-recycle" style="color: white;"></i>
+              </div>
+              <div>
+                <h6 class="mb-0" style="color: #166534;">Waste Reduction</h6>
+                <small class="text-muted">Reduce, Reuse, Recycle</small>
+              </div>
+            </div>
+            <p class="mb-0 text-sm" style="color: #15803d;">Separate waste properly, compost organic materials, and avoid single-use plastics.</p>
+          </div>
+          
+          <div class="tip-item" style="background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #059669;">
+            <div class="d-flex align-items-center mb-2">
+              <div style="width: 40px; height: 40px; background: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                <i class="fas fa-seedling" style="color: white;"></i>
+              </div>
+              <div>
+                <h6 class="mb-0" style="color: #166534;">Tree Planting</h6>
+                <small class="text-muted">Combat climate change</small>
+              </div>
+            </div>
+            <p class="mb-0 text-sm" style="color: #15803d;">Plant native species, maintain existing trees, and participate in community reforestation.</p>
+          </div>
+        </div>
+        
+        <!-- Useful Links -->
+        <div class="mb-4">
+          <h6 class="fw-bold mb-3" style="color: #16a34a;"><i class="fas fa-link me-2"></i>Useful Resources</h6>
+          
+          <div class="resource-item" style="background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1" style="color: #166534;">Kenya Forest Service</h6>
+                <p class="mb-0 text-sm text-muted">Official forestry information and tree planting guidelines</p>
+              </div>
+              <a href="https://www.kenyaforestservice.org" target="_blank" class="btn btn-sm" style="background: #22c55e; color: white; border-radius: 20px;">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            </div>
+          </div>
+          
+          <div class="resource-item" style="background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1" style="color: #166534;">NEMA - Environmental Authority</h6>
+                <p class="mb-0 text-sm text-muted">Environmental regulations and reporting guidelines</p>
+              </div>
+              <a href="https://www.nema.go.ke" target="_blank" class="btn btn-sm" style="background: #22c55e; color: white; border-radius: 20px;">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -327,64 +430,64 @@
 <div class="modal fade" id="communityModal" tabindex="-1" aria-labelledby="communityModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="communityModalLabel">Community Updates & Resources</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
+        <h5 class="modal-title" id="communityModalLabel"><i class="fas fa-users me-2"></i>Environmental Community Updates</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- Recent Community Activities -->
+        <!-- Recent Environmental Activities -->
         <div class="mb-4">
-          <h6 class="fw-bold mb-3"><i class="fas fa-bullhorn me-2 text-primary"></i>Recent Community Activities</h6>
+          <h6 class="fw-bold mb-3" style="color: #16a34a;"><i class="fas fa-leaf me-2"></i>Recent Environmental Activities</h6>
           
           <div class="activity-item" style="background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #10b981;">
             <div class="d-flex align-items-center mb-2">
               <div style="width: 40px; height: 40px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                <i class="fas fa-hands-helping" style="color: white;"></i>
+                <i class="fas fa-seedling" style="color: white;"></i>
               </div>
               <div>
-                <h6 class="mb-0">Community Garden Project</h6>
-                <small class="text-muted">2 days ago • Westlands</small>
+                <h6 class="mb-0">Community Tree Planting</h6>
+                <small class="text-muted">2 days ago • Karura Forest</small>
               </div>
             </div>
-            <p class="mb-0 text-sm">50+ neighbors joined to plant vegetables. Next session: This Saturday 9AM</p>
+            <p class="mb-0 text-sm">150+ trees planted by community volunteers. Next planting: This Saturday 8AM</p>
           </div>
           
           <div class="activity-item" style="background: linear-gradient(145deg, #fef3c7 0%, #fde68a 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #f59e0b;">
             <div class="d-flex align-items-center mb-2">
               <div style="width: 40px; height: 40px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                <i class="fas fa-medkit" style="color: white;"></i>
+                <i class="fas fa-water" style="color: white;"></i>
               </div>
               <div>
-                <h6 class="mb-0">First Aid Training Workshop</h6>
-                <small class="text-muted">1 week ago • Community Center</small>
+                <h6 class="mb-0">River Cleanup Initiative</h6>
+                <small class="text-muted">1 week ago • Nairobi River</small>
               </div>
             </div>
-            <p class="mb-0 text-sm">30 community members learned basic first aid and CPR. Certificates awarded!</p>
+            <p class="mb-0 text-sm">Community removed 500kg of plastic waste from river banks. Water quality improving!</p>
           </div>
           
           <div class="activity-item" style="background: linear-gradient(145deg, #dbeafe 0%, #bfdbfe 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid #3b82f6;">
             <div class="d-flex align-items-center mb-2">
               <div style="width: 40px; height: 40px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
-                <i class="fas fa-broom" style="color: white;"></i>
+                <i class="fas fa-recycle" style="color: white;"></i>
               </div>
               <div>
-                <h6 class="mb-0">Street Cleanup Success</h6>
-                <small class="text-muted">2 weeks ago • Multiple Areas</small>
+                <h6 class="mb-0">Waste Sorting Workshop</h6>
+                <small class="text-muted">2 weeks ago • Community Center</small>
               </div>
             </div>
-            <p class="mb-0 text-sm">Amazing transformation! 3 streets cleaned, 200kg waste collected</p>
+            <p class="mb-0 text-sm">40 families learned proper waste separation and composting techniques</p>
           </div>
         </div>
         
-        <!-- Upcoming Events -->
+        <!-- Upcoming Environmental Events -->
         <div class="mb-4">
-          <h6 class="fw-bold mb-3"><i class="fas fa-calendar me-2 text-success"></i>Upcoming Events</h6>
+          <h6 class="fw-bold mb-3" style="color: #16a34a;"><i class="fas fa-calendar me-2"></i>Upcoming Environmental Events</h6>
           
           <div class="event-item" style="background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <h6 class="mb-1">Emergency Preparedness Meeting</h6>
-                <p class="mb-1 text-sm text-muted">Discuss rainy season preparation and emergency contacts</p>
+                <h6 class="mb-1">Climate Action Workshop</h6>
+                <p class="mb-1 text-sm text-muted">Learn about climate change impacts and community solutions</p>
                 <small class="text-primary"><i class="fas fa-calendar me-1"></i>This Saturday, 2PM</small>
               </div>
               <span class="badge bg-success">Free</span>
@@ -394,8 +497,8 @@
           <div class="event-item" style="background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <h6 class="mb-1">Community Safety Workshop</h6>
-                <p class="mb-1 text-sm text-muted">Learn home security, fire safety, and emergency response</p>
+                <h6 class="mb-1">Sustainable Living Seminar</h6>
+                <p class="mb-1 text-sm text-muted">Practical tips for eco-friendly living and waste reduction</p>
                 <small class="text-primary"><i class="fas fa-calendar me-1"></i>Next Sunday, 10AM</small>
               </div>
               <span class="badge bg-success">Free</span>
@@ -408,8 +511,7 @@
   </div>
 </div>
 
-<!-- Social Media Embed Scripts -->
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
 
 
 

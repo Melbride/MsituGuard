@@ -4,9 +4,12 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.views import LogoutView, PasswordChangeView
 from django.contrib.auth.models import User
-from django.urls import reverse_lazy
-from .models import Profile, Resource, EmergencyContact,Alert, ResourceRequest, ForumPost, Comment #Post
-from .forms import UserRegistrationForm,  ResourceForm, AlertForm, ProfileForm,  ResourceRequestForm, ForumPostForm,  FormComment, EditProfileForm, PasswordChangingForm
+from django.urls import reverse_lazy, reverse
+from django.utils.safestring import mark_safe
+from .models import Profile, Resource, EmergencyContact, Report, ResourceRequest, ForumPost, Comment, TreePlanting, Token, Reward, UserReward, FireRiskPrediction, CitizenFireReport #Post
+# Keep Alert as alias for backward compatibility
+Alert = Report
+from .forms import UserRegistrationForm,  ResourceForm, ReportForm, ProfileForm,  ResourceRequestForm, ForumPostForm,  FormComment, EditProfileForm, PasswordChangingForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -21,6 +24,9 @@ from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.views.decorators.http import require_POST
 from .forms import UserForm, ProfileForm
+from django.utils import timezone
+import os
+
 
 # from .forms import CustomLoginForm
 
@@ -36,11 +42,21 @@ class HomeView(TemplateView):
     # model = Profile
     template_name = 'App/home.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        # Redirect organizations to their dashboard
+        if request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.account_type == 'organization':
+            return redirect('organization_dashboard')
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['alerts'] = Alert.objects.all()
+        context['alerts'] = Report.objects.filter(status__in=['verified', 'resolved'])
         context['resources'] = Resource.objects.all()
+        
+        # Tree planting stats for homepage
+        plantings = TreePlanting.objects.all()
+        context['total_trees'] = sum(p.number_of_trees for p in plantings)
+        context['total_planters'] = plantings.values('planter').distinct().count()
         
         if self.request.user.is_authenticated:
             try:
@@ -69,9 +85,7 @@ class ResourceListView(LoginRequiredMixin, ListView):
 
     
     def get_queryset(self):
-        resources =  Resource.objects.filter(is_approved=True).order_by('-contributor_id')[:10]
-        logger.debug(f'Latest resources retrieved: {resources}')  # Log the alerts
-        return resources
+        return Resource.objects.filter(is_approved=True).order_by('-contributor_id')[:10]
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = Resource
@@ -110,6 +124,17 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
         form.instance.contributor = self.request.user
         form.instance.is_approved = False  # Admin will approve manually
         self.object = form.save()
+        
+        # Award token for resource sharing
+        Token.objects.create(
+            user=self.request.user,
+            action_type='resource_share',
+            tokens_earned=1,
+            description=f'Resource shared: {self.object.resource_type}'
+        )
+        self.request.user.profile.add_tokens(1, f'Resource shared: {self.object.resource_type}')
+        messages.success(self.request, f'🪙 You earned 1 token for sharing a resource! Total tokens: {self.request.user.profile.token_balance}')
+        
         return render(self.request, self.template_name, {
             'submitted': True  # Pass a flag to the template
         })
@@ -178,6 +203,32 @@ class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
             messages.success(request, "Profile picture updated successfully!")
             return redirect('profile_detail')
         
+        # Handle quick edit for phone and location
+        if 'phoneNumber' in request.POST and 'location' in request.POST:
+            phone = request.POST.get('phoneNumber', '').strip()
+            location = request.POST.get('location', '').strip()
+            
+            # Validate phone number
+            import re
+            if phone and not re.match(r'^\+?[0-9]{10,15}$', phone.replace(' ', '').replace('-', '')):
+                messages.error(request, "Please enter a valid phone number (10-15 digits)")
+                return redirect('profile_detail')
+            
+            # Validate location
+            if location and len(location) < 3:
+                messages.error(request, "Please provide a more specific location")
+                return redirect('profile_detail')
+            
+            # Update fields
+            if phone:
+                self.object.phoneNumber = phone
+            if location:
+                self.object.location = location
+                
+            self.object.save()
+            messages.success(request, "Contact information updated successfully!")
+            return redirect('profile_detail')
+        
         # Handle regular form submission
         form = self.get_form_class()(request.POST, request.FILES, instance=self.object)
         if form.is_valid():
@@ -191,69 +242,102 @@ class ProfileDetailView(LoginRequiredMixin, FormMixin, DetailView):
         return super().form_valid(form)
         
 
-class AlertListView(ListView):
-    model = Alert
+class AlertListView(LoginRequiredMixin, ListView):
+    model = Report
     template_name = 'App/alert_list.html'
     context_object_name = 'alerts'
+    login_url = 'login'
 
     def get_queryset(self):
-        return Alert.objects.filter(user=self.request.user)
-    
-    def post(self, request, *args, **kwargs):
-        profile = self.get_object()
-        form = ProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('profile-detail', kwargs={'pk': profile.pk}))
-        else:
-            # Handle form errors or render the form with errors
-            context = self.get_context_data(object=profile, form=form)
-            return self.render_to_response(context)
+        return Report.objects.filter(reporter=self.request.user)
 
-    
+
 class AlertCreateView(LoginRequiredMixin, CreateView):
-    model = Alert
-    form_class = AlertForm
+    model = Report
+    form_class = ReportForm
     template_name = 'App/alert_form.html'
-    # success_url = reverse_lazy('latest_alerts')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_initial(self):
         initial = super().get_initial()
         if hasattr(self.request.user, 'profile'):
             initial['phoneNumber'] = self.request.user.profile.phoneNumber
-            # Don't auto-populate location - emergencies happen anywhere
         return initial
-        
+
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        self.object = form.save()
+        # Save the report with files
+        report = form.save(commit=False)
+        report.reporter = self.request.user
+        report.status = 'new'
+        report.save()
+        
+        # Handle file upload manually if needed
+        if 'image' in self.request.FILES:
+            report.image = self.request.FILES['image']
+            report.save()
+        
+        # Send email notification
+        self.send_submission_email(report)
+        
+        self.object = report
         return render(self.request, self.template_name, {
-            'submitted': True  # Pass a flag to the template
+            'submitted': True,
+            'success_message': 'Environmental Report Successfully Created!',
+            'success_detail': 'Your environmental report has been submitted and will be reviewed immediately. You will receive email updates on progress.'
         })
+    
+    def send_submission_email(self, report):
+        from django.core.mail import send_mail
+        from django.template.loader import render_to_string
+        from django.conf import settings
+        from django.urls import reverse
+        
+        try:
+            dashboard_url = self.request.build_absolute_uri(reverse('my_reports'))
+            
+            html_message = render_to_string('App/emails/report_submitted.html', {
+                'user': report.reporter,
+                'report': report,
+                'dashboard_url': dashboard_url,
+            })
+            
+            send_mail(
+                subject='Environmental Report Submitted - MsituGuard',
+                message=f'Hello {report.reporter.username},\n\nThank you for submitting "{report.title}". Track progress: {dashboard_url}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[report.reporter.email],
+                html_message=html_message,
+                fail_silently=True,
+            )
+        except Exception as e:
+            print(f"Email sending failed: {e}")
+
 
 class AlertUpdateView(UpdateView):
-    model = Alert
-    form_class = AlertForm
+    model = Report
+    form_class = ReportForm
     template_name = 'App/alert_form.html'
     success_url = reverse_lazy('alert_list')
 
     def get_queryset(self):
-        return Alert.objects.filter(user=self.request.user)  
+        return Report.objects.filter(reporter=self.request.user)  
 
         
 class LatestAlertsView(ListView):
-    model = Alert
+    model = Report
     template_name = 'App/latest_alerts.html'  
     context_object_name = 'alerts'
 
     def get_queryset(self):
-        alerts =  Alert.objects.filter(is_approved=True).order_by('-date_created')[:10] 
-        logger.debug(f'Latest alerts retrieved: {alerts}')  # Log the alerts
-        return alerts
+        return Report.objects.filter(status__in=['verified', 'resolved']).order_by('-timestamp')[:10]
 
    
-
 class AlertDetailView(DetailView):
-    model = Alert
+    model = Report
     template_name = 'App/alert_detail.html'
     context_object_name = 'alert'
 
@@ -282,6 +366,12 @@ class ResourceRequestCreateView(LoginRequiredMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
+        
+        # Check if user has phone number in profile
+        if not hasattr(request.user, 'profile') or not request.user.profile.phoneNumber or request.user.profile.phoneNumber.strip() == '':
+            messages.warning(request, "Please update your phone number in your profile before planting trees.")
+            return redirect('profile_detail')
+        
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -312,21 +402,38 @@ class UseRegisterView(generic.CreateView):
     form_class = UserRegistrationForm
     template_name = 'registration/register.html'
     success_url = reverse_lazy('login')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Check if this is organization-only registration
+        context['organization_only'] = self.kwargs.get('organization_only', False)
+        return context
 
     def form_valid(self, form):
-        # Check if this is a donor with payment confirmation
-        if (form.cleaned_data.get('account_type') == 'donor' and 
-            self.request.POST.get('payment_confirmed') == 'true'):
-            
-            # Set initial payment amount for donor
-            initial_payment = self.request.POST.get('initial_payment', '0')
-            form.initial_payment_amount = float(initial_payment)
-            
-            messages.success(self.request, "Payment successful! Welcome to CrisisConnect as a valued donor.")
-        else:
-            messages.success(self.request, "Registration successful! Welcome to CrisisConnect.")
+        # Check if this is organization registration and validate account type
+        if self.kwargs.get('organization_only', False):
+            if form.cleaned_data.get('account_type') != 'organization':
+                form.add_error('account_type', 'This registration link is for organizations only.')
+                return self.form_invalid(form)
         
         response = super().form_valid(form)
+        
+        # Link existing tree plantings if phone numbers match
+        user = self.object
+        if hasattr(user, 'profile') and user.profile.phoneNumber:
+            linked_plantings = TreePlanting.objects.filter(
+                planter__isnull=True,
+                phoneNumber=user.profile.phoneNumber
+            )
+            linked_count = linked_plantings.count()
+            if linked_count > 0:
+                linked_plantings.update(planter=user)
+                messages.success(self.request, f"Registration successful! We've linked {linked_count} of your previous tree plantings to your account.")
+            else:
+                messages.success(self.request, "Registration successful! Welcome to MsituGuard.")
+        else:
+            messages.success(self.request, "Registration successful! Welcome to MsituGuard.")
+        
         return response
 
 
@@ -358,7 +465,19 @@ class ForumPostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        
+        # Award token for forum post
+        Token.objects.create(
+            user=self.request.user,
+            action_type='forum_post',
+            tokens_earned=1,
+            description=f'Forum post: {form.instance.title}'
+        )
+        self.request.user.profile.add_tokens(1, f'Forum post: {form.instance.title}')
+        messages.success(self.request, f'🪙 You earned 1 token for creating a forum post! Total tokens: {self.request.user.profile.token_balance}')
+        
+        return response
 
 class ForumPostDetailView(LoginRequiredMixin, DetailView):
     model = ForumPost
@@ -453,14 +572,12 @@ class profile(LoginRequiredMixin, generic.View):
 
 
 class ApprovedAlertListView(ListView):
-    model = Alert
-    template_name = 'App/approved_alerts.html'  # The template where alerts will be rendered
+    model = Report
+    template_name = 'App/approved_alerts.html'  # The template where reports will be rendered
     context_object_name = 'approved_alerts'
 
     def get_queryset(self):
-        approved_alerts = Alert.objects.filter(is_approved=True)
-        logger.debug(f'Approved alerts retrieved: {approved_alerts}')  # Log the alerts
-        return approved_alerts
+        return Report.objects.filter(status__in=['verified', 'resolved'])
 
 
 
@@ -474,6 +591,585 @@ class ApprovedContributeListView(ListView):
         approved_contributes = Resource.objects.filter(is_approved=True)
         # logger.debug(f'Approved resources retrieved: {approved_contributes}')  # Log the alerts
         return approved_contributes
+
+class OrganizationDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'App/organization_dashboard.html'
+    login_url = 'login'
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        # Check if user is admin or organization
+        if request.user.is_superuser:
+            # Admin can access
+            return super().dispatch(request, *args, **kwargs)
+        elif hasattr(request.user, 'profile') and request.user.profile.account_type == 'organization':
+            # Organization can access
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            # Regular users cannot access
+            messages.error(request, "Access denied. Organization account or admin privileges required.")
+            return redirect('home')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reports = Report.objects.all().order_by('-timestamp')
+        
+        # Stats for dashboard
+        context['new_count'] = reports.filter(status='new').count()
+        context['verified_count'] = reports.filter(status='verified').count()
+        context['resolved_count'] = reports.filter(status='resolved').count()
+        context['total_count'] = reports.count()
+        context['reports'] = reports
+        
+        # Tree planting data
+        tree_plantings = TreePlanting.objects.all().order_by('-planted_date')
+        context['tree_plantings'] = tree_plantings
+        context['total_trees_planted'] = sum(p.number_of_trees for p in tree_plantings)
+        context['total_tree_planters'] = tree_plantings.values('planter').distinct().count()
+        context['verified_tree_plantings'] = tree_plantings.filter(status='verified').count()
+        
+        # Fire safety data
+        fire_predictions = FireRiskPrediction.objects.all().order_by('-created_at')
+        fire_reports = CitizenFireReport.objects.all().order_by('-created_at')
+        
+        context['fire_predictions'] = fire_predictions[:10]
+        context['fire_reports'] = fire_reports[:10]
+        context['total_fire_predictions'] = fire_predictions.count()
+        context['total_fire_reports'] = fire_reports.count()
+        context['high_risk_predictions'] = fire_predictions.filter(risk_level__in=['HIGH', 'EXTREME']).count()
+        context['recent_fire_reports'] = fire_reports.filter(created_at__gte=timezone.now()-timezone.timedelta(days=7)).count()
+        
+        return context
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def update_report_status(request, report_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            report = Report.objects.get(id=report_id)
+            old_status = report.status
+            report.status = data['status']
+            report.save()
+            
+            # Award tokens and send notification if verified
+            if data['status'] == 'verified' and old_status != 'verified':
+                tokens_awarded = report.award_tokens()
+                if tokens_awarded:
+                    send_report_verification_notification(report)
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False})
+
+@csrf_exempt
+def update_tree_status(request, tree_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            tree_planting = TreePlanting.objects.get(id=tree_id)
+            old_status = tree_planting.status
+            tree_planting.status = data['status']
+            tree_planting.save()
+            
+            print(f"Tree status updated: {tree_planting.title} from {old_status} to {data['status']}")
+            
+            # Award tokens and send notification if verified (only if status changed)
+            if data['status'] == 'verified' and old_status != 'verified':
+                print(f"Tree planting verified: {tree_planting.title}")
+                
+                if tree_planting.planter:
+                    # Registered user - award tokens and send reward notification
+                    tokens_awarded = tree_planting.award_tokens()
+                    if tokens_awarded:
+                        print(f"Tokens awarded to registered user, sending reward email")
+                        send_tree_verification_notification(tree_planting)
+                    else:
+                        print(f"Tokens already awarded to registered user")
+                        # Still send notification even if tokens were already awarded
+                        send_tree_verification_notification(tree_planting)
+                else:
+                    # Unregistered user - send registration encouragement email
+                    print(f"Unregistered user - sending registration encouragement email")
+                    send_unregistered_reward_notification(tree_planting)
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            print(f"Error updating tree status: {e}")
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False})
+
+def send_tree_verification_notification(tree_planting):
+    from django.core.mail import EmailMultiAlternatives
+    from django.conf import settings
+    from .models import Notification
+    
+    try:
+        print(f"Starting tree verification notification for: {tree_planting.title}")
+        
+        # Calculate token rewards (already handled by award_tokens method)
+        tokens_earned = tree_planting.number_of_trees * 2  # 2 tokens per tree
+        
+        # Determine badge based on tree count
+        if tree_planting.number_of_trees >= 50:
+            badge = "🌳 Forest Hero"
+        elif tree_planting.number_of_trees >= 20:
+            badge = "🌲 Tree Champion"
+        elif tree_planting.number_of_trees >= 10:
+            badge = "🌿 Green Warrior"
+        elif tree_planting.number_of_trees >= 5:
+            badge = "🌱 Eco Defender"
+        else:
+            badge = "🍃 Nature Friend"
+        
+        # Add badge to user profile
+        tree_planting.planter.profile.add_badge(badge)
+        
+        # Add special 15 billion trees initiative badge for first-time planters
+        user_tree_count = TreePlanting.objects.filter(planter=tree_planting.planter, status='verified').count()
+        if user_tree_count == 1:  # First verified tree planting
+            tree_planting.planter.profile.add_badge("🌍 15 Billion Trees Initiative Participant")
+        
+        print(f"Awarded {tokens_earned} tokens and badge to user")
+        
+        # Get profile (should already exist)
+        profile = tree_planting.planter.profile
+        print(f"Updated profile with total tokens: {profile.total_tokens_earned}")
+        
+        # Create notification with rewards
+        Notification.objects.create(
+            user=tree_planting.planter,
+            notification_type='tree_verified',
+            title='🎉 Tree Planting Verified - Tokens Earned!',
+            message=f'Your tree planting "{tree_planting.title}" has been verified! You earned {tokens_earned} tokens and the "{badge}" badge.',
+            tree_planting=tree_planting
+        )
+        print("Created notification")
+        
+        # Send HTML email with rewards
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0fdf4; }}
+                .container {{ max-width: 600px; margin: 0 auto; background-color: white; }}
+                .header {{ background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 30px; text-align: center; }}
+                .content {{ padding: 30px; }}
+                .footer {{ background-color: #f8fafc; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; }}
+                .btn {{ background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; }}
+                .details {{ background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e; }}
+                .rewards {{ background: linear-gradient(135deg, #fef3c7, #fbbf24); padding: 25px; border-radius: 15px; margin: 20px 0; text-align: center; }}
+                .reward-item {{ background: white; padding: 15px; border-radius: 10px; margin: 10px; display: inline-block; min-width: 120px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🌱 MsituGuard</h1>
+                    <h2>🎉 Tree Planting Verified!</h2>
+                    <p>Your environmental contribution has been officially verified</p>
+                </div>
+                <div class="content">
+                    <h3>Hello {tree_planting.planter.first_name or tree_planting.planter.username},</h3>
+                    <p>Great news! Your tree planting contribution has been verified by our local organization partners.</p>
+                    
+                    <div class="details">
+                        <h4>🌳 {tree_planting.title}</h4>
+                        <p><strong>Location:</strong> {tree_planting.location_name}</p>
+                        <p><strong>Trees Planted:</strong> {tree_planting.number_of_trees}</p>
+                        <p><strong>Tree Type:</strong> {tree_planting.get_tree_type_display()}</p>
+                        <p style="color: #22c55e; font-weight: bold;">✅ VERIFIED</p>
+                    </div>
+                    
+                    <div class="rewards">
+                        <h3 style="color: #92400e; margin-top: 0;">🎉 Congratulations! You've Earned Tokens!</h3>
+                        <div style="text-align: center;">
+                            <div class="reward-item">
+                                <div style="font-size: 24px; font-weight: bold; color: #22c55e;">{tokens_earned}</div>
+                                <div style="color: #6b7280; font-size: 14px;">Tokens Earned</div>
+                            </div>
+                            <div class="reward-item">
+                                <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">{badge}</div>
+                                <div style="color: #6b7280; font-size: 14px;">New Badge</div>
+                            </div>
+                            <div class="reward-item">
+                                <div style="font-size: 24px; font-weight: bold; color: #3b82f6;">{profile.total_tokens_earned}</div>
+                                <div style="color: #6b7280; font-size: 14px;">Total Tokens</div>
+                            </div>
+                        </div>
+                        <p style="color: #92400e; margin: 10px 0; font-weight: 600;">Your Rank: {profile.conservation_rank}</p>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; border: 2px solid #0ea5e9;">
+                        <h4 style="color: #0c4a6e; margin-top: 0;">🏆 Certificate Earned!</h4>
+                        <p style="color: #0c4a6e; margin: 10px 0;">You've earned your official 15 Billion Trees Initiative Certificate! View it in your dashboard.</p>
+                    </div>
+                    
+                    <p>Your contribution to Kenya's 15 billion trees initiative is now officially recognized. Thank you for being an environmental guardian!</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="http://127.0.0.1:8000/my-reports/" class="btn">View Your Dashboard</a>
+                    </div>
+                    
+                    <p style="margin-top: 30px;">Keep up the great work protecting our forests and environment. 🌿</p>
+                    
+                    <p>Best regards,<br><strong>MsituGuard Team</strong><br><em>Protecting Kenya's Environment Together</em></p>
+                </div>
+                <div class="footer">
+                    <p>© 2024 MsituGuard - Environmental Protection Platform</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        print(f"Sending email to: {tree_planting.planter.email}")
+        print(f"User tree count: {user_tree_count}")
+        print(f"Is first time planter: {user_tree_count == 1}")
+        
+        msg = EmailMultiAlternatives(
+            subject='🎉 Tree Planting Verified - Rewards Earned! - MsituGuard',
+            body=f'Hello {tree_planting.planter.first_name},\n\nYour tree planting "{tree_planting.title}" has been verified! You earned {tokens_earned} tokens and the "{badge}" badge.',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[tree_planting.planter.email]
+        )
+        msg.attach_alternative(html_message, "text/html")
+        msg.send(fail_silently=False)  # Show email errors for debugging
+        print("Email sent successfully!")
+        
+    except Exception as e:
+        print(f"Tree verification notification failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+def send_report_verification_notification(report):
+    from django.core.mail import EmailMultiAlternatives
+    from django.conf import settings
+    from .models import Notification
+    
+    try:
+        # Create notification
+        Notification.objects.create(
+            user=report.reporter,
+            notification_type='report_verified',
+            title='🎉 Environmental Report Verified - Token Earned!',
+            message=f'Your report "{report.title}" has been verified! You earned 1 token.',
+            report=report
+        )
+        
+        # Send email
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; background-color: #f0fdf4; }}
+                .container {{ max-width: 600px; margin: 0 auto; background-color: white; }}
+                .header {{ background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 30px; text-align: center; }}
+                .content {{ padding: 30px; }}
+                .btn {{ background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; }}
+                .reward-box {{ background: linear-gradient(135deg, #fef3c7, #fbbf24); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🌱 MsituGuard</h1>
+                    <h2>🎉 Report Verified!</h2>
+                </div>
+                <div class="content">
+                    <h3>Hello {report.reporter.first_name or report.reporter.username},</h3>
+                    <p>Great news! Your environmental report has been verified by our organization partners.</p>
+                    
+                    <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e;">
+                        <h4>📋 {report.title}</h4>
+                        <p><strong>Type:</strong> {report.get_report_type_display()}</p>
+                        <p><strong>Location:</strong> {report.location_name}</p>
+                        <p style="color: #22c55e; font-weight: bold;">✅ VERIFIED</p>
+                    </div>
+                    
+                    <div class="reward-box">
+                        <h3 style="color: #92400e; margin-top: 0;">🪙 Token Earned!</h3>
+                        <div style="font-size: 24px; font-weight: bold; color: #22c55e;">1 Token</div>
+                        <p style="color: #92400e; margin: 10px 0;">Thank you for protecting Kenya's environment!</p>
+                    </div>
+                    
+                    <p>Your token has been added to your account. Login to redeem rewards like data bundles, tree kits, and certificates!</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="http://127.0.0.1:8000/rewards/" class="btn">Redeem Your Rewards</a>
+                    </div>
+                    
+                    <p>Best regards,<br><strong>MsituGuard Team</strong></p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        msg = EmailMultiAlternatives(
+            subject='🎉 Environmental Report Verified - Token Earned! - MsituGuard',
+            body=f'Your report "{report.title}" has been verified! You earned 1 token. Login to redeem rewards.',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[report.reporter.email]
+        )
+        msg.attach_alternative(html_message, "text/html")
+        msg.send(fail_silently=False)
+        
+    except Exception as e:
+        print(f"Report verification notification failed: {e}")
+
+def send_unregistered_reward_notification(tree_planting):
+    from django.core.mail import EmailMultiAlternatives
+    from django.conf import settings
+    
+    try:
+        # Calculate rewards
+        tokens_earned = tree_planting.number_of_trees * 2
+        
+        if tree_planting.number_of_trees >= 50:
+            badge = "🌳 Forest Hero"
+        elif tree_planting.number_of_trees >= 20:
+            badge = "🌲 Tree Champion"
+        elif tree_planting.number_of_trees >= 10:
+            badge = "🌿 Green Warrior"
+        elif tree_planting.number_of_trees >= 5:
+            badge = "🌱 Eco Defender"
+        else:
+            badge = "🍃 Nature Friend"
+        
+        # Tokens are awarded by the award_tokens method when status changes to verified
+        
+        # Get email from phone number (find user with this phone)
+        from .models import Profile
+        try:
+            profile = Profile.objects.get(phoneNumber=tree_planting.phoneNumber)
+            user = profile.user
+            
+            # Only send email if user has verified their email (is_active=True)
+            if not user.is_active:
+                print(f"User {user.email} has not verified email yet - no reward email sent")
+                return
+                
+            email = user.email
+            name = tree_planting.planter_name or user.first_name or "Environmental Guardian"
+        except Profile.DoesNotExist:
+            print(f"No profile found for phone: {tree_planting.phoneNumber}")
+            return
+        
+        register_url = "http://127.0.0.1:8000/register/"
+        
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0fdf4; }}
+                .container {{ max-width: 600px; margin: 0 auto; background-color: white; }}
+                .header {{ background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 30px; text-align: center; }}
+                .content {{ padding: 30px; }}
+                .footer {{ background-color: #f8fafc; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; }}
+                .btn {{ background-color: #22c55e; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 15px 10px; font-weight: bold; }}
+                .btn-secondary {{ background-color: #3b82f6; }}
+                .details {{ background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e; }}
+                .rewards {{ background: linear-gradient(135deg, #fef3c7, #fbbf24); padding: 25px; border-radius: 15px; margin: 20px 0; text-align: center; }}
+                .reward-item {{ background: white; padding: 15px; border-radius: 10px; margin: 10px; display: inline-block; min-width: 120px; }}
+                .cta-section {{ background: linear-gradient(135deg, #eff6ff, #dbeafe); padding: 25px; border-radius: 15px; margin: 20px 0; text-align: center; border: 2px solid #3b82f6; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🌱 MsituGuard</h1>
+                    <h2>🎉 Tree Planting Verified!</h2>
+                    <p>Your environmental contribution has been officially verified</p>
+                </div>
+                <div class="content">
+                    <h3>Hello {name},</h3>
+                    <p>Great news! Your tree planting contribution has been verified by our local organization partners.</p>
+                    
+                    <div class="details">
+                        <h4>🌳 {tree_planting.title}</h4>
+                        <p><strong>Location:</strong> {tree_planting.location_name}</p>
+                        <p><strong>Trees Planted:</strong> {tree_planting.number_of_trees}</p>
+                        <p><strong>Tree Type:</strong> {tree_planting.get_tree_type_display()}</p>
+                        <p style="color: #22c55e; font-weight: bold;">✅ VERIFIED</p>
+                    </div>
+                    
+                    <div class="rewards">
+                        <h3 style="color: #92400e; margin-top: 0;">🎉 You've Earned Rewards!</h3>
+                        <div style="text-align: center;">
+                            <div class="reward-item">
+                                <div style="font-size: 24px; font-weight: bold; color: #22c55e;">{tokens_earned}</div>
+                                <div style="color: #6b7280; font-size: 14px;">Tokens Earned</div>
+                            </div>
+                            <div class="reward-item">
+                                <div style="font-size: 18px; font-weight: bold; color: #f59e0b;">{badge}</div>
+                                <div style="color: #6b7280; font-size: 14px;">Badge Earned</div>
+                            </div>
+                        </div>
+                        <p style="color: #92400e; margin: 10px 0; font-weight: 600;">Your rewards are waiting for you!</p>
+                    </div>
+                    
+                    <div class="cta-section">
+                        <h3 style="color: #1d4ed8; margin-top: 0;">🎆 Claim Your Complete Rewards!</h3>
+                        <p style="color: #1e40af; margin-bottom: 20px;">Create your free MsituGuard account to:</p>
+                        <ul style="text-align: left; color: #1e40af; max-width: 400px; margin: 0 auto;">
+                            <li>✅ View your complete reward dashboard</li>
+                            <li>🏆 Track your environmental impact</li>
+                            <li>🌳 Join Kenya's tree planting leaderboard</li>
+                            <li>📊 Submit more environmental reports</li>
+                            <li>🌟 Earn more badges and recognition</li>
+                        </ul>
+                        <div style="margin-top: 25px;">
+                            <a href="{register_url}" class="btn">Create Free Account & Claim Rewards</a>
+                        </div>
+                        <p style="color: #6b7280; font-size: 14px; margin-top: 15px;">Takes less than 2 minutes • No spam • Your rewards are waiting!</p>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; border: 2px solid #0ea5e9;">
+                        <h4 style="color: #0c4a6e; margin-top: 0;">🏆 Certificate Available!</h4>
+                        <p style="color: #0c4a6e; margin: 10px 0;">You've earned an official 15 Billion Trees Initiative Certificate! Register to claim and download it.</p>
+                    </div>
+                    
+                    <p>Your contribution to Kenya's 15 billion trees initiative is now officially recognized. Thank you for being an environmental guardian!</p>
+                    
+                    <p style="margin-top: 30px;">Keep up the great work protecting our forests and environment. 🌿</p>
+                    
+                    <p>Best regards,<br><strong>MsituGuard Team</strong><br><em>Protecting Kenya's Environment Together</em></p>
+                </div>
+                <div class="footer">
+                    <p>© 2024 MsituGuard - Environmental Protection Platform</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        msg = EmailMultiAlternatives(
+            subject='🎉 Tree Planting Verified - Claim Your Rewards! - MsituGuard',
+            body=f'Hello {name},\n\nYour tree planting "{tree_planting.title}" has been verified! You earned {tokens_earned} tokens and the "{badge}" badge. Create your free account to claim your complete rewards: {register_url}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email]
+        )
+        msg.attach_alternative(html_message, "text/html")
+        msg.send(fail_silently=False)
+        print(f"Unregistered reward email sent to: {email}")
+        
+    except Exception as e:
+        print(f"Unregistered reward notification failed: {e}")
+
+class TreeInitiativeView(TemplateView):
+    template_name = 'App/tree_initiative.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        plantings = TreePlanting.objects.all()
+        
+        context['total_trees'] = sum(p.number_of_trees for p in plantings)
+        context['total_planters'] = plantings.values('planter').distinct().count()
+        context['verified_plantings'] = plantings.filter(status='verified').count()
+        context['recent_plantings'] = plantings.order_by('-planted_date')[:6]
+        
+        return context
+
+class TreePlantingFormView(LoginRequiredMixin, CreateView):
+    model = TreePlanting
+    template_name = 'App/tree_planting_form.html'
+    fields = ['title', 'location_name', 'latitude', 'longitude', 'tree_type', 'number_of_trees', 'description', 'before_image', 'after_image', 'phoneNumber']
+    login_url = 'login'
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        if hasattr(self.request.user, 'profile'):
+            initial['phoneNumber'] = self.request.user.profile.phoneNumber
+        return initial
+    
+    def form_valid(self, form):
+        # Validate phone number matches profile
+        if form.cleaned_data['phoneNumber'] != self.request.user.profile.phoneNumber:
+            messages.error(self.request, 'Phone number must match your registered number. Please update your profile if you need to change it.')
+            return redirect('profile_detail')
+        
+        form.instance.planter = self.request.user
+        form.instance.status = 'planned' if not form.instance.after_image else 'planted'
+        self.object = form.save()
+        return render(self.request, self.template_name, {'submitted': True})
+
+class TreePlantingsListView(ListView):
+    model = TreePlanting
+    template_name = 'App/tree_plantings_list.html'
+    context_object_name = 'plantings'
+    paginate_by = 12
+    
+    def get_queryset(self):
+        return TreePlanting.objects.all().order_by('-planted_date')
+
+class MyReportsView(LoginRequiredMixin, ListView):
+    model = Report
+    template_name = 'App/my_reports.html'
+    context_object_name = 'reports'
+    login_url = 'login'
+    
+    def get_queryset(self):
+        return Report.objects.filter(reporter=self.request.user).order_by('-timestamp')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reports = self.get_queryset()
+        
+        # Add status counts for user's reports
+        context['new_count'] = reports.filter(status='new').count()
+        context['verified_count'] = reports.filter(status='verified').count()
+        context['resolved_count'] = reports.filter(status='resolved').count()
+        context['total_count'] = reports.count()
+        
+        # Get user's tree plantings
+        tree_plantings = TreePlanting.objects.filter(planter=self.request.user).order_by('-planted_date')
+        context['tree_plantings'] = tree_plantings
+        context['tree_new_count'] = tree_plantings.filter(status='planned').count()
+        context['tree_planted_count'] = tree_plantings.filter(status='planted').count()
+        context['tree_verified_count'] = tree_plantings.filter(status='verified').count()
+        context['tree_total_count'] = tree_plantings.count()
+        
+        # Calculate total rewards from tokens
+        user_tokens = Token.objects.filter(user=self.request.user, action_type='tree_planting')
+        total_tree_tokens = sum(token.tokens_earned for token in user_tokens)
+        context['total_points'] = total_tree_tokens
+        context['total_trees_planted'] = sum(tp.number_of_trees for tp in tree_plantings)
+        
+        # Get user's environmental level and badges
+        try:
+            profile = self.request.user.profile
+            context['environmental_level'] = profile.environmental_level
+            context['badges'] = profile.badges_list
+            context['token_balance'] = profile.token_balance
+            context['total_tokens_earned'] = profile.total_tokens_earned
+            context['conservation_rank'] = profile.conservation_rank
+        except:
+            context['environmental_level'] = '🌾 Environmental Supporter'
+            context['badges'] = []
+            context['token_balance'] = 0
+            context['total_tokens_earned'] = 0
+            context['conservation_rank'] = '🌱 Environmental Supporter'
+        
+        # Get notifications for this user (if table exists)
+        try:
+            from .models import Notification
+            context['notifications'] = Notification.objects.filter(user=self.request.user).order_by('-created_at')[:5]
+        except:
+            context['notifications'] = []
+        
+        return context
 
 # class CustomLoginView(LoginView):
 #     form_class = CustomLoginForm
@@ -508,11 +1204,16 @@ class ApprovedContributeListView(ListView):
 
 
 
-from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import logging
 from django.contrib.auth.models import User
 from .models import Profile  # Assuming Profile model is in the same app
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 
 user_sessions = {}
 
@@ -669,3 +1370,465 @@ def ussd_callback(request):
         response = "END Thank you for using the Crisis Communication Platform. Goodbye!"
 
     return HttpResponse(response, content_type='text/plain')
+
+def public_tree_planting(request):
+    if request.method == 'POST':
+        try:
+            # Extract form data
+            full_name = request.POST.get('full_name')
+            phone_number = request.POST.get('phone_number')
+            email = request.POST.get('email')
+            location = request.POST.get('location')
+            number_of_trees = int(request.POST.get('number_of_trees', 1))
+            tree_type = request.POST.get('tree_type', 'indigenous')
+            planting_date = request.POST.get('planting_date')
+            description = request.POST.get('description', '')
+            before_image = request.FILES.get('before_image')
+            after_image = request.FILES.get('after_image')
+            
+            # Generate temporary password
+            import secrets
+            import string
+            temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            
+            # Check if user already exists
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    'username': email,
+                    'first_name': full_name.split()[0] if full_name else '',
+                    'last_name': ' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else '',
+                    'is_active': False  # Require email verification
+                }
+            )
+            
+            if created:
+                user.set_password(temp_password)
+                user.save()
+            
+            # Create or update profile
+            profile, profile_created = Profile.objects.get_or_create(
+                user=user,
+                defaults={
+                    'phoneNumber': phone_number,
+                    'location': location,
+                    'account_type': 'individual'
+                }
+            )
+            
+            if not profile_created:
+                # Update existing profile
+                profile.phoneNumber = phone_number
+                profile.location = location
+                profile.save()
+            
+            # Create tree planting record
+            tree_planting = TreePlanting.objects.create(
+                planter=user if user.is_active else None,
+                planter_name=full_name,
+                title=f'Tree Planting by {full_name}',
+                location_name=location,
+                tree_type=tree_type,
+                number_of_trees=number_of_trees,
+                description=description,
+                phoneNumber=phone_number,
+                status='planted' if after_image else 'planned',
+                before_image=before_image,
+                after_image=after_image
+            )
+            
+            # Send verification email with password
+            send_verification_email(user, request, temp_password if created else None)
+            
+            messages.success(request, f'Thank you {full_name}! Your tree planting contribution has been registered. Check your email to verify your account and get your login details.')
+            return redirect('public_tree_form')
+            
+        except Exception as e:
+            messages.error(request, f'Error submitting tree planting: {str(e)}')
+            return redirect('public_tree_form')
+    
+    return redirect('home')
+
+def send_verification_email(user, request, temp_password=None):
+    try:
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        
+        verification_url = request.build_absolute_uri(
+            reverse('verify_tree_planting_account', kwargs={'uidb64': uid, 'token': token})
+        )
+        
+        html_message = render_to_string('App/emails/tree_planting_verification.html', {
+            'user': user,
+            'verification_url': verification_url,
+            'temp_password': temp_password,
+            'login_url': request.build_absolute_uri(reverse('login')),
+        })
+        
+        send_mail(
+            subject='Verify Your Tree Planting Account - MsituGuard',
+            message=f'Hello {user.first_name},\n\nThank you for contributing to Kenya\'s 15 billion trees initiative! Please verify your account: {verification_url}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=True,
+        )
+    except Exception as e:
+        print(f"Verification email failed: {e}")
+
+def verify_tree_planting_account(request, uidb64, token):
+    try:
+        from django.utils.http import urlsafe_base64_decode
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+        
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            
+            return render(request, 'App/verification_success.html', {
+                'user_name': user.first_name
+            })
+        else:
+            messages.error(request, 'Invalid verification link.')
+    except Exception as e:
+        messages.error(request, 'Verification failed. Please try again.')
+    
+    return redirect('home')
+
+
+
+class PublicTreeFormView(TemplateView):
+    template_name = 'App/public_tree_form.html'
+
+class RewardsView(LoginRequiredMixin, TemplateView):
+    template_name = 'App/rewards.html'
+    login_url = 'login'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # User token info
+        context['token_balance'] = user.profile.token_balance
+        context['total_tokens_earned'] = user.profile.total_tokens_earned
+        context['conservation_rank'] = user.profile.conservation_rank
+        
+        # Available rewards
+        context['rewards'] = Reward.objects.filter(is_active=True).order_by('token_cost')
+        
+        # User's token history
+        context['token_history'] = Token.objects.filter(user=user).order_by('-earned_at')[:10]
+        
+        # User's redeemed rewards
+        context['redeemed_rewards'] = UserReward.objects.filter(user=user).order_by('-redeemed_at')[:5]
+        
+        return context
+
+@login_required
+def redeem_reward(request, reward_id):
+    if request.method == 'POST':
+        reward = get_object_or_404(Reward, id=reward_id, is_active=True)
+        user = request.user
+        
+        if user.profile.spend_tokens(reward.token_cost):
+            UserReward.objects.create(user=user, reward=reward)
+            messages.success(request, f'Successfully redeemed {reward.name}! Check your email for details.')
+        else:
+            messages.error(request, f'Insufficient tokens. You need {reward.token_cost} tokens but only have {user.profile.token_balance}.')
+    
+    return redirect('rewards')
+
+# Fire Risk Prediction Views
+class FieldAssessmentView(LoginRequiredMixin, TemplateView):
+    template_name = 'App/field_assessment.html'
+    login_url = 'login'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Check if location parameters are provided
+        lat = self.request.GET.get('lat')
+        lon = self.request.GET.get('lon')
+        
+        context['has_location'] = False
+        context['prediction'] = None
+        
+        if lat and lon:
+            try:
+                lat = float(lat)
+                lon = float(lon)
+                context['has_location'] = True
+                
+                # Get environmental data using fire_utils
+                from .fire_utils import get_openweather, get_ndvi, get_recent_fires_count, compute_fire_risk, categorize_risk
+                
+                weather = get_openweather(lat, lon)
+                ndvi = get_ndvi(lat, lon)
+                recent_fires = get_recent_fires_count(lat, lon)
+                
+                # Calculate fire risk
+                score = compute_fire_risk(
+                    temp_c=weather['temp_c'],
+                    humidity=weather['humidity'],
+                    wind_speed_ms=weather['wind_speed_ms'],
+                    rainfall_mm_24h=weather['rainfall_mm_24h'],
+                    ndvi=ndvi,
+                    recent_fires=recent_fires
+                )
+                
+                level, color = categorize_risk(score)
+                
+                # Save prediction to database
+                prediction_obj = FireRiskPrediction.objects.create(
+                    location_name=f"Field Assessment {lat:.3f}, {lon:.3f}",
+                    latitude=lat,
+                    longitude=lon,
+                    temperature_c=weather['temp_c'],
+                    humidity=weather['humidity'],
+                    wind_speed_ms=weather['wind_speed_ms'],
+                    rainfall_mm_24h=weather['rainfall_mm_24h'],
+                    ndvi=ndvi,
+                    recent_fires=recent_fires,
+                    risk_score=score,
+                    risk_level=level,
+                    created_by=self.request.user
+                )
+                
+                # Prepare prediction data for template
+                context['prediction'] = {
+                    'lat': lat,
+                    'lon': lon,
+                    'weather': weather,
+                    'ndvi': ndvi,
+                    'recent_fires': recent_fires,
+                    'score': round(score, 3),
+                    'level': level,
+                    'color': color,
+                    'timestamp': prediction_obj.created_at,
+                }
+                
+            except (ValueError, Exception) as e:
+                print(f"Error processing field assessment: {e}")
+                context['error'] = "Error calculating fire risk. Please try again."
+        
+        return context
+
+class FireRiskView(TemplateView):
+    template_name = 'App/fire_risk.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Check if location parameters are provided
+        lat = self.request.GET.get('lat')
+        lon = self.request.GET.get('lon')
+        
+        context['has_location'] = False
+        context['prediction'] = None
+        
+        if lat and lon:
+            try:
+                lat = float(lat)
+                lon = float(lon)
+                context['has_location'] = True
+                
+                # Get environmental data using fire_utils
+                from .fire_utils import get_openweather, get_ndvi, get_recent_fires_count, compute_fire_risk, categorize_risk
+                
+                weather = get_openweather(lat, lon)
+                ndvi = get_ndvi(lat, lon)
+                recent_fires = get_recent_fires_count(lat, lon)
+                
+                # Calculate fire risk
+                score = compute_fire_risk(
+                    temp_c=weather['temp_c'],
+                    humidity=weather['humidity'],
+                    wind_speed_ms=weather['wind_speed_ms'],
+                    rainfall_mm_24h=weather['rainfall_mm_24h'],
+                    ndvi=ndvi,
+                    recent_fires=recent_fires
+                )
+                
+                level, color = categorize_risk(score)
+                
+                # Save prediction to database (only for authenticated users)
+                if self.request.user.is_authenticated:
+                    prediction_obj = FireRiskPrediction.objects.create(
+                        location_name=f"Location {lat:.3f}, {lon:.3f}",
+                        latitude=lat,
+                        longitude=lon,
+                        temperature_c=weather['temp_c'],
+                        humidity=weather['humidity'],
+                        wind_speed_ms=weather['wind_speed_ms'],
+                        rainfall_mm_24h=weather['rainfall_mm_24h'],
+                        ndvi=ndvi,
+                        recent_fires=recent_fires,
+                        risk_score=score,
+                        risk_level=level,
+                        created_by=self.request.user
+                    )
+                
+                # Prepare prediction data for template
+                context['prediction'] = {
+                    'lat': lat,
+                    'lon': lon,
+                    'weather': weather,
+                    'ndvi': ndvi,
+                    'recent_fires': recent_fires,
+                    'score': round(score, 3),
+                    'level': level,
+                    'color': color,
+                    'timestamp': prediction_obj.created_at,
+                }
+                
+            except (ValueError, Exception) as e:
+                print(f"Error processing fire risk prediction: {e}")
+                context['error'] = "Error calculating fire risk. Please try again."
+        
+        # Get recent fire risk predictions for display (only for authenticated users, exclude field assessments)
+        if self.request.user.is_authenticated:
+            context['recent_predictions'] = FireRiskPrediction.objects.filter(created_by=self.request.user).exclude(location_name__startswith='Field Assessment').order_by('-created_at')[:10]
+        else:
+            context['recent_predictions'] = []
+        
+        # Get fire reports from citizens (only for authenticated users)
+        if self.request.user.is_authenticated:
+            context['recent_reports'] = CitizenFireReport.objects.all().order_by('-created_at')[:5]
+        else:
+            context['recent_reports'] = []
+        
+        return context
+
+
+
+def report_fire_observation(request):
+    if request.method == 'POST':
+        try:
+            # Create the fire report
+            fire_report = CitizenFireReport.objects.create(
+                reporter=request.user if request.user.is_authenticated else None,
+                reporter_name=request.POST.get('reporter_name', '') if not request.user.is_authenticated else '',
+                reporter_phone=request.POST.get('reporter_phone', '') if not request.user.is_authenticated else '',
+                location_name=request.POST.get('location_name'),
+                latitude=float(request.POST.get('latitude')),
+                longitude=float(request.POST.get('longitude')),
+                observation=request.POST.get('observation'),
+                notes=request.POST.get('notes', ''),
+                image=request.FILES.get('image')
+            )
+            
+            # Award token for fire observation report (only for authenticated users)
+            if request.user.is_authenticated:
+                Token.objects.create(
+                    user=request.user,
+                    action_type='report_photo',
+                    tokens_earned=2,  # Higher reward for fire reports as they're critical
+                    description=f'Fire observation report: {fire_report.observation} at {fire_report.location_name}'
+                )
+                request.user.profile.add_tokens(2, f'Fire observation report: {fire_report.observation}')
+            
+            # Redirect to success page instead of showing message
+            return render(request, 'App/fire_report_success.html')
+            
+        except Exception as e:
+            messages.error(request, f'Error submitting report: {str(e)}')
+            return redirect('fire_risk')
+    
+    return redirect('fire_risk')
+
+# Export Views
+from django.http import HttpResponse
+import csv
+from datetime import datetime
+
+@login_required
+def export_reports(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="environmental_reports_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Title', 'Type', 'Location', 'Reporter', 'Status', 'Date', 'Description'])
+    
+    reports = Report.objects.all().order_by('-timestamp')
+    for report in reports:
+        writer.writerow([
+            report.title,
+            report.get_report_type_display(),
+            report.location_name,
+            report.reporter.username if report.reporter else 'N/A',
+            report.status,
+            report.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            report.description
+        ])
+    
+    return response
+
+@login_required
+def export_tree_data(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="tree_plantings_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Title', 'Location', 'Tree Type', 'Number of Trees', 'Planter', 'Status', 'Date', 'Phone Number'])
+    
+    plantings = TreePlanting.objects.all().order_by('-planted_date')
+    for planting in plantings:
+        writer.writerow([
+            planting.title,
+            planting.location_name,
+            planting.get_tree_type_display(),
+            planting.number_of_trees,
+            planting.planter_display_name,
+            planting.status,
+            planting.planted_date.strftime('%Y-%m-%d'),
+            planting.phoneNumber
+        ])
+    
+    return response
+
+@login_required
+def export_fire_data(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="fire_risk_predictions_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Location', 'Risk Level', 'Risk Score', 'Temperature', 'Humidity', 'Wind Speed', 'Rainfall', 'NDVI', 'Date'])
+    
+    predictions = FireRiskPrediction.objects.all().order_by('-created_at')
+    for prediction in predictions:
+        writer.writerow([
+            prediction.location_name,
+            prediction.risk_level,
+            prediction.risk_score,
+            prediction.temperature_c,
+            prediction.humidity,
+            prediction.wind_speed_ms,
+            prediction.rainfall_mm_24h,
+            prediction.ndvi,
+            prediction.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    return response
+
+@login_required
+def export_fire_reports(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="citizen_fire_reports_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Location', 'Observation', 'Reporter', 'Reporter Name', 'Reporter Phone', 'Notes', 'Date'])
+    
+    reports = CitizenFireReport.objects.all().order_by('-created_at')
+    for report in reports:
+        writer.writerow([
+            report.location_name,
+            report.get_observation_display(),
+            report.reporter.username if report.reporter else 'Anonymous',
+            report.reporter_name or (report.reporter.get_full_name() if report.reporter else ''),
+            report.reporter_phone or (report.reporter.profile.phoneNumber if report.reporter and hasattr(report.reporter, 'profile') else ''),
+            report.notes,
+            report.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    return response

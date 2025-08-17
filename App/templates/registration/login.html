@@ -192,13 +192,13 @@
                 
                 {% if form.errors %}
                     <div class="error-message">
-                        <i class="fas fa-exclamation-circle me-2"></i>Wrong username or password. Please try again.
+                        <i class="fas fa-exclamation-circle me-2"></i>Wrong email or password. Please try again.
                     </div>
                 {% endif %}
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
-                    <input type="text" name="username" class="form-control" id="{{ form.username.id_for_label }}" placeholder="Enter your username" required>
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Email</label>
+                    <input type="email" name="username" class="form-control" id="{{ form.username.id_for_label }}" placeholder="your@email.com" required>
                 </div>
 
                 <div class="form-group">

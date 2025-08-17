@@ -76,6 +76,16 @@
         gap: 1rem;
     }
     
+    .col-span-2 {
+        grid-column: span 2;
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+    
     .form-group {
         margin-bottom: 1.5rem;
     }
@@ -273,24 +283,68 @@
                 </div>
                 
                 <div class="form-section">
-                    <h4><i class="fas fa-info-circle me-2"></i>Personal Details</h4>
+                    <h4><i class="fas fa-mobile-alt me-2"></i>Contact Information</h4>
                     <div class="form-row">
                         {% for field in profile_form %}
-                            {% if field.name != 'profile_picture' %}
+                            {% if field.name == 'phoneNumber' or field.name == 'location' or field.name == 'email' %}
                             <div class="form-group">
-                                <label class="form-label">{{ field.label }}</label>
+                                <label class="form-label">
+                                    {% if field.name == 'phoneNumber' %}
+                                        <i class="fas fa-phone me-1"></i>{{ field.label }} *
+                                    {% elif field.name == 'location' %}
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ field.label }} *
+                                    {% elif field.name == 'email' %}
+                                        <i class="fas fa-envelope me-1"></i>{{ field.label }}
+                                    {% endif %}
+                                </label>
                                 {% if field.name == 'phoneNumber' %}
-                                    <input type="tel" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" placeholder="Phone number">
+                                    <input type="tel" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" 
+                                           placeholder="+1234567890 or 1234567890" pattern="[+]?[0-9]{10,15}" required>
+                                    <small class="form-text text-muted">Include country code if international</small>
                                 {% elif field.name == 'location' %}
-                                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" placeholder="Your location">
-                                {% elif field.name == 'bio' %}
-                                    <textarea name="{{ field.name }}" class="form-control" rows="4" placeholder="Tell us about yourself...">{{ field.value|default:'' }}</textarea>
-                                {% else %}
-                                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}">
+                                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" 
+                                           placeholder="City, State/Province, Country" required>
+                                    <small class="form-text text-muted">Your current location for emergency response</small>
+                                {% elif field.name == 'email' %}
+                                    <input type="email" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" 
+                                           placeholder="your@email.com">
                                 {% endif %}
                                 {% if field.errors %}
                                     <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
-                                        {{ field.errors.0 }}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ field.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4><i class="fas fa-info-circle me-2"></i>Personal Details</h4>
+                    <div class="form-row">
+                        {% for field in profile_form %}
+                            {% if field.name == 'first_name' or field.name == 'last_name' or field.name == 'bio' %}
+                            <div class="form-group {% if field.name == 'bio' %}col-span-2{% endif %}">
+                                <label class="form-label">
+                                    {% if field.name == 'first_name' %}
+                                        <i class="fas fa-user me-1"></i>{{ field.label }}
+                                    {% elif field.name == 'last_name' %}
+                                        <i class="fas fa-user me-1"></i>{{ field.label }}
+                                    {% elif field.name == 'bio' %}
+                                        <i class="fas fa-quote-left me-1"></i>{{ field.label }}
+                                    {% endif %}
+                                </label>
+                                {% if field.name == 'bio' %}
+                                    <textarea name="{{ field.name }}" class="form-control" rows="4" 
+                                              placeholder="Tell the community about yourself, your skills, or how you'd like to help...">{{ field.value|default:'' }}</textarea>
+                                {% else %}
+                                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" 
+                                           placeholder="{% if field.name == 'first_name' %}First name{% else %}Last name{% endif %}">
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div style="color: #dc2626; font-size: 0.875rem; margin-top: 0.25rem;">
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ field.errors.0 }}
                                     </div>
                                 {% endif %}
                             </div>

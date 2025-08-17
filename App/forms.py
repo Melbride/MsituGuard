@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile, Resource, Alert, ResourceRequest, ForumPost, Comment
+from .models import Profile, Resource, Report, ResourceRequest, ForumPost, Comment
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 # from .models import CustomUser
@@ -68,6 +68,12 @@ class UserRegistrationForm(UserCreationForm):
             raise forms.ValidationError("passwords do not match")
         return cleaned_data
     
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("An account with this email already exists. Please login or use a different email.")
+        return email
+    
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
@@ -110,9 +116,9 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(
-        max_length=150,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'})
+    username = forms.EmailField(
+        label="Email",
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'your@email.com'})
     )
     password = forms.CharField(
         label="Password",
@@ -128,76 +134,137 @@ class ResourceForm(forms.ModelForm):
         fields = ['resource_type', 'quantity', 'description', 'available', 'phoneNumber', 'location']
 
         
-class AlertForm(forms.ModelForm):
-    emergency_type = forms.ChoiceField(
-        choices=[('', 'Select emergency type')] + Alert.EMERGENCY_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
+class ReportForm(forms.ModelForm):
+    phoneNumber = forms.CharField(
+        max_length=50,
         required=True,
-        label="Emergency Type"
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your phone number'
+        })
     )
     
+    def clean_phoneNumber(self):
+        phone = self.cleaned_data.get('phoneNumber')
+        if phone:
+            # Remove spaces and validate
+            phone_clean = phone.replace(' ', '').replace('-', '')
+            import re
+            if not re.match(r'^\+?[0-9]{10,15}$', phone_clean):
+                raise forms.ValidationError('Enter valid phone number')
+            return phone  # Return original format
+        return phone
+    
     class Meta:
-        model = Alert
-        fields = ['emergency_type', 'title', 'description', 'location', 'phoneNumber']
+        model = Report
+        fields = ['report_type', 'description', 'location_name', 'latitude', 'longitude', 'phoneNumber', 'image']
         labels = {
-            'title': 'Emergency Summary',
-            'description': 'Full Description',
-            'location': 'Location',
-            'phoneNumber': 'Phone Number',
+            'report_type': 'Environmental Issue Type',
+            'description': 'Detailed Description',
+            'location_name': 'Location/Area Name',
+            'phoneNumber': 'Contact Number',
+            'image': 'Photo Evidence'
         }
         widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Brief summary (e.g., "House fire on Main Street")'
+            'report_type': forms.Select(attrs={
+                'class': 'form-control'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 5,
-                'placeholder': 'Provide complete details: What happened? How many people affected? What help is needed? Any injuries?'
+                'placeholder': 'Describe what you observed: What is happening? When did you notice it? How severe is it?'
             }),
-            'location': forms.TextInput(attrs={
+            'location_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Exact address or location'
+                'placeholder': 'Area name, landmark, or address'
             }),
-            'phoneNumber': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Your contact number'
-            }),
+
         }
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        # Set choices for report_type dropdown
+        self.fields['report_type'].choices = [('', 'Select Environmental Issue')] + Report.REPORT_TYPES
         if user and hasattr(user, 'profile'):
             self.fields['phoneNumber'].initial = user.profile.phoneNumber
         
     def save(self, commit=True):
-        alert = super().save(commit=False)
-        alert.is_active = True  # Always set to active for new alerts
-        alert.visibility = 'public'  # Always public since admin approves
+        report = super().save(commit=False)
+        # Auto-generate title from report type
+        report.title = f"{report.get_report_type_display()} Report"
+        report.status = 'new'
         if commit:
-            alert.save()
-        return alert
+            report.save()
+        return report
+
+# Keep AlertForm as alias for backward compatibility
+AlertForm = ReportForm
 
 
 class ProfileForm(forms.ModelForm):
+    phoneNumber = forms.CharField(
+        max_length=17,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '+1234567890 or 1234567890'
+        })
+    )
+    
+    location = forms.CharField(
+        max_length=200,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'City, State/Province, Country',
+            'autocomplete': 'address-level2'
+        }),
+        help_text="Your current location for emergency response"
+    )
+    
     class Meta:
         model = Profile
         fields = ['first_name', 'last_name', 'phoneNumber', 'location', 'email', 'bio', 'profile_picture']
 
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'phoneNumber': forms.TextInput(attrs={'class': 'form-control'}),
-            'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'your@email.com'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Tell the community about yourself...'}),
         }
+        
+    def clean_phoneNumber(self):
+        phone = self.cleaned_data.get('phoneNumber')
+        if phone:
+            # Remove spaces and dashes for validation
+            phone_clean = phone.replace(' ', '').replace('-', '')
+            # Allow the phone number to be updated without strict validation
+            return phone_clean
+        return phone
+        
+    def clean_location(self):
+        location = self.cleaned_data.get('location')
+        if location:
+            location = location.strip()
+            if len(location) < 3:
+                raise forms.ValidationError("📍 Please provide a more specific location (at least 3 characters)")
+            if len(location) > 200:
+                raise forms.ValidationError("📍 Location is too long (maximum 200 characters)")
+            # Check for basic location format
+            if not any(char.isalpha() for char in location):
+                raise forms.ValidationError("📍 Location must contain at least some letters")
+        return location
 
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'your@email.com'}),
+        }
 
 
 class SuperuserProfileForm(ProfileForm):

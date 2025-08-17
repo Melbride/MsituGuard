@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-a#((2n(2x!ytaj+a0#&y%jn!l!+9k9_v#=qg&zk3pq#m1pt6er'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-a#((2n(2x!ytaj+a0#&y%jn!l!+9k9_v#=qg&zk3pq#m1pt6er')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com', '*.onrender.com']
 
 
 
@@ -84,13 +84,20 @@ WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Use SQLite for both local and production (simpler for hackathon)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Database configuration for Render
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
     }
-}
+else:
+    # Local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -111,6 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
+    'App.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -177,10 +185,10 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'melbrideb@gmail.com'
 EMAIL_HOST_PASSWORD = 'jqplujcnekpbemvl'  # Gmail App Password
-DEFAULT_FROM_EMAIL = 'CrisisConnect <melbrideb@gmail.com>'
+DEFAULT_FROM_EMAIL = 'MsituGuard <melbrideb@gmail.com>'
 SERVER_EMAIL = 'melbrideb@gmail.com'
 
-# Fallback to console if needed
+# For development - use console backend (comment out for real emails)
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 

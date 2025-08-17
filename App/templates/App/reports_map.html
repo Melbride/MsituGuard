@@ -1,0 +1,98 @@
+{% extends 'App/base.html' %}
+
+{% block content %}
+<style>
+    #map { height: 600px; width: 100%; border-radius: 10px; }
+    .info-window { max-width: 300px; }
+    .report-status { padding: 5px 10px; border-radius: 15px; color: white; font-size: 12px; }
+    .status-new { background: #ef4444; }
+    .status-verified { background: #10b981; }
+    .status-resolved { background: #6b7280; }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-map-marked-alt me-2"></i>Environmental Reports Map</h2>
+            <p class="text-muted">Real-time view of environmental issues reported by the community</p>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-danger">{{ new_count }}</h5>
+                    <small>New Reports</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-success">{{ verified_count }}</h5>
+                    <small>Verified</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-secondary">{{ resolved_count }}</h5>
+                    <small>Resolved</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-primary">{{ total_count }}</h5>
+                    <small>Total Reports</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div id="map"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simple map fallback without Google Maps API
+const reports = {{ reports_json|safe }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mapDiv = document.getElementById('map');
+    mapDiv.innerHTML = `
+        <div style="padding: 20px; text-align: center; background: #f8f9fa; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+            <h4>Environmental Reports Dashboard</h4>
+            <p class="text-muted mb-4">Interactive map view of community reports</p>
+            <div class="row">
+                ${reports.map(report => `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-left-${report.status === 'new' ? 'danger' : report.status === 'verified' ? 'success' : 'secondary'}" style="border-left: 4px solid ${report.status === 'new' ? '#ef4444' : report.status === 'verified' ? '#10b981' : '#6b7280'};">
+                            <div class="card-body">
+                                <h6 class="card-title">${report.title}</h6>
+                                <p class="card-text">
+                                    <strong>Type:</strong> ${report.report_type_display}<br>
+                                    <strong>Location:</strong> ${report.location_name}<br>
+                                    <strong>Reporter:</strong> ${report.reporter}
+                                </p>
+                                <span class="badge badge-${report.status === 'new' ? 'danger' : report.status === 'verified' ? 'success' : 'secondary'}">
+                                    ${report.status.toUpperCase()}
+                                </span>
+                                ${report.image ? `<br><br><img src="${report.image}" class="img-fluid" style="max-height: 150px; border-radius: 5px;">` : ''}
+                                <br><small class="text-muted">Reported: ${report.timestamp}</small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+});
+</script>
+{% endblock %}

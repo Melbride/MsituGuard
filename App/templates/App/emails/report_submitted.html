@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+        .btn { background: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 25px; display: inline-block; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Report Submitted Successfully</h1>
+            <p>Thank you for protecting our environment!</p>
+        </div>
+        <div class="content">
+            <p>Hello <strong>{{ user.username }}</strong>,</p>
+            
+            <p>Thank you for submitting your environmental report "<strong>{{ report.title }}</strong>".</p>
+            
+            <p>Our team will investigate and verify this issue. You will receive email updates when the status changes.</p>
+            
+            <p><strong>Report Details:</strong></p>
+            <ul>
+                <li><strong>Type:</strong> {{ report.get_report_type_display }}</li>
+                <li><strong>Location:</strong> {{ report.location_name }}</li>
+                <li><strong>Status:</strong> Under Review</li>
+            </ul>
+            
+            <a href="{{ dashboard_url }}" class="btn">Track Your Report Progress</a>
+            
+            <p>Thank you for being an environmental guardian!</p>
+            
+            <p>Best regards,<br>MsituGuard Team</p>
+        </div>
+        <div class="footer">
+            <p>© 2024 MsituGuard - Environmental Protection Platform</p>
+        </div>
+    </div>
+</body>
+</html>
