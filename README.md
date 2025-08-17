@@ -47,6 +47,7 @@ MsituGuard bridges the gap between community environmental awareness and organiz
 - **APIs**: Weather API integration, GPS services
 - **Authentication**: Django built-in authentication
 - **Responsive Design**: Mobile-first approach
+- **Deployment**: Vercel + Supabase + Cloudinary
 
 ## 📱 Demo Credentials
 
@@ -68,7 +69,7 @@ MsituGuard bridges the gap between community environmental awareness and organiz
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.9+
 - pip (Python package manager)
 - Git
 
@@ -96,15 +97,16 @@ MsituGuard bridges the gap between community environmental awareness and organiz
    pip install -r requirements.txt
    ```
 
-4. **Setup database**
+4. **Setup environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your credentials
+   ```
+
+5. **Setup database**
    ```bash
    python manage.py makemigrations
    python manage.py migrate
-   ```
-
-5. **Create demo data (optional)**
-   ```bash
-   python manage.py loaddata demo_data.json
    ```
 
 6. **Run development server**
@@ -115,6 +117,23 @@ MsituGuard bridges the gap between community environmental awareness and organiz
 7. **Access the platform**
    - Open browser to `http://localhost:8000`
    - Use demo credentials above to explore features
+
+## 🌐 Deployment
+
+### Vercel + Supabase + Cloudinary
+
+1. **Database**: Create Supabase project and get PostgreSQL URL
+2. **Media Storage**: Create Cloudinary account for image storage
+3. **Deploy**: Connect GitHub repo to Vercel
+4. **Environment Variables**: Add to Vercel dashboard:
+   ```
+   DATABASE_URL=postgresql://...
+   CLOUDINARY_CLOUD_NAME=your-cloud-name
+   CLOUDINARY_API_KEY=your-api-key
+   CLOUDINARY_API_SECRET=your-api-secret
+   SECRET_KEY=your-secret-key
+   DEBUG=False
+   ```
 
 ## 🎯 Demo Scenarios
 
