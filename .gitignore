@@ -30,6 +30,8 @@ media/
 
 # Environment variables
 .env
+.env.local
+.env.production
 .venv
 env/
 venv/
@@ -54,8 +56,8 @@ ehthumbs.db
 Thumbs.db
 
 # Static files (if collected)
-staticfiles/
-static_root/
+# staticfiles/
+# static_root/
 
 # Backup files
 *.bak

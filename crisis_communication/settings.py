@@ -14,6 +14,9 @@ from pathlib import Path
 import os
 from decouple import config
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,7 +32,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-a#((2n(2x!ytaj+a0#&y%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com', '*.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'crisisconnect.onrender.com', '*.onrender.com', '*.vercel.app']
 
 
 
@@ -84,11 +87,11 @@ WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Database configuration for Render
+# Database configuration for Supabase/Vercel
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
 else:
     # Local development
@@ -142,7 +145,7 @@ USE_TZ = True
 AFRICASTALKING_USERNAME = 'sandbox'  
 AFRICASTALKING_API_KEY = 'atsk_eef06dd8b22f21b0b0c8bff1052725a83c40db660c6d6b2d11f06fbca788a83a28551eb7' 
 
-CSRF_TRUSTED_ORIGINS = ['https://9ebb-102-0-14-102.ngrok-free.app', 'https://crisisconnect.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://9ebb-102-0-14-102.ngrok-free.app', 'https://crisisconnect.onrender.com', 'https://*.vercel.app']
 
 
 
@@ -156,8 +159,21 @@ STATICFILES_DIRS = [
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+# Use Cloudinary for media files in production
+if os.environ.get('CLOUDINARY_CLOUD_NAME'):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    MEDIA_URL = '/media/'
+else:
+    # Local development
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type
