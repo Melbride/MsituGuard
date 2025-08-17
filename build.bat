@@ -1,10 +1,11 @@
-#!/bin/bash
+@echo off
+REM Windows build script for MsituGuard
 
-# Install dependencies
+REM Install dependencies
 python -m pip install -r requirements.txt
 
-# Collect static files
+REM Collect static files
 python manage.py collectstatic --noinput
 
-# Run migrations
+REM Run migrations
 python manage.py migrate --noinput
