@@ -645,6 +645,7 @@
                 align-items: center;
                 justify-content: center;
                 border-radius: 50% !important;
+                margin-left: 0.5rem !important;
             }
             
             .btn-auth i {
@@ -661,11 +662,17 @@
                 min-width: 44px;
                 height: 44px;
                 border-radius: 50% !important;
+                margin-left: 0.5rem !important;
             }
             
             .btn-logout i {
                 margin: 0 !important;
                 font-size: 1.1rem;
+            }
+            
+            .auth-buttons {
+                gap: 0.5rem !important;
+                margin-left: auto;
             }
             
             .navbar-brand-text {
@@ -795,22 +802,17 @@
                 <a href="{% url 'fire_risk' %}" class="sidebar-item">
                     <i class="fas fa-fire"></i>Fire Safety Center
                 </a>
-                <a href="{% url 'field_assessment' %}" class="sidebar-item">
-                    <i class="fas fa-clipboard-check"></i>Field Assessment
-                </a>
                 {% if user.is_authenticated %}
                 <a href="{% url 'my_reports' %}" class="sidebar-item">
                     <i class="fas fa-clipboard-list"></i>My Reports
+                </a>
+                <a href="{% url 'rewards' %}" class="sidebar-item">
+                    <i class="fas fa-trophy"></i>Rewards Center
                 </a>
                 {% endif %}
                 <a href="{% url 'forum_post_list' %}" class="sidebar-item">
                     <i class="fas fa-comments"></i>Community Forum
                 </a>
-                {% if user.is_authenticated %}
-                <a href="{% url 'rewards' %}" class="sidebar-item">
-                    <i class="fas fa-trophy"></i>Rewards Center
-                </a>
-                {% endif %}
             {% endif %}
             {% if user.is_superuser %}
             <a href="{% url 'organization_dashboard' %}" class="sidebar-item">
