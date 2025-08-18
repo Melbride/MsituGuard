@@ -86,12 +86,25 @@ WSGI_APPLICATION = 'crisis_communication.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Database configuration for Supabase/Vercel
+# Database configuration with fallback
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
+    try:
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL)
+        }
+        # Test connection
+        import psycopg2
+        conn = psycopg2.connect(DATABASE_URL)
+        conn.close()
+    except:
+        # Fallback to SQLite if connection fails
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 else:
     # Local development
     DATABASES = {
