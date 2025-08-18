@@ -619,19 +619,22 @@
             /* Mobile navbar layout - keep logo visible */
             .navbar-modern .container .d-flex {
                 position: relative;
-                justify-content: flex-start !important;
+                justify-content: space-between !important;
+                align-items: center;
             }
             
             .navbar-brand {
                 margin-left: 70px !important;
-                margin-right: auto !important;
-                flex: 1;
+                margin-right: 1rem !important;
+                flex: 0 1 auto;
             }
             
             .auth-buttons {
                 flex-shrink: 0;
-                margin-left: 2rem !important;
-                margin-right: 1rem !important;
+                margin-left: auto !important;
+                margin-right: 0.5rem !important;
+                display: flex !important;
+                gap: 0.5rem !important;
             }
             
             /* Mobile header profile adjustments */
@@ -808,10 +811,10 @@
                 <a href="{% url 'my_reports' %}" class="sidebar-item">
                     <i class="fas fa-clipboard-list"></i>My Reports
                 </a>
+                {% endif %}
                 <a href="{% url 'rewards' %}" class="sidebar-item">
                     <i class="fas fa-trophy"></i>Rewards Center
                 </a>
-                {% endif %}
                 <a href="{% url 'forum_post_list' %}" class="sidebar-item">
                     <i class="fas fa-comments"></i>Community Forum
                 </a>
