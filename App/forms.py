@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, Password
 # from .models import CustomUser
 from django.core.validators import RegexValidator
 # from .models import CustomUser
-from captcha.fields import CaptchaField
+# from captcha.fields import CaptchaField
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -41,7 +41,7 @@ class UserRegistrationForm(UserCreationForm):
         label='Donation Level (for Donors)'
     )
     
-    captcha = CaptchaField()
+    # captcha = CaptchaField()
     # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
 
