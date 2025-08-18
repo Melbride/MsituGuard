@@ -44,9 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'App',  # This is the correct way to add your app
-    'App.apps.AppConfig',  # This is how to add the AppConfig
-    'captcha',
+    'App.apps.AppConfig',
 ]
 
 
