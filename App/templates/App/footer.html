@@ -24,10 +24,8 @@
 
 .footer-links {
     display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .footer-link {
@@ -51,20 +49,20 @@
         padding: 2rem 0 1rem;
     }
     
-    .footer-links {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: center;
-    }
-    
-    .d-flex.justify-content-center.gap-4 {
-        flex-direction: column !important;
-        gap: 1rem !important;
+    .footer-content .row {
         text-align: center;
     }
     
-    .d-flex.align-items-center {
-        justify-content: center !important;
+    .footer-content .col-md-4 {
+        margin-bottom: 2rem;
+    }
+    
+    .footer-links {
+        align-items: center;
+    }
+    
+    .d-flex.flex-column {
+        align-items: center !important;
     }
 }
 
@@ -117,35 +115,39 @@
     <div class="container">
         <div class="footer-content">
 
-            <div class="text-center">
-                <h5 class="mb-3" style="color: #22c55e; font-weight: 600;">🌿 Our Mission</h5>
-                <p class="mb-4" style="color: #6b7280; font-size: 1.1rem; max-width: 500px; margin: 0 auto;">Protecting Kenya's forests through community reporting and conservation action.</p>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Privacy Policy</a>
-                    <a href="#" class="footer-link">Terms of Service</a>
-                    <a href="#" class="footer-link">About</a>
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="mb-3" style="color: #22c55e; font-weight: 600;">🌿 MsituGuard</h5>
+                    <p class="mb-3" style="color: #6b7280; font-size: 0.95rem;">Protecting Kenya's forests through community reporting and conservation action.</p>
+                    <p style="color: #6b7280; font-size: 0.9rem;">© 2025 MsituGuard - Environmental Protection Platform</p>
                 </div>
                 
-                <!-- Contact Information -->
-                <div class="mt-4 mb-3">
-                    <h6 class="fw-bold mb-3" style="color: #22c55e;">📞 Contact Information</h6>
-                    <div class="d-flex justify-content-center gap-4 flex-wrap">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-phone text-success me-2"></i>
-                            <span style="color: #6b7280;">0790117305</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-envelope text-success me-2"></i>
-                            <span style="color: #6b7280;">info@msituguard.co.ke</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-map-marker-alt text-success me-2"></i>
-                            <span style="color: #6b7280;">Nairobi, Kenya</span>
-                        </div>
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3" style="color: #22c55e;">Quick Links</h6>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="#" class="footer-link" style="padding: 0.25rem 0; text-align: left;">Privacy Policy</a>
+                        <a href="#" class="footer-link" style="padding: 0.25rem 0; text-align: left;">Terms of Service</a>
+                        <a href="#" class="footer-link" style="padding: 0.25rem 0; text-align: left;">About Us</a>
                     </div>
                 </div>
                 
-                <p style="color: #6b7280; margin-top: 1.5rem;">© 2025 MsituGuard - Environmental Protection Platform. Protecting Kenya's forests together.</p>
+                <div class="col-md-4">
+                    <h6 class="fw-bold mb-3" style="color: #22c55e;">📞 Contact Information</h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span style="color: #6b7280; font-size: 0.9rem;">0790117305</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-envelope text-success me-2"></i>
+                            <span style="color: #6b7280; font-size: 0.9rem;">info@msituguard.co.ke</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-map-marker-alt text-success me-2"></i>
+                            <span style="color: #6b7280; font-size: 0.9rem;">Nairobi, Kenya</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

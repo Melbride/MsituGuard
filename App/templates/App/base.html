@@ -595,7 +595,11 @@
                 width: 300px;
             }
             .hero-title {
-                font-size: 2rem;
+                font-size: 1.75rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
             }
             
             .sidebar {
@@ -722,11 +726,11 @@
             }
             
             .hero-title {
-                font-size: 1.75rem;
+                font-size: 1.5rem;
             }
             
             .hero-subtitle {
-                font-size: 1rem;
+                font-size: 0.9rem;
             }
             
             /* Compact logo for very small screens */
@@ -841,6 +845,9 @@
                 <!-- Organization Menu (Simplified) -->
                 <a href="{% url 'organization_dashboard' %}" class="sidebar-item">
                     <i class="fas fa-building"></i>Organization Dashboard
+                </a>
+                <a href="{% url 'tree_prediction' %}" class="sidebar-item">
+                    <i class="fas fa-brain"></i>Tree Prediction
                 </a>
                 <a href="{% url 'field_assessment' %}" class="sidebar-item">
                     <i class="fas fa-clipboard-check"></i>Field Assessment

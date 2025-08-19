@@ -506,6 +506,14 @@
             margin: 2rem 0;
         }
         
+        .about-section .display-5 {
+            font-size: 1.75rem !important;
+        }
+        
+        .about-section .fs-5 {
+            font-size: 1rem !important;
+        }
+        
         .about-section .row {
             flex-direction: column-reverse;
         }
@@ -587,6 +595,14 @@
         .about-section {
             padding: 1.5rem 1rem;
             margin: 1rem 0;
+        }
+        
+        .about-section .display-5 {
+            font-size: 1.5rem !important;
+        }
+        
+        .about-section .fs-5 {
+            font-size: 0.9rem !important;
         }
         
         .feature-card {
@@ -846,6 +862,16 @@
             <div class="col-md-4">
                 <div class="feature-card">
                     <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">AI Tree Survival Prediction</h4>
+                    <p class="text-muted">Use machine learning to predict tree survival rates before planting. Get species recommendations and optimize planting success with 93.2% accuracy AI model.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
                         <i class="fas fa-fire"></i>
                     </div>
                     <h4 class="fw-bold mb-3">Fire Safety Center</h4>
@@ -892,6 +918,16 @@
                 <h3 class="fw-bold mb-3">🚀 Be Part of Kenya's Green Revolution!</h3>
                 <p class="fs-5 text-muted mb-4">Join thousands of environmental heroes making a real difference! Plant trees, earn recognition, and help Kenya achieve its ambitious 15 billion trees goal by 2032.</p>
                 
+                <div class="alert border-0 mb-3" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 15px; border: 2px solid #22c55e;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-brain text-success fs-4 me-3"></i>
+                        <div>
+                            <h6 class="fw-bold text-success mb-1">🧠 AI-Powered Tree Prediction!</h6>
+                            <small class="text-success">Check survival rates before planting - maximize your environmental impact!</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="alert alert-success border-0 mb-4" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: 15px;">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-trophy text-success fs-4 me-3"></i>
@@ -920,7 +956,7 @@
                 </div>
                 
                 <div class="d-flex gap-3 flex-wrap">
-                    <a href="{% url 'public_tree_form' %}" class="btn btn-success btn-lg px-4 py-3" style="border-radius: 15px; font-weight: 600;">
+                    <a href="{% url 'tree_prediction' %}" class="btn btn-success btn-lg px-4 py-3" style="border-radius: 15px; font-weight: 600;">
                         <i class="fas fa-seedling me-2"></i>Start Planting Trees
                     </a>
                     <a href="https://www.kefri.org/" target="_blank" class="btn btn-outline-success btn-lg px-4 py-3" style="border-radius: 15px; font-weight: 600;">

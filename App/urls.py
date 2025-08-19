@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.shortcuts import redirect
 from . import views
 from .views import ussd_callback
+from .views_ml import predict_tree_survival, get_species_recommendations
 
 from django.contrib.auth import views as auth_views
 from .views import UseRegisterView #CustomLoginView
@@ -104,6 +105,12 @@ urlpatterns = [
     path('export/tree-data/', views.export_tree_data, name='export_tree_data'),
     path('export/fire-data/', views.export_fire_data, name='export_fire_data'),
     path('export/fire-reports/', views.export_fire_reports, name='export_fire_reports'),
+    
+    # ML Prediction APIs
+    path('api/predict-tree-survival/', predict_tree_survival, name='predict_tree_survival'),
+    path('predict-tree-survival/', predict_tree_survival, name='predict_tree_survival_public'),
+    path('api/species-recommendations/', get_species_recommendations, name='species_recommendations'),
+    path('tree-prediction/', TemplateView.as_view(template_name='App/tree_prediction.html'), name='tree_prediction'),
 
 
 

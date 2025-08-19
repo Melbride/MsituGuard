@@ -32,11 +32,11 @@
     }
     
     .page-header {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9)), url('{% static 'images/Initiative 3.jpeg' %}');
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.5), rgba(22, 163, 74, 0.5)), url('{% static 'images/Initiative 3.jpeg' %}');
         background-size: cover;
-        background-position: center;
+        background-position: center top;
         color: white;
-        padding: 4rem 0 2rem;
+        padding: 2rem 0 1rem;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -74,6 +74,45 @@
         color: white;
         font-size: 2.2rem;
         box-shadow: 0 15px 35px rgba(34, 197, 94, 0.4);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 15px;
+        border: 2px solid #e2e8f0;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        background: #ffffff;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25);
+        background: #ffffff;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        border: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(34, 197, 94, 0.6);
+        color: white;
     }
     
     .back-button {
@@ -242,6 +281,61 @@
     </div>
 </div>
 
+<!-- Initiative Info Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold mb-4" style="color: #15803d;">🌳 Kenya's 15 Billion Trees Initiative</h2>
+                    <p class="lead" style="color: #166534;">Join Kenya's ambitious goal to plant 15 billion trees by 2032 to combat climate change and restore our environment.</p>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 2rem;">
+                                <i class="fas fa-globe-africa"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2" style="color: #15803d;">Climate Action</h5>
+                            <p class="text-muted">Combat climate change through massive reforestation efforts across Kenya.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 2rem;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2" style="color: #15803d;">Community Impact</h5>
+                            <p class="text-muted">Create jobs and improve livelihoods in rural communities nationwide.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 2rem;">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2" style="color: #15803d;">Biodiversity</h5>
+                            <p class="text-muted">Restore ecosystems and protect Kenya's rich biodiversity for future generations.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; border-radius: 20px; padding: 2rem;">
+                                <h4 class="fw-bold mb-3" style="color: #15803d;">Your Contribution Matters</h4>
+                                <p class="mb-0" style="color: #166534;">Every tree you plant is tracked and contributes to Kenya's national goal. Together, we're building a greener, more sustainable future for all Kenyans.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Form Section -->
 <section class="py-5">
     <div class="container">
@@ -267,13 +361,30 @@
                 {% else %}
                     <div class="feature-card">
                         <div class="text-center mb-4">
-                            <div class="feature-icon" style="margin: 0 auto 1.5rem;">
+                            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
                                 <i class="fas fa-seedling"></i>
                             </div>
-                            <h3 class="fw-bold mb-3">Register Your Tree Planting</h3>
+                            <h3 class="fw-bold mb-3" style="color: #15803d;">Register Your Tree Planting</h3>
                             <p class="text-muted">Document your contribution to Kenya's 15 billion trees goal. No account required - we'll create one for you!</p>
                         </div>
                         
+                        <!-- Tree Survival Prediction Section -->
+                        <div id="predictionSection" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 2px solid #0ea5e9; border-radius: 20px; padding: 2rem; margin-bottom: 2rem; display: none;">
+                            <div class="text-center mb-3">
+                                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4 class="fw-bold" style="color: #0c4a6e;">🌱 AI Tree Survival Prediction</h4>
+                                <p style="color: #0369a1; margin: 0;">Check if your trees will thrive before planting</p>
+                            </div>
+                            <div id="predictionResult" class="text-center"></div>
+                            <div class="text-center mt-3">
+                                <button type="button" id="checkSurvivalBtn" class="btn" style="background: #0ea5e9; color: white; padding: 0.8rem 2rem; border: none; border-radius: 10px; font-weight: 600;">
+                                    <i class="fas fa-search me-2"></i>Check Tree Survival
+                                </button>
+                            </div>
+                        </div>
+
                         <form method="post" action="{% url 'public_tree_planting' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row g-3">
@@ -290,9 +401,38 @@
                                     <input type="email" name="email" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Region *</label>
+                                    <select id="regionSelect" name="region" class="form-select" required>
+                                        <option value="">Select Region</option>
+                                        <option value="Central">Central</option>
+                                        <option value="Coast">Coast</option>
+                                        <option value="Eastern">Eastern</option>
+                                        <option value="North Eastern">North Eastern</option>
+                                        <option value="Nyanza">Nyanza</option>
+                                        <option value="Rift Valley">Rift Valley</option>
+                                        <option value="Western">Western</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">County *</label>
+                                    <select id="countySelect" name="county" class="form-select" required>
+                                        <option value="">Select County</option>
+                                        <option value="Nairobi">Nairobi</option>
+                                        <option value="Kiambu">Kiambu</option>
+                                        <option value="Nakuru">Nakuru</option>
+                                        <option value="Mombasa">Mombasa</option>
+                                        <option value="Kisumu">Kisumu</option>
+                                        <option value="Eldoret">Eldoret</option>
+                                        <option value="Machakos">Machakos</option>
+                                        <option value="Meru">Meru</option>
+                                        <option value="Nyeri">Nyeri</option>
+                                        <option value="Kakamega">Kakamega</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
                                     <label class="form-label fw-semibold">Location/Area *</label>
                                     <div style="position: relative;">
-                                        <input type="text" id="locationInput" name="location" class="form-control" placeholder="e.g., Nakuru County" required style="padding-right: 120px;">
+                                        <input type="text" id="locationInput" name="location" class="form-control" placeholder="e.g., Specific area name" required style="padding-right: 120px;">
                                         <button type="button" id="getLocationBtn" class="btn" style="position: absolute; right: 5px; top: 5px; background: #22c55e; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.9rem;">
                                             <i class="fas fa-map-marker-alt me-1"></i>GPS
                                         </button>
@@ -300,17 +440,42 @@
                                     <small class="text-muted mt-1">Click GPS to auto-detect your location</small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Number of Trees *</label>
-                                    <input type="number" name="number_of_trees" class="form-control" min="1" required>
+                                    <label class="form-label fw-semibold">Tree Species *</label>
+                                    <select id="treeSpeciesSelect" name="tree_species" class="form-select" required>
+                                        <option value="">Select Tree Species</option>
+                                        <option value="Eucalyptus">Eucalyptus</option>
+                                        <option value="Pine">Pine</option>
+                                        <option value="Acacia">Acacia</option>
+                                        <option value="Cypress">Cypress</option>
+                                        <option value="Cedar">Cedar</option>
+                                        <option value="Grevillea">Grevillea</option>
+                                        <option value="Neem">Neem</option>
+                                        <option value="Wattle">Wattle</option>
+                                        <option value="Bamboo">Bamboo</option>
+                                        <option value="Casuarina">Casuarina</option>
+                                        <option value="Jacaranda">Jacaranda</option>
+                                        <option value="Indigenous Mix">Indigenous Mix</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Tree Type</label>
-                                    <select name="tree_type" class="form-select">
-                                        <option value="indigenous">Indigenous Species</option>
-                                        <option value="exotic">Exotic Species</option>
-                                        <option value="fruit">Fruit Trees</option>
-                                        <option value="bamboo">Bamboo</option>
-                                        <option value="other">Other</option>
+                                    <label class="form-label fw-semibold">Number of Trees *</label>
+                                    <input type="number" id="numberOfTrees" name="number_of_trees" class="form-control" min="1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Soil Type</label>
+                                    <select id="soilTypeSelect" name="soil_type" class="form-select">
+                                        <option value="Loam">Loam</option>
+                                        <option value="Clay">Clay</option>
+                                        <option value="Sandy">Sandy</option>
+                                        <option value="Rocky">Rocky</option>
+                                        <option value="Volcanic">Volcanic</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Planting Season</label>
+                                    <select id="plantingSeasonSelect" name="planting_season" class="form-select">
+                                        <option value="Wet">Wet Season (March-May, Oct-Dec)</option>
+                                        <option value="Dry">Dry Season (Jan-Feb, Jun-Sep)</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
@@ -340,7 +505,7 @@
                                     </div>
                                 </div>
                                 <div class="col-12 text-center">
-                                    <button type="submit" class="btn btn-success btn-lg px-5">
+                                    <button type="submit" id="submitBtn" class="btn-register">
                                         <i class="fas fa-seedling me-2"></i>Register My Trees
                                     </button>
                                     <p class="text-muted mt-3 mb-0">We'll create your account and send verification email</p>
@@ -396,6 +561,133 @@ document.getElementById('getLocationBtn').addEventListener('click', function() {
         alert('GPS not supported by this browser.');
     }
 });
+
+// Tree survival prediction functionality
+function validatePredictionInputs() {
+    const region = document.getElementById('regionSelect').value;
+    const county = document.getElementById('countySelect').value;
+    const species = document.getElementById('treeSpeciesSelect').value;
+    const numTrees = document.getElementById('numberOfTrees').value;
+    
+    if (!region || !county || !species || !numTrees) {
+        alert('Please fill in Region, County, Tree Species, and Number of Trees to check survival prediction.');
+        return false;
+    }
+    return true;
+}
+
+function predictTreeSurvival() {
+    if (!validatePredictionInputs()) return;
+    
+    const btn = document.getElementById('checkSurvivalBtn');
+    const resultDiv = document.getElementById('predictionResult');
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+    btn.disabled = true;
+    
+    const predictionData = {
+        tree_species: document.getElementById('treeSpeciesSelect').value,
+        region: document.getElementById('regionSelect').value,
+        county: document.getElementById('countySelect').value,
+        soil_type: document.getElementById('soilTypeSelect').value,
+        rainfall_mm: 800, // Default for Kenya
+        temperature_c: 22, // Default for Kenya
+        altitude_m: 1500, // Default for Kenya
+        soil_ph: 6.5, // Default
+        planting_season: document.getElementById('plantingSeasonSelect').value,
+        planting_method: 'Seedling',
+        care_level: 'Medium',
+        water_source: 'Rain-fed',
+        tree_age_months: 12
+    };
+    
+    fetch('/predict-tree-survival/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(predictionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayPredictionResult(data);
+        btn.innerHTML = '<i class="fas fa-search me-2"></i>Check Again';
+        btn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultDiv.innerHTML = '<div class="alert alert-danger">Error getting prediction. Please try again.</div>';
+        btn.innerHTML = '<i class="fas fa-search me-2"></i>Check Tree Survival';
+        btn.disabled = false;
+    });
+}
+
+function displayPredictionResult(data) {
+    const resultDiv = document.getElementById('predictionResult');
+    const percentage = data.survival_percentage || (data.survival_probability * 100);
+    
+    let colorClass, icon, message;
+    
+    if (percentage >= 80) {
+        colorClass = 'success';
+        icon = 'fas fa-check-circle';
+        message = 'Excellent! Your trees have high survival chances.';
+    } else if (percentage >= 60) {
+        colorClass = 'warning';
+        icon = 'fas fa-exclamation-triangle';
+        message = 'Good conditions, but consider improving care.';
+    } else if (percentage >= 40) {
+        colorClass = 'warning';
+        icon = 'fas fa-exclamation-triangle';
+        message = 'Moderate risk. Consider different species or location.';
+    } else {
+        colorClass = 'danger';
+        icon = 'fas fa-times-circle';
+        message = 'High risk! Consider waiting or changing conditions.';
+    }
+    
+    resultDiv.innerHTML = `
+        <div class="alert alert-${colorClass} mb-3">
+            <div class="d-flex align-items-center mb-2">
+                <i class="${icon} me-2" style="font-size: 1.5rem;"></i>
+                <div>
+                    <h5 class="mb-1">Survival Prediction: ${percentage.toFixed(1)}%</h5>
+                    <p class="mb-0">${message}</p>
+                </div>
+            </div>
+            <div class="mt-2">
+                <strong>AI Recommendation:</strong><br>
+                ${data.recommendation || 'Proceed with standard planting practices.'}
+            </div>
+        </div>
+    `;
+}
+
+// Event listeners
+document.getElementById('checkSurvivalBtn').addEventListener('click', predictTreeSurvival);
+document.getElementById('predictFirstBtn').addEventListener('click', function() {
+    document.getElementById('predictionSection').style.display = 'block';
+    document.getElementById('predictionSection').scrollIntoView({ behavior: 'smooth' });
+    
+    // Auto-fill prediction if form has data
+    if (validatePredictionInputs()) {
+        predictTreeSurvival();
+    }
+});
+
+// Show prediction section when key fields are filled
+function checkFormCompletion() {
+    const region = document.getElementById('regionSelect').value;
+    const species = document.getElementById('treeSpeciesSelect').value;
+    
+    if (region && species) {
+        document.getElementById('predictionSection').style.display = 'block';
+    }
+}
+
+document.getElementById('regionSelect').addEventListener('change', checkFormCompletion);
+document.getElementById('treeSpeciesSelect').addEventListener('change', checkFormCompletion);
 </script>
 
 {% endblock %}
