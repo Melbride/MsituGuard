@@ -1,8 +1,13 @@
-import joblib
-import numpy as np
-import pandas as pd
 import os
 from django.conf import settings
+
+try:
+    import joblib
+    import numpy as np
+    import pandas as pd
+    ML_AVAILABLE = True
+except ImportError:
+    ML_AVAILABLE = False
 
 class TreeSurvivalPredictor:
     """Tree survival prediction utility for MsituGuard"""
@@ -16,6 +21,12 @@ class TreeSurvivalPredictor:
     
     def load_model(self):
         """Load trained model and preprocessing components"""
+        if not ML_AVAILABLE:
+            print("ML libraries not available - using demo mode")
+            self.model = None
+            self._setup_fallback_data()
+            return
+            
         try:
             model_dir = os.path.join(settings.BASE_DIR, 'Tree_Prediction', 'models')
             
@@ -29,7 +40,7 @@ class TreeSurvivalPredictor:
             
         except Exception as e:
             print(f"Error loading model: {e}")
-            print("Falling back to mock predictions for demo...")
+            print("Falling back to demo predictions...")
             self.model = None
             self._setup_fallback_data()
     
@@ -100,6 +111,9 @@ class TreeSurvivalPredictor:
             }
         
         try:
+            if not ML_AVAILABLE:
+                raise ImportError("ML libraries not available")
+                
             # Prepare input data
             input_data = pd.DataFrame([tree_data])
             
