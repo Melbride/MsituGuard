@@ -63,7 +63,8 @@ def train_tree_survival_model():
         n_estimators=100,
         max_depth=10,
         random_state=42,
-        class_weight='balanced'
+        class_weight='balanced',
+        n_jobs=1  # Avoid multiprocessing issues
     )
     
     model.fit(X_train_scaled, y_train)
