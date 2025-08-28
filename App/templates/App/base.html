@@ -949,7 +949,7 @@
     {% endif %}
 
     <div class="container mt-4">
-        {% if messages and 'alert_form' not in request.path %}
+        {% if messages and request.resolver_match.url_name != 'alert_create' %}
             {% for message in messages %}
                 <div class="alert-modern alert-{{ message.tags }}">
                     {% if 'token' in message.message|lower %}
