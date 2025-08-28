@@ -269,28 +269,40 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
         return initial
 
     def form_valid(self, form):
-        # Save the report with files
-        report = form.save(commit=False)
-        report.reporter = self.request.user
-        report.status = 'new'
-        report.save()
-        
-        # Handle file upload manually if needed
-        if 'image' in self.request.FILES:
-            report.image = self.request.FILES['image']
-            report.save()
-        
-        # Send email notification (don't let email failure break the flow)
         try:
-            self.send_submission_email(report)
+            # Save the report with files
+            report = form.save(commit=False)
+            report.reporter = self.request.user
+            report.status = 'new'
+            report.save()
+            print(f"Report saved successfully: {report.id}")
+            
+            # Handle file upload manually if needed
+            if 'image' in self.request.FILES:
+                report.image = self.request.FILES['image']
+                report.save()
+                print(f"Image uploaded successfully")
+            
+            # Send email notification (don't let email failure break the flow)
+            try:
+                self.send_submission_email(report)
+                print(f"Email sent successfully")
+            except Exception as e:
+                print(f"Email sending failed: {e}")
+                # Continue even if email fails
+            
+            self.object = report
+            # Use redirect to prevent form resubmission
+            messages.success(self.request, 'Environmental Report Successfully Created! Your report has been submitted and will be reviewed immediately.')
+            print(f"About to redirect")
+            return redirect('alert_create')
+            
         except Exception as e:
-            print(f"Email sending failed: {e}")
-            # Continue even if email fails
-        
-        self.object = report
-        # Use redirect to prevent form resubmission
-        messages.success(self.request, 'Environmental Report Successfully Created! Your report has been submitted and will be reviewed immediately.')
-        return redirect('alert_create')
+            print(f"Form validation error: {e}")
+            import traceback
+            traceback.print_exc()
+            messages.error(self.request, f'Error submitting report: {str(e)}')
+            return self.form_invalid(form)
     
     def send_submission_email(self, report):
         from django.core.mail import send_mail
@@ -301,22 +313,17 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
         try:
             dashboard_url = self.request.build_absolute_uri(reverse('my_reports'))
             
-            html_message = render_to_string('App/emails/report_submitted.html', {
-                'user': report.reporter,
-                'report': report,
-                'dashboard_url': dashboard_url,
-            })
-            
+            # Simple email without HTML template to avoid template issues
             send_mail(
                 subject='Environmental Report Submitted - MsituGuard',
-                message=f'Hello {report.reporter.username},\n\nThank you for submitting "{report.title}". Track progress: {dashboard_url}',
+                message=f'Hello {report.reporter.username},\n\nThank you for submitting "{report.title}". Your report has been received and will be reviewed by our partner organizations.\n\nTrack progress: {dashboard_url}\n\nBest regards,\nMsituGuard Team',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[report.reporter.email],
-                html_message=html_message,
-                fail_silently=True,
+                fail_silently=False,
             )
         except Exception as e:
             print(f"Email sending failed: {e}")
+            raise e
 
 
 class AlertUpdateView(UpdateView):
