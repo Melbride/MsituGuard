@@ -269,26 +269,36 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
         return initial
 
     def form_valid(self, form):
-        # Save the report with files
-        report = form.save(commit=False)
-        report.reporter = self.request.user
-        report.status = 'new'
-        report.save()
-        
-        # Handle file upload manually if needed
-        if 'image' in self.request.FILES:
-            report.image = self.request.FILES['image']
+        try:
+            # Save the report with files
+            report = form.save(commit=False)
+            report.reporter = self.request.user
+            report.status = 'new'
             report.save()
-        
-        # Send email notification
-        self.send_submission_email(report)
-        
-        self.object = report
-        return render(self.request, self.template_name, {
-            'submitted': True,
-            'success_message': 'Environmental Report Successfully Created!',
-            'success_detail': 'Your environmental report has been submitted and will be reviewed immediately. You will receive email updates on progress.'
-        })
+            
+            # Handle file upload manually if needed
+            if 'image' in self.request.FILES:
+                report.image = self.request.FILES['image']
+                report.save()
+            
+            # Send email notification
+            try:
+                self.send_submission_email(report)
+            except Exception as e:
+                print(f"Email sending failed: {e}")
+                # Continue even if email fails
+            
+            self.object = report
+            return render(self.request, self.template_name, {
+                'submitted': True,
+                'success_message': 'Environmental Report Successfully Created!',
+                'success_detail': 'Your environmental report has been submitted and will be reviewed immediately. You will receive email updates on progress.'
+            })
+        except Exception as e:
+            print(f"Report submission error: {e}")
+            # Return form with error
+            form.add_error(None, 'An error occurred while submitting your report. Please try again.')
+            return self.form_invalid(form)
     
     def send_submission_email(self, report):
         from django.core.mail import send_mail
