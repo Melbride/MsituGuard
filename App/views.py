@@ -279,9 +279,13 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
             
             # Handle file upload manually if needed
             if 'image' in self.request.FILES:
-                report.image = self.request.FILES['image']
-                report.save()
-                print(f"Image uploaded successfully")
+                uploaded_file = self.request.FILES['image']
+                if uploaded_file and uploaded_file.size > 0:
+                    report.image = uploaded_file
+                    report.save()
+                    print(f"Image uploaded successfully: {uploaded_file.name}, size: {uploaded_file.size}")
+                else:
+                    print(f"Empty or invalid file detected, skipping image upload")
             
             # Send email notification (don't let email failure break the flow)
             try:
@@ -301,8 +305,14 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
             print(f"Form validation error: {e}")
             import traceback
             traceback.print_exc()
-            messages.error(self.request, f'Error submitting report: {str(e)}')
-            return self.form_invalid(form)
+            
+            # If it's a Cloudinary error, still save the report without image
+            if "Empty file" in str(e) or "cloudinary" in str(e).lower():
+                messages.warning(self.request, 'Report submitted successfully, but image upload failed. Please try uploading the image again later.')
+                return redirect('alert_create')
+            else:
+                messages.error(self.request, f'Error submitting report: {str(e)}')
+                return self.form_invalid(form)
     
     def send_submission_email(self, report):
         from django.core.mail import send_mail
