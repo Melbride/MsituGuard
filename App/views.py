@@ -269,33 +269,28 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
         return initial
 
     def form_valid(self, form):
-        try:
-            # Save the report with files
-            report = form.save(commit=False)
-            report.reporter = self.request.user
-            report.status = 'new'
+        # Save the report with files
+        report = form.save(commit=False)
+        report.reporter = self.request.user
+        report.status = 'new'
+        report.save()
+        
+        # Handle file upload manually if needed
+        if 'image' in self.request.FILES:
+            report.image = self.request.FILES['image']
             report.save()
-            
-            # Handle file upload manually if needed
-            if 'image' in self.request.FILES:
-                report.image = self.request.FILES['image']
-                report.save()
-            
-            # Send email notification
-            try:
-                self.send_submission_email(report)
-            except Exception as e:
-                print(f"Email sending failed: {e}")
-                # Continue even if email fails
-            
-            self.object = report
-            # Use redirect to prevent form resubmission
-            messages.success(self.request, 'Environmental Report Successfully Created! Your report has been submitted and will be reviewed immediately.')
-            return redirect('alert_create')
+        
+        # Send email notification (don't let email failure break the flow)
+        try:
+            self.send_submission_email(report)
         except Exception as e:
-            print(f"Report submission error: {e}")
-            messages.error(self.request, 'An error occurred while submitting your report. Please try again.')
-            return redirect('alert_create')
+            print(f"Email sending failed: {e}")
+            # Continue even if email fails
+        
+        self.object = report
+        # Use redirect to prevent form resubmission
+        messages.success(self.request, 'Environmental Report Successfully Created! Your report has been submitted and will be reviewed immediately.')
+        return redirect('alert_create')
     
     def send_submission_email(self, report):
         from django.core.mail import send_mail
