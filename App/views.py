@@ -277,15 +277,21 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
             report.save()
             print(f"Report saved successfully: {report.id}")
             
-            # Handle file upload manually if needed
+            # Handle file upload only if a valid file is provided
             if 'image' in self.request.FILES:
                 uploaded_file = self.request.FILES['image']
                 if uploaded_file and uploaded_file.size > 0:
-                    report.image = uploaded_file
-                    report.save()
-                    print(f"Image uploaded successfully: {uploaded_file.name}, size: {uploaded_file.size}")
+                    try:
+                        report.image = uploaded_file
+                        report.save()
+                        print(f"Image uploaded successfully: {uploaded_file.name}, size: {uploaded_file.size}")
+                    except Exception as img_error:
+                        print(f"Image upload failed: {img_error}")
+                        # Continue without image
                 else:
-                    print(f"Empty or invalid file detected, skipping image upload")
+                    print(f"No valid file provided, continuing without image")
+            else:
+                print(f"No image file in request, continuing without image")
             
             # Send email notification (don't let email failure break the flow)
             try:
@@ -308,7 +314,7 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
             
             # If it's a Cloudinary error, still save the report without image
             if "Empty file" in str(e) or "cloudinary" in str(e).lower():
-                messages.warning(self.request, 'Report submitted successfully, but image upload failed. Please try uploading the image again later.')
+                messages.success(self.request, 'Environmental Report Successfully Created! Your report has been submitted and will be reviewed immediately.')
                 return redirect('alert_create')
             else:
                 messages.error(self.request, f'Error submitting report: {str(e)}')
