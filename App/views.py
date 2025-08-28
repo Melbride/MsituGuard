@@ -321,22 +321,74 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
                 return self.form_invalid(form)
     
     def send_submission_email(self, report):
-        from django.core.mail import send_mail
-        from django.template.loader import render_to_string
+        from django.core.mail import EmailMultiAlternatives
         from django.conf import settings
         from django.urls import reverse
         
         try:
             dashboard_url = self.request.build_absolute_uri(reverse('my_reports'))
             
-            # Simple email without HTML template to avoid template issues
-            send_mail(
-                subject='Environmental Report Submitted - MsituGuard',
-                message=f'Hello {report.reporter.username},\n\nThank you for submitting "{report.title}". Your report has been received and will be reviewed by our partner organizations.\n\nTrack progress: {dashboard_url}\n\nBest regards,\nMsituGuard Team',
+            # Use the styled HTML email template
+            html_message = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0fdf4; }}
+                    .container {{ max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; overflow: hidden; }}
+                    .header {{ background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 30px; text-align: center; }}
+                    .content {{ padding: 30px; }}
+                    .footer {{ background-color: #f8fafc; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; }}
+                    .btn {{ background-color: #22c55e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0; }}
+                    .details {{ background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🌱 MsituGuard</h1>
+                        <h2>Report Submitted Successfully</h2>
+                        <p>Thank you for protecting our environment!</p>
+                    </div>
+                    <div class="content">
+                        <h3>Hello {report.reporter.first_name or report.reporter.username},</h3>
+                        <p>Thank you for submitting your environmental report <strong>"{report.title}"</strong>.</p>
+                        
+                        <p>Our team will investigate and verify this issue. You will receive email updates when the status changes.</p>
+                        
+                        <div class="details">
+                            <h4>📄 Report Details:</h4>
+                            <p><strong>Type:</strong> {report.get_report_type_display()}</p>
+                            <p><strong>Location:</strong> {report.location_name}</p>
+                            <p><strong>Status:</strong> Under Review</p>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <a href="{dashboard_url}" class="btn">Track Your Report Progress</a>
+                        </div>
+                        
+                        <p>Thank you for being an environmental guardian! 🌿</p>
+                        
+                        <p>Best regards,<br><strong>MsituGuard Team</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2024 MsituGuard - Environmental Protection Platform</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            msg = EmailMultiAlternatives(
+                subject='🌱 Report Submitted Successfully',
+                body=f'Hello {report.reporter.username},\n\nThank you for submitting "{report.title}". Track progress: {dashboard_url}',
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[report.reporter.email],
-                fail_silently=False,
+                to=[report.reporter.email]
             )
+            msg.attach_alternative(html_message, "text/html")
+            msg.send(fail_silently=False)
+            
         except Exception as e:
             print(f"Email sending failed: {e}")
             raise e
