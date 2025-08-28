@@ -289,16 +289,13 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
                 # Continue even if email fails
             
             self.object = report
-            return render(self.request, self.template_name, {
-                'submitted': True,
-                'success_message': 'Environmental Report Successfully Created!',
-                'success_detail': 'Your environmental report has been submitted and will be reviewed immediately. You will receive email updates on progress.'
-            })
+            # Use redirect to prevent form resubmission
+            messages.success(self.request, 'Environmental Report Successfully Created! Your report has been submitted and will be reviewed immediately.')
+            return redirect('alert_create')
         except Exception as e:
             print(f"Report submission error: {e}")
-            # Return form with error
-            form.add_error(None, 'An error occurred while submitting your report. Please try again.')
-            return self.form_invalid(form)
+            messages.error(self.request, 'An error occurred while submitting your report. Please try again.')
+            return redirect('alert_create')
     
     def send_submission_email(self, report):
         from django.core.mail import send_mail
