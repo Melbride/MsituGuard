@@ -189,6 +189,16 @@ class ReportForm(forms.ModelForm):
         if user and hasattr(user, 'profile'):
             self.fields['phoneNumber'].initial = user.profile.phoneNumber
         
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if not image:
+            raise forms.ValidationError('Photo evidence is required for environmental reports.')
+        if hasattr(image, 'size') and image.size == 0:
+            raise forms.ValidationError('Empty file detected. Please select a valid image.')
+        if hasattr(image, 'size') and image.size > 5 * 1024 * 1024:  # 5MB limit
+            raise forms.ValidationError('Image file too large ( > 5MB )')
+        return image
+    
     def save(self, commit=True):
         report = super().save(commit=False)
         # Auto-generate title from report type
