@@ -293,7 +293,7 @@ class AlertCreateView(LoginRequiredMixin, CreateView):
             else:
                 print(f"No image file in request, continuing without image")
             
-            # Send email notification (don't let email failure break the flow)
+            # Send email notification only once
             try:
                 self.send_submission_email(report)
                 print(f"Email sent successfully")
