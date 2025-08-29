@@ -129,6 +129,10 @@ def get_species_recommendations(request):
             ai_species = "Unable to generate species suggestions."
             ai_explanation = "Unable to generate analysis."
         
+        print(f"Final response - ai_recommendations: {ai_recommendations[:100]}...")
+        print(f"Final response - ai_species: {ai_species[:100]}...")
+        print(f"Final response - ai_explanation: {ai_explanation[:100]}...")
+        
         return JsonResponse({
             'success': True,
             'recommendations': recommendations,
