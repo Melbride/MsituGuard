@@ -18,6 +18,11 @@ class HybridTreePredictor:
     def get_ai_prediction(self, tree_data):
         """Get MISTRAL AI prediction for tree survival"""
         
+        # Check if MISTRAL AI is available
+        if not mistral_ai.api_key:
+            logger.warning("MISTRAL AI not configured, skipping AI prediction")
+            return None
+        
         system_prompt = """You are a Kenyan forestry expert AI. Based on environmental data, predict tree survival probability as a percentage (0-100). Respond with ONLY the number, no explanation."""
         
         user_prompt = f"""

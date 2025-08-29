@@ -70,6 +70,9 @@ class MistralAI:
     def get_tree_recommendations(self, prediction_data, survival_rate):
         """Generate AI-powered tree planting recommendations"""
         
+        if not self.api_key:
+            return "Unable to generate recommendations."
+        
         system_prompt = """You are a Kenyan forestry expert AI. Provide practical, actionable tree planting advice based on environmental data and survival predictions. Focus on specific, implementable recommendations."""
         
         user_prompt = f"""
@@ -95,10 +98,14 @@ class MistralAI:
             {"role": "user", "content": user_prompt}
         ]
         
-        return self._make_request(messages, max_tokens=300)
+        result = self._make_request(messages, max_tokens=300)
+        return result if result else "Unable to generate recommendations."
     
     def get_alternative_species(self, prediction_data):
         """Get AI-recommended alternative tree species"""
+        
+        if not self.api_key:
+            return "Unable to generate species suggestions."
         
         system_prompt = """You are a Kenyan forestry expert. Recommend native Kenyan tree species that would thrive in the given environmental conditions. Focus on indigenous and well-adapted species."""
         
@@ -121,10 +128,14 @@ class MistralAI:
             {"role": "user", "content": user_prompt}
         ]
         
-        return self._make_request(messages, max_tokens=250)
+        result = self._make_request(messages, max_tokens=250)
+        return result if result else "Unable to generate species suggestions."
     
     def explain_prediction_factors(self, prediction_data, survival_rate):
         """Explain why certain factors affect the prediction"""
+        
+        if not self.api_key:
+            return "Unable to generate analysis."
         
         system_prompt = """You are a Kenyan forestry expert AI. Explain in simple terms why environmental factors affect tree survival rates. Be educational and easy to understand."""
         
@@ -145,7 +156,8 @@ class MistralAI:
             {"role": "user", "content": user_prompt}
         ]
         
-        return self._make_request(messages, max_tokens=200)
+        result = self._make_request(messages, max_tokens=200)
+        return result if result else "Unable to generate analysis."
 
 # Initialize global instance
 mistral_ai = MistralAI()

@@ -113,10 +113,17 @@ def get_species_recommendations(request):
         current_prediction = tree_predictor.predict_survival(location_data)
         survival_rate = int(current_prediction.get('survival_probability', 0.5) * 100)
         
-        # Enhance with MISTRAL AI recommendations
-        ai_recommendations = mistral_ai.get_tree_recommendations(location_data, survival_rate)
-        ai_species = mistral_ai.get_alternative_species(location_data)
-        ai_explanation = mistral_ai.explain_prediction_factors(location_data, survival_rate)
+        # Enhance with MISTRAL AI recommendations (with fallback)
+        try:
+            ai_recommendations = mistral_ai.get_tree_recommendations(location_data, survival_rate)
+            ai_species = mistral_ai.get_alternative_species(location_data)
+            ai_explanation = mistral_ai.explain_prediction_factors(location_data, survival_rate)
+        except Exception as e:
+            print(f"MISTRAL AI error: {e}")
+            # Fallback recommendations
+            ai_recommendations = "Unable to generate recommendations."
+            ai_species = "Unable to generate species suggestions."
+            ai_explanation = "Unable to generate analysis."
         
         return JsonResponse({
             'success': True,
