@@ -209,17 +209,41 @@ SERVER_EMAIL = 'melbrideb@gmail.com'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# MISTRAL AI Configuration - Try environment variable first, then secret file
+# MISTRAL AI Configuration - Debug and load from secret file
 MISTRAL_API_KEY = os.environ.get('MISTRAL_API_KEY')
+print(f"Environment MISTRAL_API_KEY: {'Found' if MISTRAL_API_KEY else 'Not found'}")
+
 if not MISTRAL_API_KEY:
-    try:
-        with open('/etc/secrets/.env', 'r') as f:
-            for line in f:
-                if line.startswith('MISTRAL_API_KEY='):
-                    MISTRAL_API_KEY = line.split('=', 1)[1].strip()
+    # Try multiple secret file locations
+    secret_paths = ['/etc/secrets/.env', '/etc/secrets/mistral_key', BASE_DIR / '.env']
+    
+    for path in secret_paths:
+        try:
+            print(f"Trying to read from: {path}")
+            with open(path, 'r') as f:
+                content = f.read().strip()
+                print(f"File content length: {len(content)}")
+                
+                # Handle different file formats
+                if '=' in content:
+                    for line in content.split('\n'):
+                        if line.startswith('MISTRAL_API_KEY='):
+                            MISTRAL_API_KEY = line.split('=', 1)[1].strip()
+                            print(f"Found API key in {path}")
+                            break
+                else:
+                    # Assume the entire file is the key
+                    MISTRAL_API_KEY = content
+                    print(f"Using entire file as API key from {path}")
+                
+                if MISTRAL_API_KEY:
                     break
-    except:
-        MISTRAL_API_KEY = '4IgWzgaCc0NgxAkmbf9rjnZQfdxDP6lH'  # Fallback
+                    
+        except Exception as e:
+            print(f"Failed to read {path}: {e}")
+            continue
+
+print(f"Final MISTRAL_API_KEY status: {'Available' if MISTRAL_API_KEY else 'Not available'}")
 
 
 
