@@ -1843,7 +1843,8 @@ async function loadAIRecommendations() {
             
             resultsDiv.innerHTML = html;
         } else {
-            resultsDiv.innerHTML = '<div class="alert alert-warning">Unable to generate recommendations.</div>';
+            console.log('No recommendations in result:', result);
+            resultsDiv.innerHTML = '<div class="alert alert-info">No species recommendations available for this location.</div>';
         }
         
     } catch (error) {
