@@ -1844,7 +1844,56 @@ async function loadAIRecommendations() {
             resultsDiv.innerHTML = html;
         } else {
             console.log('No recommendations in result:', result);
-            resultsDiv.innerHTML = '<div class="alert alert-info">No species recommendations available for this location.</div>';
+            console.log('AI recommendations available:', !!result.ai_recommendations);
+            console.log('AI species suggestions available:', !!result.ai_species_suggestions);
+            console.log('AI explanation available:', !!result.ai_explanation);
+            console.log('Full result object:', JSON.stringify(result, null, 2));
+            
+            // Check if we have AI data even without recommendations array
+            if (result.ai_recommendations || result.ai_species_suggestions || result.ai_explanation) {
+                let html = '<h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-seedling me-2" style="color: #15803d;"></i>AI Species Analysis</h5>';
+                
+                if (result.ai_explanation) {
+                    html += `
+                    <div class="mt-4 mb-4">
+                        <div class="bg-white p-4 rounded border" style="border-left: 4px solid #22c55e !important;">
+                            <h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-lightbulb me-2" style="color: #f59e0b;"></i>AI Analysis</h5>
+                            <p class="mb-0" style="font-size: 1.1rem; line-height: 1.6;">${result.ai_explanation}</p>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                if (result.ai_recommendations) {
+                    html += `
+                    <div class="mt-4 mb-4">
+                        <div class="bg-white p-4 rounded border">
+                            <h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-robot me-2" style="color: #6366f1;"></i>AI Recommendations</h5>
+                            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 10px; border-left: 4px solid #6366f1;">
+                                <pre style="white-space: pre-wrap; font-family: 'Inter', sans-serif; margin: 0; color: #374151; line-height: 1.6;">${result.ai_recommendations}</pre>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                if (result.ai_species_suggestions) {
+                    html += `
+                    <div class="mt-4 mb-4">
+                        <div class="bg-white p-4 rounded border">
+                            <h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-leaf me-2" style="color: #10b981;"></i>Alternative Species Suggestions</h5>
+                            <div style="background: #f0fdf4; padding: 1.5rem; border-radius: 10px; border-left: 4px solid #10b981;">
+                                <pre style="white-space: pre-wrap; font-family: 'Inter', sans-serif; margin: 0; color: #166534; line-height: 1.8; font-weight: 500;">${result.ai_species_suggestions}</pre>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }
+                
+                resultsDiv.innerHTML = html;
+            } else {
+                resultsDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>AI recommendations are being processed. Please try again in a moment.</div>';
+            }
         }
         
     } catch (error) {
