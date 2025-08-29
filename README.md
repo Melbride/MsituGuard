@@ -8,14 +8,17 @@ MsituGuard connects forest-adjacent communities with local environmental organiz
 
 ### 🤖 AI & Machine Learning
 - **AI Tree Survival Prediction** - 93.2% accuracy ML model for optimizing tree planting success
+- **MISTRAL AI Integration** - Advanced fire risk analysis and field assessment recommendations
 - **Species Recommendations** - Data-driven suggestions for optimal tree species selection
 - **Predictive Analytics** - Environmental risk assessment and conservation planning
+- **GPS Auto-Detection** - Automatic climate and soil data retrieval from coordinates
 
 ### 🌍 Environmental Protection
 - **Environmental Report Submission** with GPS coordinates and photo evidence
 - **Tree Planting Registration** for Kenya's 15 Billion Trees Initiative
-- **Fire Risk Assessment** with real-time weather data integration
+- **AI-Powered Fire Risk Assessment** with MISTRAL AI analysis and Kenya-specific parameters
 - **Impact Tracking** - Personal dashboards showing conservation contributions
+- **Real-time Weather Integration** - Simulated weather data for cost-effective deployment
 
 ### 👥 Community Engagement
 - **Community Forum** for environmental discussions and knowledge sharing
@@ -25,7 +28,8 @@ MsituGuard connects forest-adjacent communities with local environmental organiz
 
 ### 🏢 Organization Tools
 - **Organization Dashboard** for comprehensive report management
-- **Field Assessment Tools** for environmental monitoring
+- **AI-Enhanced Field Assessment Tools** - MISTRAL AI analysis for environmental monitoring
+- **Export Functionality** - Field assessment reports with AI recommendations
 - **Analytics & Reporting** - Data insights for conservation decision making
 - **Verification System** - Quality control for environmental reports
 
@@ -40,7 +44,8 @@ MsituGuard connects forest-adjacent communities with local environmental organiz
 ### Backend & AI
 - **Framework**: Django (Python 3.11+)
 - **Machine Learning**: scikit-learn, pandas, numpy
-- **AI Models**: RandomForest Classifier with 93.2% accuracy
+- **AI Models**: RandomForest Classifier with 93.2% accuracy + MISTRAL AI
+- **AI Integration**: mistralai==1.0.1 for advanced environmental analysis
 - **Data Processing**: Advanced feature engineering and model serialization
 
 ### Frontend & Design
@@ -71,17 +76,19 @@ MsituGuard connects forest-adjacent communities with local environmental organiz
 4. **Planting Method** - Technique and timing optimization
 5. **Care Level** - Maintenance and monitoring intensity
 
-## 📱 Demo Credentials
+## 🎯 Platform Access
 
-### Test Accounts
-- **Community Member**: `demo_user` / `MsituGuard2024!`
-- **Organization**: `demo_org` / `MsituGuard2024!` 
-- **Admin**: `admin` / `MsituGuard2024!`
+### User Experience
+- **Anonymous Users**: Tree prediction with basic features
+- **Registered Users**: Unlimited predictions + species recommendations + AI fire risk analysis
+- **Organizations**: Full dashboard + AI field assessments + export functionality
+- **Admin**: Complete platform management and analytics
 
-### AI Features Demo
-- **Anonymous Users**: 1 free tree prediction
-- **Registered Users**: Unlimited predictions + species recommendations
-- **Organizations**: Full analytics dashboard + field assessment tools
+### AI Features Available
+- **Tree Survival Prediction**: 93.2% accuracy ML model
+- **Fire Risk Analysis**: MISTRAL AI-powered assessment
+- **Field Assessment AI**: Environmental monitoring with AI insights
+- **Species Recommendations**: Location-based tree selection
 
 ## 🛠️ Installation & Setup
 
@@ -135,22 +142,28 @@ python train_tree_model.py
 **Production URL**: https://msituguard.onrender.com
 
 ### Live Features
-- ✅ Full AI tree prediction system
-- ✅ Environmental reporting with GPS
-- ✅ Community forum and rewards
-- ✅ Organization dashboard
-- ✅ Mobile-responsive design
-- ✅ Real-time notifications
+- ✅ Full AI tree prediction system with 93.2% accuracy
+- ✅ MISTRAL AI fire risk analysis and field assessments
+- ✅ Environmental reporting with GPS auto-detection
+- ✅ Community forum and rewards system
+- ✅ Enhanced organization dashboard with AI tools
+- ✅ Mobile-responsive design with improved UX
+- ✅ Real-time notifications and impact tracking
 
 ## 📊 Project Structure
 
 ```
 MsituGuard/
 ├── App/                          # Main Django application
+│   ├── fire_risk_analyzer.py   # MISTRAL AI fire risk analysis
+│   ├── mistral_ai.py           # AI integration utilities
+│   ├── climate_data.py         # Climate data processing
 │   ├── ml_utils.py              # AI model utilities
 │   ├── views_ml.py              # ML API endpoints
 │   ├── templates/App/           # HTML templates
 │   │   ├── tree_prediction.html # AI prediction interface
+│   │   ├── field_assessment.html # AI field assessment
+│   │   ├── fire_risk.html      # Fire risk analysis
 │   │   ├── home.html           # Landing page
 │   │   └── ...                 # Other templates
 │   └── static/                 # CSS, JS, images
@@ -159,9 +172,20 @@ MsituGuard/
 │   ├── training/               # Model training scripts
 │   └── integration/            # Django integration files
 ├── crisis_communication/        # Django project settings
-├── requirements.txt            # Python dependencies
+├── requirements.txt            # Python dependencies (includes mistralai)
 └── README.md                   # This file
 ```
+
+## 🆕 Recent Updates
+
+### Version 2.0 - AI Enhancement Release
+- **MISTRAL AI Integration**: Advanced fire risk analysis and field assessments
+- **Enhanced UI/UX**: Improved branding emphasizing AI-powered conservation
+- **Registration Improvements**: Streamlined account creation with better UX
+- **Access Control**: Species recommendations restricted to registered users
+- **Mobile Optimization**: Better responsive design and spacing
+- **Export Functionality**: AI field assessment reports with recommendations
+- **Navigation Enhancement**: Reordered menu prioritizing Tree Prediction
 
 ## 📄 License
 
