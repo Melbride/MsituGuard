@@ -115,11 +115,15 @@ def get_species_recommendations(request):
         
         # Enhance with MISTRAL AI recommendations (with fallback)
         try:
+            print(f"Calling MISTRAL AI with API key available: {bool(mistral_ai.api_key)}")
             ai_recommendations = mistral_ai.get_tree_recommendations(location_data, survival_rate)
             ai_species = mistral_ai.get_alternative_species(location_data)
             ai_explanation = mistral_ai.explain_prediction_factors(location_data, survival_rate)
+            print(f"MISTRAL AI responses - recommendations: {len(ai_recommendations) if ai_recommendations else 0} chars")
         except Exception as e:
-            print(f"MISTRAL AI error: {e}")
+            print(f"MISTRAL AI error in species recommendations: {e}")
+            import traceback
+            print(f"Full traceback: {traceback.format_exc()}")
             # Fallback recommendations
             ai_recommendations = "Unable to generate recommendations."
             ai_species = "Unable to generate species suggestions."
