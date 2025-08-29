@@ -20,8 +20,10 @@ class HybridTreePredictor:
         
         # Check if MISTRAL AI is available
         if not mistral_ai.api_key:
-            logger.warning("MISTRAL AI not configured, skipping AI prediction")
+            print("MISTRAL AI not configured, skipping AI prediction")
             return None
+        
+        print(f"MISTRAL AI available for hybrid prediction: {bool(mistral_ai.api_key)}")
         
         system_prompt = """You are a Kenyan forestry expert AI. Based on environmental data, predict tree survival probability as a percentage (0-100). Respond with ONLY the number, no explanation."""
         
