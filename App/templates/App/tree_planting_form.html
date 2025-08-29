@@ -29,6 +29,20 @@
         border-radius: 50px;
         font-weight: 600;
         width: 100%;
+        font-size: 1.1rem;
+    }
+    @media (max-width: 768px) {
+        .planting-form {
+            padding: 2rem 1.5rem;
+            margin: 0 1rem;
+        }
+        .btn-submit {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+        .form-control {
+            padding: 0.8rem;
+        }
     }
 </style>
 
@@ -59,58 +73,50 @@
             <input type="hidden" id="latitudeField" name="latitude">
             <input type="hidden" id="longitudeField" name="longitude">
             
-            {% for field in form %}
-                {% if field.name != 'latitude' and field.name != 'longitude' %}
-            <div class="form-group mb-3">
-                <label class="form-label fw-bold">{{ field.label }}</label>
-                {% if field.name == 'description' %}
-                    <textarea name="{{ field.name }}" class="form-control" rows="4" placeholder="Describe the planting area, purpose, and any special considerations..." required>{{ field.value|default:'' }}</textarea>
-                {% elif field.name == 'tree_type' %}
-                    <select name="{{ field.name }}" class="form-control" required>
-                        <option value="">Select tree type...</option>
-                        <option value="indigenous">Indigenous Species</option>
-                        <option value="exotic">Exotic Species</option>
-                        <option value="fruit">Fruit Trees</option>
-                        <option value="bamboo">Bamboo</option>
-                        <option value="other">Other</option>
-                    </select>
-                {% elif field.name == 'number_of_trees' %}
-                    <input type="number" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'1' }}" min="1" required placeholder="Number of trees to plant">
-                {% elif field.name == 'phoneNumber' %}
-                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" readonly style="background-color: #f8f9fa;" placeholder="Your registered phone number">
-                    <small class="text-muted">Using your registered phone number</small>
-                {% elif field.name == 'before_image' %}
-                    <input type="file" name="{{ field.name }}" class="form-control" accept="image/*">
-                    <small class="text-muted">Photo of the area before planting (optional)</small>
-                {% elif field.name == 'after_image' %}
-                    <input type="file" name="{{ field.name }}" class="form-control" accept="image/*">
-                    <small class="text-muted">Photo after planting trees (upload later if not planted yet)</small>
-                {% elif field.name == 'location_name' %}
-                    <div style="position: relative;">
-                        <input type="text" id="locationInput" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" required placeholder="Type location (e.g., Karura Forest, Nairobi)" style="padding-right: 120px;">
-                        <button type="button" id="getLocationBtn" class="btn" style="position: absolute; right: 5px; top: 5px; background: #22c55e; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.9rem;">
-                            <i class="fas fa-map-marker-alt me-1"></i>GPS
-                        </button>
-                    </div>
-                    <small class="text-muted mt-1">Click GPS to auto-detect your planting location</small>
-                {% else %}
-                    <input type="text" name="{{ field.name }}" class="form-control" value="{{ field.value|default:'' }}" {% if field.field.required %}required{% endif %} placeholder="{{ field.label }}...">
-                {% endif %}
-                {% endif %}
-                {% if field.errors %}
-                    <div class="text-danger mt-1">{{ field.errors.0 }}</div>
-                {% endif %}
+            <!-- Location -->
+            <div class="form-group mb-4">
+                <label class="form-label fw-bold"><i class="fas fa-map-marker-alt me-2"></i>Planting Location</label>
+                <div style="position: relative;">
+                    <input type="text" id="locationInput" name="location_name" class="form-control" required placeholder="e.g., Karura Forest, Nairobi" style="padding-right: 100px;">
+                    <button type="button" id="getLocationBtn" class="btn" style="position: absolute; right: 5px; top: 5px; background: #22c55e; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.9rem;">
+                        <i class="fas fa-crosshairs me-1"></i>GPS
+                    </button>
+                </div>
             </div>
-            {% endfor %}
+
+            <!-- Tree Details Row -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold"><i class="fas fa-tree me-2"></i>Tree Type</label>
+                    <select name="tree_type" class="form-control" required>
+                        <option value="">Select type...</option>
+                        <option value="indigenous">Indigenous Species</option>
+                        <option value="fruit">Fruit Trees</option>
+                        <option value="exotic">Exotic Species</option>
+                        <option value="bamboo">Bamboo</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold"><i class="fas fa-seedling me-2"></i>Number of Trees</label>
+                    <input type="number" name="number_of_trees" class="form-control" value="1" min="1" max="1000" required>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="form-group mb-4">
+                <label class="form-label fw-bold"><i class="fas fa-camera me-2"></i>Photo Evidence</label>
+                <input type="file" name="after_image" class="form-control" accept="image/*">
+                <small class="text-muted">Upload photo of planted trees (optional but recommended)</small>
+            </div>
+
+            <!-- Quick Description -->
+            <div class="form-group mb-4">
+                <label class="form-label fw-bold"><i class="fas fa-comment me-2"></i>Brief Description</label>
+                <textarea name="description" class="form-control" rows="2" placeholder="Brief description of your tree planting (optional)..."></textarea>
+            </div>
             
-            <div class="alert alert-info" style="border-radius: 15px;">
-                <h6><i class="fas fa-info-circle me-2"></i>Tree Planting Guidelines</h6>
-                <ul class="mb-0">
-                    <li>Choose native/indigenous species when possible</li>
-                    <li>Ensure adequate spacing between trees</li>
-                    <li>Plant during the rainy season for better survival</li>
-                    <li>Take clear photos for verification</li>
-                </ul>
+            <div class="alert alert-info" style="border-radius: 15px; padding: 1rem;">
+                <small><i class="fas fa-lightbulb me-1"></i><strong>Quick Tips:</strong> Choose native species • Plant during rainy season • Take clear photos</small>
             </div>
             
             <button type="submit" class="btn-submit">

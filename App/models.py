@@ -107,6 +107,11 @@ class Profile(models.Model):
         self.total_tokens_earned += amount
         self.save()
     
+    @property
+    def total_tree_predictions(self):
+        """Count of tree predictions made by this user"""
+        return TreePrediction.objects.filter(user=self.user).count()
+    
     def spend_tokens(self, amount):
         """Spend tokens from user balance"""
         if self.token_balance >= amount:
@@ -529,3 +534,42 @@ class CitizenFireReport(models.Model):
     
     def __str__(self):
         return f"{self.observation} @ {self.location_name} ({self.created_at.date()})"
+
+class TreePrediction(models.Model):
+    SURVIVAL_LEVELS = [
+        ('high', 'High Success Rate'),
+        ('medium', 'Medium Success Rate'),
+        ('low', 'Low Success Rate'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    
+    # Input parameters
+    tree_species = models.CharField(max_length=100)
+    region = models.CharField(max_length=100)
+    county = models.CharField(max_length=100)
+    soil_type = models.CharField(max_length=100)
+    rainfall_mm = models.FloatField()
+    temperature_c = models.FloatField()
+    altitude_m = models.FloatField()
+    soil_ph = models.FloatField()
+    planting_season = models.CharField(max_length=50)
+    planting_method = models.CharField(max_length=100)
+    care_level = models.CharField(max_length=50)
+    water_source = models.CharField(max_length=100)
+    tree_age_months = models.IntegerField()
+    
+    # Prediction results
+    survival_probability = models.FloatField(help_text='Probability of survival (0-1)')
+    survival_level = models.CharField(max_length=20, choices=SURVIVAL_LEVELS)
+    recommended_species = models.TextField(blank=True, help_text='JSON list of recommended species')
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        user_name = self.user.username if self.user else 'Anonymous'
+        return f"{user_name} - {self.tree_species} ({self.survival_level}) - {self.created_at.date()}"

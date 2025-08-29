@@ -358,6 +358,35 @@
                     {% endif %}
                 </div>
         </div>
+        
+        <!-- MISTRAL AI Analysis -->
+        {% if prediction.ai_analysis %}
+        <div class="field-card" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px solid #3b82f6;">
+            <h6 class="text-primary mb-3"><i class="fas fa-brain me-2"></i>AI Field Analysis</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong class="small text-primary">Risk Assessment:</strong>
+                        <p class="small mb-2">{{ prediction.ai_analysis.risk_explanation }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="small text-success">Prevention Actions:</strong>
+                        <p class="small mb-0">{{ prediction.ai_analysis.prevention_tips }}</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong class="small text-danger">Emergency Response:</strong>
+                        <p class="small mb-2">{{ prediction.ai_analysis.emergency_actions }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="small text-info">Field Outlook:</strong>
+                        <p class="small mb-0">{{ prediction.ai_analysis.seasonal_outlook }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
     {% elif error %}
     <div class="field-card">
@@ -554,14 +583,32 @@ function exportReport() {
     let locationName = 'Field Assessment';
     let coordinates = 'GPS Location';
     let assessmentData = '';
+    let aiAnalysisData = '';
     
     if (hasResults) {
         // Get data from assessment results
         const riskLevel = riskBadge.textContent.trim();
-        const scoreElements = document.querySelectorAll('.results-card .h5');
-        const score = scoreElements[0] ? scoreElements[0].textContent : 'N/A';
-        const temp = scoreElements[1] ? scoreElements[1].textContent : 'N/A';
-        const humidity = scoreElements[2] ? scoreElements[2].textContent : 'N/A';
+        // Get detailed assessment data from the results card
+        const scoreElement = document.querySelector('.results-card .h6');
+        const score = scoreElement ? scoreElement.textContent : 'N/A';
+        
+        // Get temperature and humidity from the grid
+        const tempElement = document.querySelector('.results-card .col-4:nth-child(2) .h6');
+        const humidityElement = document.querySelector('.results-card .col-4:nth-child(3) .h6');
+        const temp = tempElement ? tempElement.textContent : 'N/A';
+        const humidity = humidityElement ? humidityElement.textContent : 'N/A';
+        
+        // Get wind and rain data from the results card
+        const windElements = document.querySelectorAll('.results-card .small');
+        let wind = 'N/A', rain = 'N/A';
+        windElements.forEach(el => {
+            if (el.textContent.includes('Wind:')) {
+                wind = el.nextElementSibling?.textContent || 'N/A';
+            }
+            if (el.textContent.includes('Rain')) {
+                rain = el.nextElementSibling?.textContent || 'N/A';
+            }
+        });
         
         // Get coordinates from location summary
         const locationSummary = document.querySelector('.field-card .h6.text-success');
@@ -570,7 +617,7 @@ function exportReport() {
             locationName = `Field Assessment ${coordinates}`;
         }
         
-        assessmentData = `\n\nASSESSMENT RESULTS:\nRisk Level: ${riskLevel}\nRisk Score: ${score}\nTemperature: ${temp}\nHumidity: ${humidity}\n\nRECOMMENDATIONS BASED ON ${riskLevel}:`;
+        assessmentData = `\n\nASSESSMENT RESULTS:\nRisk Level: ${riskLevel}\nRisk Score: ${score}\nTemperature: ${temp}\nHumidity: ${humidity}\nWind Speed: ${wind}\nRainfall (24h): ${rain}\n\nRECOMMENDATIONS BASED ON ${riskLevel}:`;
         
         if (riskLevel.includes('HIGH') || riskLevel.includes('EXTREME')) {
             assessmentData += `\n• Increase patrol frequency immediately\n• Prepare firefighting equipment\n• Alert nearby communities\n• Restrict access if possible`;
@@ -578,6 +625,33 @@ function exportReport() {
             assessmentData += `\n• Monitor conditions closely\n• Check fire breaks\n• Ensure water access\n• Brief response teams`;
         } else {
             assessmentData += `\n• Continue normal patrols\n• Monitor weather changes\n• Maintain equipment readiness`;
+        }
+        
+        // Extract AI Analysis if available
+        const aiAnalysisCard = document.querySelector('.field-card[style*="linear-gradient(135deg, #eff6ff, #dbeafe)"]');
+        if (aiAnalysisCard) {
+            let riskAssessment = '', preventionActions = '', emergencyResponse = '', fieldOutlook = '';
+            
+            const strongElements = aiAnalysisCard.querySelectorAll('strong');
+            strongElements.forEach(strong => {
+                const text = strong.textContent.trim();
+                const nextP = strong.nextElementSibling;
+                if (nextP && nextP.tagName === 'P') {
+                    if (text.includes('Risk Assessment:')) {
+                        riskAssessment = nextP.textContent.trim();
+                    } else if (text.includes('Prevention Actions:')) {
+                        preventionActions = nextP.textContent.trim();
+                    } else if (text.includes('Emergency Response:')) {
+                        emergencyResponse = nextP.textContent.trim();
+                    } else if (text.includes('Field Outlook:')) {
+                        fieldOutlook = nextP.textContent.trim();
+                    }
+                }
+            });
+            
+            if (riskAssessment || preventionActions || emergencyResponse || fieldOutlook) {
+                aiAnalysisData = `\n\nAI FIELD ANALYSIS:\n\nRisk Assessment:\n${riskAssessment}\n\nPrevention Actions:\n${preventionActions}\n\nEmergency Response:\n${emergencyResponse}\n\nField Outlook:\n${fieldOutlook}`;
+            }
         }
     } else {
         // Try to get coordinates from input fields if they exist
@@ -592,7 +666,7 @@ function exportReport() {
     
 Location: ${locationName}
 Date/Time: ${timestamp}
-Coordinates: ${coordinates}${assessmentData}
+Coordinates: ${coordinates}${assessmentData}${aiAnalysisData}
 
 FIELD OBSERVATIONS CHECKLIST:
 □ Vegetation dryness level: ___________
@@ -629,7 +703,7 @@ Generated by MsituGuard Field Assessment Tool`;
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `field_assessment_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `field_assessment_${new Date().toISOString().split('T')[0]}_${new Date().getHours()}${new Date().getMinutes()}.txt`;
     a.click();
 }
 

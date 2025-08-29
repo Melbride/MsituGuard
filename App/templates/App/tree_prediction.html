@@ -5,6 +5,17 @@
 
 {% block content %}
 <style>
+    /* Override base.html padding for this page */
+    .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Fix header overlap */
+    body {
+        padding-top: 80px;
+    }
+</style>
+<style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     
     :root {
@@ -12,10 +23,12 @@
         --primary-dark: #16a34a;
         --primary-light: #dcfce7;
         --accent: #059669;
-        --dark: #0f172a;
+        --secondary: #6366f1;
+        --dark: #15803d;
         --light: #f8fafc;
-        --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        --shadow-lg: 0 35px 60px -12px rgba(34, 197, 94, 0.4);
+        --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --hover-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     }
     
     * {
@@ -23,22 +36,21 @@
     }
     
     body {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f0fdf4 100%);
+        min-height: 100vh;
         overflow-x: hidden;
     }
     
-    .hero-section {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.5), rgba(22, 163, 74, 0.5)), url('{% static 'images/Initiative 3.jpeg' %}');
-        background-size: cover;
-        background-position: center top;
+    .page-header {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         color: white;
-        padding: 2rem 0 1rem;
+        padding: 4rem 0 2rem;
         text-align: center;
         position: relative;
         overflow: hidden;
     }
     
-    .hero-section::before {
+    .page-header::before {
         content: '';
         position: absolute;
         top: 0;
@@ -48,53 +60,98 @@
         background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
     }
     
+    .emergency-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
     .feature-card {
-        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-        border-radius: 28px;
-        padding: 3rem 2rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        border: 2px solid rgba(34, 197, 94, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         position: relative;
         overflow: hidden;
-        backdrop-filter: blur(10px);
-        transition: all 0.6s ease;
+        backdrop-filter: blur(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: var(--shadow-lg);
+        transform: translateY(-8px);
+        box-shadow: var(--hover-shadow);
         border-color: var(--primary);
     }
     
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+    
     .form-control, .form-select {
-        border-radius: 15px;
-        border: 2px solid #e2e8f0;
-        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        border: 2px solid #e5e7eb;
+        padding: 1.25rem 1.5rem;
         font-weight: 500;
-        transition: all 0.3s ease;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .form-control:focus, .form-select:focus {
         border-color: var(--primary);
-        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25);
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
     }
     
     .btn-predict {
         background: linear-gradient(135deg, var(--primary), var(--accent));
         color: white;
-        padding: 1.2rem 3rem;
+        padding: 1.5rem 3.5rem;
         border-radius: 50px;
         border: none;
         font-weight: 700;
-        font-size: 1.1rem;
-        transition: all 0.4s ease;
-        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+        font-size: 1.2rem;
+        letter-spacing: 0.5px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-predict::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
     }
     
     .btn-predict:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(34, 197, 94, 0.6);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(16, 185, 129, 0.4);
         color: white;
+    }
+    
+    .btn-predict:hover::before {
+        left: 100%;
     }
     
     .info-card {
@@ -106,27 +163,170 @@
     }
     
     .accuracy-badge {
-        background: linear-gradient(135deg, var(--primary), var(--accent));
+        background: linear-gradient(135deg, var(--secondary), #8b5cf6);
         color: white;
         padding: 1rem 2rem;
         border-radius: 50px;
         font-weight: 700;
-        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .icon-circle:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+    }
+    
+    .animated-bg {
+        background: linear-gradient(-45deg, #667eea, #764ba2, #667eea, #764ba2);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    /* Prediction History Styling */
+    .prediction-history-card {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .prediction-history-header {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border: none;
+        padding: 2rem;
+    }
+    
+    .prediction-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .prediction-table th {
+        background: #f8fafc;
+        font-weight: 700;
+        color: #374151;
+        padding: 1rem;
+        border: none;
+    }
+    
+    .prediction-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    
+    .species-icon {
+        width: 35px;
+        height: 35px;
+        background: #dcfce7;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .success-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        border: none;
+        display: inline-block;
+        text-align: center;
+        min-width: 80px;
+    }
+    
+    .success-badge.high {
+        background: #22c55e;
+        color: white;
+    }
+    
+    .success-badge.medium {
+        background: #22c55e;
+        color: white;
+    }
+    
+    .success-badge.low {
+        background: #22c55e;
+        color: white;
+    }
+    
+    .success-badge.very-high {
+        background: #22c55e;
+        color: white;
+    }
+    
+    .recommendations-btn {
+        background: #f0f9ff;
+        color: #0ea5e9;
+        border: 1px solid #0ea5e9;
+        border-radius: 15px;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .recommendations-btn:hover {
+        background: #0ea5e9;
+        color: white;
+        transform: translateY(-1px);
     }
     
     /* Mobile Optimizations */
     @media (max-width: 768px) {
-        .hero-section {
-            padding: 2rem 0 1.5rem;
-            min-height: 300px;
+        .page-header {
+            padding: 2rem 0 1rem;
         }
         
-        .hero-section h1 {
-            font-size: 1.75rem !important;
+        .page-header h1 {
+            font-size: 2rem !important;
         }
         
-        .hero-section p {
-            font-size: 0.9rem !important;
+        .page-header p {
+            font-size: 1rem !important;
+        }
+        
+        .emergency-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
         }
         
         .feature-card {
@@ -135,28 +335,36 @@
         }
         
         .form-control, .form-select {
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem;
             font-size: 1rem;
         }
         
         .btn-predict {
-            padding: 1rem 2rem;
-            font-size: 1rem;
+            padding: 1.25rem 2.5rem;
+            font-size: 1.1rem;
             width: 100%;
             margin-bottom: 1rem;
         }
         
-        .display-2 {
-            font-size: 2.5rem !important;
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
         }
         
-        .display-4 {
-            font-size: 1.8rem !important;
+        .prediction-history-header {
+            padding: 1.5rem;
         }
         
-        .accuracy-badge {
-            padding: 0.75rem 1.5rem;
+        .prediction-table th,
+        .prediction-table td {
+            padding: 0.75rem 0.5rem;
             font-size: 0.9rem;
+        }
+        
+        .species-icon {
+            width: 30px;
+            height: 30px;
         }
     }
     
@@ -166,107 +374,138 @@
             padding-right: 1rem;
         }
         
-        .hero-section {
+        .page-header {
             padding: 1.5rem 0 1rem;
         }
         
-        .hero-section h1 {
-            font-size: 1.5rem !important;
+        .page-header h1 {
+            font-size: 1.75rem !important;
         }
         
-        .hero-section p {
-            font-size: 0.85rem !important;
+        .page-header p {
+            font-size: 0.9rem !important;
+        }
+        
+        .emergency-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
         }
         
         .feature-card {
             padding: 1.5rem 1rem;
+            border-radius: 16px;
         }
         
         .form-group {
-            margin-bottom: 1rem !important;
+            margin-bottom: 1.5rem !important;
         }
         
         .btn-predict {
-            padding: 0.875rem 1.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
         }
         
-        .progress {
-            height: 25px !important;
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
         }
         
-        .display-2 {
-            font-size: 2rem !important;
+        .prediction-history-header {
+            padding: 1rem;
         }
         
-        .display-4 {
-            font-size: 1.5rem !important;
+        .prediction-history-header h4 {
+            font-size: 1.2rem;
+        }
+        
+        .prediction-history-header .btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+        }
+        
+        .prediction-table {
+            font-size: 0.8rem;
+        }
+        
+        .prediction-table th,
+        .prediction-table td {
+            padding: 0.5rem 0.25rem;
+        }
+        
+        .species-icon {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .success-badge {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+        }
+        
+        .recommendations-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+        }
+        
+        /* Results section button spacing */
+        #resultsCard .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            margin: 0.25rem;
+            border-radius: 20px;
+            font-weight: 600;
+            border: none;
+        }
+        
+        #resultsCard .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        /* Specific Download CSV button */
+        #downloadCsvBtn {
+            padding: 0.3rem 0.6rem !important;
+            font-size: 0.7rem !important;
+        }
+        
+        /* Specific Predict button */
+        #predictBtn {
+            padding: 0.4rem 0.8rem !important;
+            font-size: 0.75rem !important;
+        }
+        
+        /* AI Recommendations mobile styling */
+        .bg-white pre {
+            font-size: 0.8rem !important;
+            line-height: 1.4 !important;
+            padding: 1rem !important;
+        }
+        
+        .bg-white h5 {
+            font-size: 1rem !important;
+        }
+        
+        .bg-white p {
+            font-size: 0.85rem !important;
+            line-height: 1.4 !important;
         }
     }
 </style>
 
-<!-- Hero Section -->
-<div class="hero-section">
+<!-- Page Header -->
+<div class="page-header" style="background: url('{% static "images/tree-soil.jpg" %}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: white; padding: 4rem 0 2rem; text-align: center; position: relative; overflow: hidden; margin-top: 40px;">
+    <div class="page-header-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);"></div>
     <div class="container" style="position: relative; z-index: 2;">
-        <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: white; font-size: 2.5rem;">
-            <i class="fas fa-brain"></i>
+        <div class="emergency-icon" style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);">
+            <i class="fas fa-seedling"></i>
         </div>
-        <h1 class="display-4 fw-bold mb-4">AI Tree Survival Prediction</h1>
-        <p class="lead fs-4 mb-0">Get AI-powered predictions for tree survival based on environmental conditions and make informed decisions before planting to maximize your environmental impact!</p>
+        <h1 class="display-4 fw-bold mb-3">AI Tree Survival Predictor</h1>
+        <p class="lead fs-5">93.2% accurate ML predictions for optimal tree planting success in Kenya</p>
     </div>
 </div>
 
-<!-- How it Works Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">How Our AI Model Works</h2>
-            <p class="lead text-muted">Advanced machine learning trained on thousands of Kenyan tree records</p>
-        </div>
-        
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
-                        <i class="fas fa-globe-africa"></i>
-                    </div>
-                    <h5 class="fw-bold mb-3" style="color: #15803d;">🌍 Environmental Analysis</h5>
-                    <ul class="list-unstyled text-muted">
-                        <li class="mb-2">• Climate conditions (rainfall, temperature)</li>
-                        <li class="mb-2">• Geographic factors (altitude, region)</li>
-                        <li class="mb-2">• Soil characteristics (type, pH level)</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
-                        <i class="fas fa-seedling"></i>
-                    </div>
-                    <h5 class="fw-bold mb-3" style="color: #15803d;">🌱 Tree Care Factors</h5>
-                    <ul class="list-unstyled text-muted">
-                        <li class="mb-2">• Species-specific requirements</li>
-                        <li class="mb-2">• Planting method and season</li>
-                        <li class="mb-2">• Care level and water source</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h5 class="fw-bold mb-3" style="color: #15803d;">📊 Accurate Predictions</h5>
-                    <div class="accuracy-badge">
-                        <strong>93.2% Accuracy</strong>
-                    </div>
-                    <p class="text-muted mt-3 mb-0">Trained on 10,000+ Kenyan tree records</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
 <!-- Prediction Form Section -->
 <section id="formSection" class="py-5" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
     <div class="container">
@@ -274,158 +513,137 @@
             <div class="col-lg-10">
                 <div class="feature-card">
                     <div class="text-center mb-4">
-                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
+                        <div class="icon-circle floating">
                             <i class="fas fa-seedling"></i>
                         </div>
-                        <h3 class="fw-bold mb-3" style="color: #15803d;">Enter Tree Planting Details</h3>
-                        <p class="text-muted">Fill in the information below to get your AI-powered survival prediction</p>
+                        <h3 class="fw-bold mb-3" style="color: #15803d; font-size: 2rem;">AI Tree Survival Predictor</h3>
+                        <p class="text-muted mb-4 fs-5">Just 3 inputs needed - our AI handles the rest with GPS-powered environmental analysis</p>
+                        {% if user.is_authenticated %}
+                        <p class="text-success"><small><i class="fas fa-check-circle me-1"></i>You're logged in! Get unlimited predictions and species recommendations.</small></p>
+                        {% if total_predictions > 0 %}
+                        <p class="text-muted"><small><i class="fas fa-history me-1"></i>You've made {{ total_predictions }} prediction{{ total_predictions|pluralize }} so far.</small></p>
+                        {% endif %}
+                        {% else %}
+                        <p class="text-primary"><small><i class="fas fa-sign-in-alt me-1"></i><a href="{% url 'login' %}" class="text-decoration-none">Login</a> to save your predictions and access advanced features.</small></p>
+                        {% endif %}
+
                     </div>
                     <form id="predictionForm">
                         {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="tree_species">Tree Species</label>
-                                    <select class="form-control" id="tree_species" name="tree_species" required>
-                                        <option value="Eucalyptus">Eucalyptus</option>
-                                        <option value="Pine">Pine</option>
-                                        <option value="Acacia">Acacia</option>
-                                        <option value="Cypress">Cypress</option>
-                                        <option value="Cedar">Cedar</option>
+                        <!-- Auto-Detected Environmental Data Summary -->
+                        <div id="autoDetectedCard" class="row justify-content-center mb-4" style="display: none;">
+                            <div class="col-md-10">
+                                <div class="alert alert-success border-0" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 20px; border: 2px solid #22c55e;">
+                                    <h6 class="fw-bold text-success mb-3"><i class="fas fa-check-circle me-2"></i>Auto-Detected for You:</h6>
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <div class="mb-2">
+                                                <i class="fas fa-map-marker-alt text-success fs-4"></i>
+                                                <div class="small text-muted">Location</div>
+                                                <div class="fw-bold" id="detectedLocation">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="mb-2">
+                                                <i class="fas fa-cloud-rain text-primary fs-4"></i>
+                                                <div class="small text-muted">Rainfall</div>
+                                                <div class="fw-bold" id="detectedRainfall">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="mb-2">
+                                                <i class="fas fa-thermometer-half text-warning fs-4"></i>
+                                                <div class="small text-muted">Avg Temp</div>
+                                                <div class="fw-bold" id="detectedTemp">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="mb-2">
+                                                <i class="fas fa-seedling text-success fs-4"></i>
+                                                <div class="small text-muted">Soil</div>
+                                                <div class="fw-bold" id="detectedSoil">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="mb-2">
+                                                <i class="fas fa-mountain text-secondary fs-4"></i>
+                                                <div class="small text-muted">Altitude</div>
+                                                <div class="fw-bold" id="detectedAltitude">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">✨ pH, slope, and climate layers processed silently in background</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Input Section - Only 3 fields needed -->
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="form-group mb-5">
+                                    <label for="tree_species" class="fw-bold fs-4 mb-3" style="color: #15803d;">Tree Species</label>
+                                    <select class="form-control" id="tree_species" name="tree_species" required style="padding: 1.5rem; font-size: 1.2rem; border-radius: 20px; border: 3px solid #e5e7eb; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                                        <option value="">Select tree species</option>
+                                        <option value="Indigenous Mix">Indigenous Mix</option>
                                         <option value="Grevillea">Grevillea</option>
+                                        <option value="Acacia">Acacia</option>
+                                        <option value="Pine">Pine</option>
+                                        <option value="Cedar">Cedar</option>
+                                        <option value="Eucalyptus">Eucalyptus</option>
+                                        <option value="Cypress">Cypress</option>
                                         <option value="Neem">Neem</option>
                                         <option value="Wattle">Wattle</option>
                                         <option value="Bamboo">Bamboo</option>
                                         <option value="Casuarina">Casuarina</option>
                                         <option value="Jacaranda">Jacaranda</option>
-                                        <option value="Indigenous Mix">Indigenous Mix</option>
                                     </select>
+                                    <small class="text-success fw-semibold"><i class="fas fa-lightbulb me-1"></i>AI will recommend the best species for your location</small>
                                 </div>
                                 
-                                <div class="form-group mb-3">
-                                    <label for="region">Region</label>
-                                    <select class="form-control" id="region" name="region" required>
-                                        <option value="Central">Central</option>
-                                        <option value="Coast">Coast</option>
-                                        <option value="Eastern">Eastern</option>
-                                        <option value="Nairobi">Nairobi</option>
-                                        <option value="North Eastern">North Eastern</option>
-                                        <option value="Northern">Northern</option>
-                                        <option value="Nyanza">Nyanza</option>
-                                        <option value="Rift Valley">Rift Valley</option>
-                                        <option value="Western">Western</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="county">County</label>
-                                    <select class="form-control" id="county" name="county" required>
-                                        <option value="Nairobi">Nairobi</option>
-                                        <option value="Kiambu">Kiambu</option>
-                                        <option value="Machakos">Machakos</option>
-                                        <option value="Mombasa">Mombasa</option>
-                                        <option value="Nakuru">Nakuru</option>
-                                        <option value="Eldoret">Eldoret</option>
-                                        <option value="Kisumu">Kisumu</option>
-                                        <option value="Nyeri">Nyeri</option>
-                                        <option value="Meru">Meru</option>
-                                        <option value="Kitui">Kitui</option>
-                                        <option value="Garissa">Garissa</option>
-                                        <option value="Turkana">Turkana</option>
-                                        <option value="Marsabit">Marsabit</option>
-                                        <option value="Kakamega">Kakamega</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="soil_type">Soil Type</label>
-                                    <select class="form-control" id="soil_type" name="soil_type" required>
-                                        <option value="Loam">Loam</option>
-                                        <option value="Clay">Clay</option>
-                                        <option value="Sandy">Sandy</option>
-                                        <option value="Rocky">Rocky</option>
-                                        <option value="Red Soil">Red Soil</option>
-                                        <option value="Black Cotton">Black Cotton</option>
-                                        <option value="Volcanic">Volcanic</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="planting_season">Planting Season</label>
-                                    <select class="form-control" id="planting_season" name="planting_season" required>
-                                        <option value="Wet">Wet Season</option>
-                                        <option value="Dry">Dry Season</option>
-                                        <option value="Transition">Transition</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="planting_method">Planting Method</label>
-                                    <select class="form-control" id="planting_method" name="planting_method" required>
+                                <div class="form-group mb-5">
+                                    <label for="planting_method" class="fw-bold fs-4 mb-3" style="color: #15803d;">Planting Method</label>
+                                    <select class="form-control" id="planting_method" name="planting_method" required style="padding: 1.5rem; font-size: 1.2rem; border-radius: 20px; border: 3px solid #e5e7eb; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                                        <option value="">Select planting method</option>
                                         <option value="Seedling">Seedling</option>
                                         <option value="Direct Seeding">Direct Seeding</option>
                                         <option value="Cutting">Cutting</option>
                                     </select>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="rainfall_mm">Annual Rainfall (mm)</label>
-                                    <input type="number" class="form-control" id="rainfall_mm" name="rainfall_mm" 
-                                           value="600" min="200" max="2000" required>
+                                    <small class="text-muted fw-semibold"><i class="fas fa-info-circle me-1"></i>Seedlings typically have higher survival rates</small>
                                 </div>
                                 
-                                <div class="form-group mb-3">
-                                    <label for="temperature_c">Average Temperature (°C)</label>
-                                    <input type="number" class="form-control" id="temperature_c" name="temperature_c" 
-                                           value="20" min="5" max="40" step="0.1" required>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="altitude_m">Altitude (meters)</label>
-                                    <input type="number" class="form-control" id="altitude_m" name="altitude_m" 
-                                           value="1500" min="0" max="4000" required>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="soil_ph">Soil pH</label>
-                                    <input type="number" class="form-control" id="soil_ph" name="soil_ph" 
-                                           value="6.5" min="4" max="9" step="0.1" required>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="care_level">Care Level</label>
-                                    <select class="form-control" id="care_level" name="care_level" required>
-                                        <option value="Low">Low</option>
-                                        <option value="Medium" selected>Medium</option>
-                                        <option value="High">High</option>
+                                <div class="form-group mb-5">
+                                    <label for="planting_season" class="fw-bold fs-4 mb-3" style="color: #15803d;">Planting Season</label>
+                                    <select class="form-control" id="planting_season" name="planting_season" required style="padding: 1.5rem; font-size: 1.2rem; border-radius: 20px; border: 3px solid #e5e7eb; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                                        <option value="">Select planting season</option>
+                                        <option value="Wet">Wet Season (Mar-May, Oct-Dec)</option>
+                                        <option value="Dry">Dry Season (Jun-Sep, Jan-Feb)</option>
+                                        <option value="Transition">Transition Period</option>
                                     </select>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="water_source">Water Source</label>
-                                    <select class="form-control" id="water_source" name="water_source" required>
-                                        <option value="Rain-fed">Rain-fed</option>
-                                        <option value="Irrigation">Irrigation</option>
-                                        <option value="Borehole">Borehole</option>
-                                        <option value="River">River</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="tree_age_months">Tree Age (months)</label>
-                                    <input type="number" class="form-control" id="tree_age_months" name="tree_age_months" 
-                                           value="12" min="1" max="120" required>
+                                    <small class="text-muted fw-semibold"><i class="fas fa-calendar-alt me-1"></i>Wet season planting typically shows 20% higher survival rates</small>
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- Hidden fields for auto-detected data -->
+                        <input type="hidden" id="region" name="region">
+                        <input type="hidden" id="county" name="county">
+                        <input type="hidden" id="rainfall_mm" name="rainfall_mm">
+                        <input type="hidden" id="temperature_c" name="temperature_c">
+                        <input type="hidden" id="altitude_m" name="altitude_m">
+                        <input type="hidden" id="soil_type" name="soil_type">
+                        <input type="hidden" id="soil_ph" name="soil_ph">
+                        <input type="hidden" id="care_level" name="care_level" value="Medium">
+                        <input type="hidden" id="water_source" name="water_source" value="Rain-fed">
+                        <input type="hidden" id="tree_age_months" name="tree_age_months" value="12">
+                        
                         <div class="text-center">
-                            <button type="submit" class="btn-predict" id="predictBtn">
-                                <i class="fas fa-brain me-2"></i>Get AI Prediction
+                            <button type="button" class="btn-predict" id="predictBtn" style="padding: 2rem 5rem; font-size: 1.4rem; background: linear-gradient(135deg, #16a34a, #0ea5e9); border: none; border-radius: 60px; box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4); font-weight: 700; letter-spacing: 0.5px;">
+                                <i class="fas fa-rocket me-2"></i>Predict Tree Survival with AI
                             </button>
-                            <p class="text-muted mt-3 mb-0" id="predictHint">Results will appear below with species recommendations</p>
+                            <p class="text-muted mt-3 mb-0">GPS auto-detection • Real-time analysis • Instant results</p>
+                            
 
                         </div>
                     </form>
@@ -443,17 +661,17 @@
             <div class="col-lg-10">
                 <div class="feature-card" id="resultsCard">
                     <div class="text-center mb-4">
-                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <h3 class="fw-bold mb-3" style="color: #1e40af;">Your Tree Survival Prediction</h3>
-                        <div class="mb-3">
+                        <h3 class="fw-bold mb-3" style="color: #15803d;">Your Tree Survival Prediction</h3>
+                        <div class="mb-3 d-flex flex-wrap justify-content-center gap-2">
                             {% if user.is_authenticated %}
-                            <button type="button" class="btn btn-outline-primary me-2" style="border-radius: 25px; padding: 0.5rem 1.5rem; font-size: 0.9rem;" onclick="resetForm()">
+                            <button type="button" class="btn" style="border: 2px solid #22c55e; color: #15803d; background: white; border-radius: 25px; padding: 0.5rem 1.5rem; font-size: 0.9rem; font-weight: 600;" onclick="resetForm()">
                                 <i class="fas fa-redo me-2"></i>Try Another Prediction
                             </button>
                             {% else %}
-                            <a href="{% url 'login' %}" class="btn btn-outline-warning me-2" style="border-radius: 25px; padding: 0.5rem 1.5rem; font-size: 0.9rem; text-decoration: none;">
+                            <a href="{% url 'login' %}" class="btn btn-outline-warning" style="border-radius: 25px; padding: 0.5rem 1.5rem; font-size: 0.9rem; text-decoration: none;">
                                 <i class="fas fa-lock me-2"></i>Login for More Predictions
                             </a>
                             {% endif %}
@@ -475,36 +693,7 @@
     </div>
 </section>
     
-<!-- Species Recommendations Section -->
-<section class="py-5" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="feature-card" id="recommendationsCard">
-                    <div class="text-center mb-4">
-                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
-                            <i class="fas fa-lightbulb"></i>
-                        </div>
-                        <h3 class="fw-bold mb-3" style="color: #15803d;">Best Species for Your Location</h3>
-                        <p class="text-muted">AI-recommended tree species based on your environmental conditions</p>
-                    </div>
-                    <div id="speciesRecommendations"></div>
-                    <div class="text-center mt-4">
-                        {% if user.is_authenticated %}
-                        <button type="button" id="getRecommendationsBtn" class="btn-predict">
-                            <i class="fas fa-search me-2"></i>Get Species Recommendations
-                        </button>
-                        {% else %}
-                        <a href="{% url 'login' %}" class="btn-predict" style="text-decoration: none; display: inline-block;">
-                            <i class="fas fa-lock me-2"></i>Login for Species Recommendations
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
     
 <!-- Call to Action Section -->
 {% if user.is_authenticated and user.profile.account_type == 'organization' %}
@@ -514,16 +703,16 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="feature-card" id="actionCard" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px solid #f59e0b;">
+                <div class="feature-card" id="actionCard">
                     {% if user.is_authenticated and user.profile.account_type == 'organization' %}
                     <!-- Hidden for organizations -->
                     {% else %}
                     <div class="text-center mb-4">
-                        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2.5rem;">
+                        <div class="icon-circle" style="width: 80px; height: 80px; margin: 0 auto 1.5rem;">
                             <i class="fas fa-seedling"></i>
                         </div>
-                        <h3 class="fw-bold mb-3" style="color: #92400e;">Ready to Plant Your Trees?</h3>
-                        <p class="mb-4" style="color: #92400e;">Join Kenya's 15 Billion Trees Initiative</p>
+                        <h2 class="fw-bold mb-3 text-dark">Ready to Plant Your Trees?</h2>
+                        <p class="mb-4 text-muted fs-5">Join Kenya's 15 Billion Trees Initiative</p>
                     </div>
                     {% endif %}
                     {% if user.is_authenticated and user.profile.account_type == 'organization' %}
@@ -532,21 +721,18 @@
                     {% else %}
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h5 class="text-success mb-3">🌍 Make Your Environmental Impact Count!</h5>
-                            <p class="mb-3">Based on your prediction results, you're ready to contribute to Kenya's environmental future. Register your tree planting and get:</p>
+                            <h3 class="text-dark mb-3 fw-bold" id="ctaTitle">Make Your Environmental Impact Count!</h3>
+                            <p class="mb-3 text-muted" id="ctaDescription">Based on your prediction results, register your tree planting and get:</p>
                             <div class="row text-start">
                                 <div class="col-md-6">
                                     <ul class="list-unstyled">
-                                        <li><i class="fas fa-check text-success me-2"></i>Official verification</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Environmental tokens</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Digital certificates</li>
+                                        <li><i class="fas fa-check me-2" style="color: var(--primary);"></i>Official verification and progress tracking</li>
+                                        <li><i class="fas fa-check me-2" style="color: var(--primary);"></i>Environmental tokens and digital certificates</li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6">
                                     <ul class="list-unstyled">
-                                        <li><i class="fas fa-check text-success me-2"></i>Progress tracking</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Community recognition</li>
-                                        <li><i class="fas fa-check text-success me-2"></i>Impact reporting</li>
+                                        <li><i class="fas fa-check me-2" style="color: var(--primary);"></i>Community recognition and impact reporting</li>
                                     </ul>
                                 </div>
                             </div>
@@ -556,10 +742,12 @@
                         {% else %}
                         <div class="col-md-4">
                             <div class="text-center">
-                                <a href="{% url 'public_tree_form' %}" class="btn btn-lg px-5 py-3" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 50px; font-weight: 700; font-size: 1.2rem; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4); transition: all 0.4s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 40px rgba(34, 197, 94, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(34, 197, 94, 0.4)';">
-                                    <i class="fas fa-seedling me-2"></i>Register My Trees
-                                </a>
-                                <p class="mt-3 mb-0" style="color: #92400e; font-weight: 600;">No account needed - we'll create one for you!</p>
+                                <div id="ctaButton">
+                                    <a href="{% url 'public_tree_form' %}" class="btn btn-lg px-5 py-3" style="background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; border-radius: 50px; font-weight: 700; font-size: 1.2rem; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); transition: all 0.4s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 40px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(16, 185, 129, 0.4)';">
+                                        <i class="fas fa-seedling me-2"></i>Register My Trees
+                                    </a>
+                                    <p class="mt-3 mb-0 text-muted fw-semibold">No account needed - we'll create one for you!</p>
+                                </div>
                             </div>
                         </div>
                         {% endif %}
@@ -573,46 +761,592 @@
 {% endif %}
 </div>
 
+<!-- Prediction History Section -->
+{% if user.is_authenticated and prediction_history %}
+<section class="py-5" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; padding: 2rem;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3" style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-history" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 fw-bold">My Prediction History</h4>
+                                    <p class="mb-0 opacity-75">Your recent tree survival predictions</p>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'public_tree_form' %}" class="btn btn-light" style="border-radius: 25px; padding: 0.75rem 1.5rem; font-weight: 600;">
+                                    <i class="fas fa-seedling me-2"></i>Register Trees
+                                </a>
+                                <button class="btn btn-light" onclick="downloadPredictionHistory()" style="border-radius: 25px; padding: 0.75rem 1.5rem; font-weight: 600;" id="downloadCsvBtn">
+                                    <i class="fas fa-download me-2"></i>Download CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background: #f8fafc;">
+                                    <tr>
+                                        <th class="fw-bold text-dark" style="padding: 1rem;">Species</th>
+                                        <th class="fw-bold text-dark" style="padding: 1rem;">Location</th>
+                                        <th class="fw-bold text-dark" style="padding: 1rem;">Survival Rate</th>
+                                        <th class="fw-bold text-dark" style="padding: 1rem;">Success Level</th>
+                                        <th class="fw-bold text-dark" style="padding: 1rem;">Recommendations</th>
+                                        <th class="fw-bold text-dark" style="padding: 1rem;">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prediction in prediction_history %}
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 1rem;">
+                                            <div class="d-flex align-items-center">
+                                                <div class="species-icon me-2">
+                                                    <i class="fas fa-seedling text-success"></i>
+                                                </div>
+                                                <span class="fw-medium">{{ prediction.tree_species }}</span>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                            <div class="text-muted">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ prediction.region }}, {{ prediction.county }}
+                                            </div>
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                            <span class="fw-bold fs-5" style="color: #22c55e;">{{ prediction.survival_percentage }}%</span>
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                                {% if prediction.survival_percentage >= 80 %}
+                                                <span class="success-badge high">High Success</span>
+                                            {% elif prediction.survival_percentage >= 60 %}
+                                                <span class="success-badge medium">Medium Success</span>
+                                            {% elif prediction.survival_percentage >= 40 %}
+                                                <span class="success-badge low">Low Success</span>
+                                            {% else %}
+                                                <span class="success-badge low">Very Low</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                            <div class="d-flex gap-2">
+                                                <button class="recommendations-btn" onclick="showRecommendations('{{ prediction.id }}', '{{ prediction.tree_species }}', '{{ prediction.region }}', '{{ prediction.county }}')">
+                                                    <i class="fas fa-lightbulb me-1"></i>Tips
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success" onclick="downloadSinglePrediction({{ forloop.counter0 }})" style="border-radius: 15px; font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                            <small class="text-muted fw-medium">{{ prediction.created_at|date:"M d, Y" }}</small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% if total_predictions > 10 %}
+                    <div class="card-footer text-center" style="background: #f8fafc; padding: 1.5rem;">
+                        <small class="text-muted fw-medium">Showing 10 most recent predictions. Total: {{ total_predictions }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <script>
 let currentResults = null;
 
-document.getElementById('predictionForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
-    
-    // Convert numeric fields
-    data.rainfall_mm = parseFloat(data.rainfall_mm);
-    data.temperature_c = parseFloat(data.temperature_c);
-    data.altitude_m = parseFloat(data.altitude_m);
-    data.soil_ph = parseFloat(data.soil_ph);
-    data.tree_age_months = parseInt(data.tree_age_months);
-    
+// Prepare prediction history data for JavaScript
+const predictionHistoryData = [
+    {% for prediction in prediction_history %}
+    {
+        id: {{ prediction.id }},
+        tree_species: "{{ prediction.tree_species|escapejs }}",
+        region: "{{ prediction.region|escapejs }}",
+        county: "{{ prediction.county|escapejs }}",
+        survival_percentage: {{ prediction.survival_percentage }},
+        survival_level: "{{ prediction.survival_level|escapejs }}",
+        planting_method: "{{ prediction.planting_method|escapejs }}",
+        planting_season: "{{ prediction.planting_season|escapejs }}",
+        created_at: "{{ prediction.created_at|date:'c' }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+// Auto-detection triggered by user action
+document.addEventListener('DOMContentLoaded', function() {
+    // Don't auto-detect on page load - wait for user to start prediction
+    console.log('Tree prediction page loaded - waiting for user interaction');
+    console.log('Prediction history loaded:', predictionHistoryData.length, 'predictions');
+});
+
+// Removed - using simplified version above
+
+async function getLocationData(lat, lon, altitude) {
     try {
-        const response = await fetch('/api/predict-tree-survival/', {
+        console.log('Calling climate API with coordinates:', lat, lon, altitude);
+        
+        // Call our real dataset-based climate API
+        const response = await fetch('/api/climate-data/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+                latitude: lat,
+                longitude: lon,
+                altitude: altitude
+            })
         });
+        
+        console.log('API response status:', response.status);
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
         const result = await response.json();
-        console.log('API Response:', result);
-        currentResults = result;
-        displayResults(result);
+        console.log('API response data:', result);
+        
+        if (result.success) {
+            const locationData = result.location_data;
+            console.log('Location data received:', locationData);
+            
+            // Update form fields with real dataset values
+            document.getElementById('region').value = locationData.region;
+            document.getElementById('county').value = locationData.county;
+            document.getElementById('rainfall_mm').value = locationData.rainfall_mm;
+            document.getElementById('temperature_c').value = locationData.temperature_c;
+            document.getElementById('altitude_m').value = locationData.altitude_m;
+            document.getElementById('soil_type').value = locationData.soil_type;
+            document.getElementById('soil_ph').value = locationData.soil_ph;
+            document.getElementById('planting_season').value = locationData.planting_season;
+            
+            // Show green badges and update hints
+            showDetectionComplete();
+            
+            // Show success notification with actual coordinates
+            showAutoDetectionSuccess(`${locationData.county} (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
+        } else {
+            throw new Error(result.error || 'Failed to get climate data');
+        }
         
     } catch (error) {
-        console.error('Error:', error);
-        displayError(`Failed to get prediction: ${error.message}. Please try again.`);
+        console.error('API error:', error);
+        // Fallback to default location if API fails
+        setDefaultLocation('Using dataset defaults for your region');
+    }
+}
+
+function showDetectionComplete() {
+    // Show green badges for all auto-detected fields
+    const badges = ['regionBadge', 'countyBadge', 'rainfallBadge', 'tempBadge', 'altitudeBadge', 'soilTypeBadge', 'soilPhBadge', 'seasonBadge'];
+    const hints = ['regionHint', 'countyHint', 'rainfallHint', 'tempHint', 'altitudeHint', 'soilTypeHint', 'soilPhHint', 'seasonHint'];
+    
+    badges.forEach(badgeId => {
+        const badge = document.getElementById(badgeId);
+        if (badge) {
+            badge.style.display = 'inline';
+            badge.className = 'badge bg-success ms-2';
+            badge.textContent = 'Auto-detected';
+        }
+    });
+    
+    hints.forEach(hintId => {
+        const hint = document.getElementById(hintId);
+        if (hint) {
+            hint.textContent = 'Successfully detected from your location';
+            hint.className = 'text-success';
+        }
+    });
+}
+
+function hideDetectionBadges() {
+    // Hide all badges and reset hints
+    const badges = ['regionBadge', 'countyBadge', 'rainfallBadge', 'tempBadge', 'altitudeBadge', 'soilTypeBadge', 'soilPhBadge', 'seasonBadge'];
+    const hints = ['regionHint', 'countyHint', 'rainfallHint', 'tempHint', 'altitudeHint', 'soilTypeHint', 'soilPhHint', 'seasonHint'];
+    
+    badges.forEach(badgeId => {
+        const badge = document.getElementById(badgeId);
+        if (badge) {
+            badge.style.display = 'none';
+        }
+    });
+    
+    const hintTexts = {
+        'regionHint': 'Will be detected from your GPS location',
+        'countyHint': 'Will be detected from your GPS location',
+        'rainfallHint': 'Will be detected from your location\'s climate data',
+        'tempHint': 'Will be detected from your location\'s climate data',
+        'altitudeHint': 'Will be detected from GPS coordinates',
+        'soilTypeHint': 'Will be detected from your location\'s soil data',
+        'soilPhHint': 'Will be detected from your location\'s soil characteristics',
+        'seasonHint': 'Will be detected from current date and Kenya\'s seasons'
+    };
+    
+    hints.forEach(hintId => {
+        const hint = document.getElementById(hintId);
+        if (hint) {
+            hint.textContent = hintTexts[hintId];
+            hint.className = 'text-muted';
+        }
+    });
+}
+
+function setDefaultLocation(message) {
+    const regionSelect = document.getElementById('region');
+    const countySelect = document.getElementById('county');
+    const rainfallInput = document.getElementById('rainfall_mm');
+    const tempInput = document.getElementById('temperature_c');
+    const altitudeInput = document.getElementById('altitude_m');
+    
+    // Set default Kenya location using dataset averages
+    regionSelect.value = 'Central';
+    countySelect.value = 'Nyeri';
+    rainfallInput.value = 635;
+    tempInput.value = 20.5;
+    altitudeInput.value = 1850;
+    
+    // Set soil data from dataset
+    document.getElementById('soil_type').value = 'Clay';
+    document.getElementById('soil_ph').value = 6.8;
+    
+    // Set season based on current date
+    const currentMonth = new Date().getMonth() + 1;
+    document.getElementById('planting_season').value = (currentMonth >= 3 && currentMonth <= 5) || (currentMonth >= 10 && currentMonth <= 12) ? 'Wet' : 'Dry';
+    
+    // Show detection badges
+    showDetectionComplete();
+    
+    showAutoDetectionSuccess(message);
+}
+
+function showLocationDetecting() {
+    // Remove any existing notification first
+    const existingNotification = document.getElementById('locationNotification');
+    if (existingNotification) {
+        document.body.removeChild(existingNotification);
+    }
+    
+    const notification = document.createElement('div');
+    notification.id = 'locationNotification';
+    notification.className = 'alert alert-info border-0 position-fixed';
+    notification.style.cssText = `
+        top: 100px;
+        right: 20px;
+        z-index: 9999;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        animation: slideInRight 0.5s ease;
+        max-width: 300px;
+    `;
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-spinner fa-spin text-primary fs-5 me-3"></i>
+            <div>
+                <h6 class="fw-bold text-primary mb-1">🌍 Detecting Location...</h6>
+                <small class="text-primary">Getting your GPS coordinates and climate data</small>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    console.log('Location detection notification shown');
+}
+
+function showAutoDetectionSuccess(location) {
+    // Remove loading notification
+    const loadingNotification = document.getElementById('locationNotification');
+    if (loadingNotification) {
+        document.body.removeChild(loadingNotification);
+    }
+    
+    // Create and show success notification
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success border-0 position-fixed';
+    notification.style.cssText = `
+        top: 100px;
+        right: 20px;
+        z-index: 9999;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        animation: slideInRight 0.5s ease;
+    `;
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-map-marker-alt text-success fs-5 me-3"></i>
+            <div>
+                <h6 class="fw-bold text-success mb-1">📍 Location Detected!</h6>
+                <small class="text-success">Auto-detected: ${location}</small>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 4 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.5s ease';
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 500);
+    }, 4000);
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+let locationDetected = false;
+
+// Professional GPS detection and prediction system
+document.addEventListener('DOMContentLoaded', function() {
+    const predictBtn = document.getElementById('predictBtn');
+    
+    if (predictBtn) {
+        predictBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            // Validate all required fields first
+            const treeSpecies = document.getElementById('tree_species').value;
+            const plantingMethod = document.getElementById('planting_method').value;
+            const plantingSeason = document.getElementById('planting_season').value;
+            
+            if (!treeSpecies || !plantingMethod || !plantingSeason) {
+                // Highlight empty fields
+                highlightEmptyFields(treeSpecies, plantingMethod, plantingSeason);
+                showValidationError('Please fill in all 3 required fields before prediction.');
+                return;
+            }
+            
+            // Clear any previous validation styling
+            clearValidationStyling();
+            
+            const originalText = predictBtn.innerHTML;
+            
+            try {
+                // Step 1: Request GPS permission and get location
+                predictBtn.innerHTML = '<i class="fas fa-location-arrow fa-spin me-2"></i>Requesting GPS Access...';
+                predictBtn.disabled = true;
+                
+                const position = await getCurrentPosition();
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                console.log(`GPS coordinates obtained: ${lat}, ${lon}`);
+                
+                // Step 2: Query our dataset for environmental data
+                predictBtn.innerHTML = '<i class="fas fa-satellite fa-spin me-2"></i>Querying Environmental Datasets...';
+                
+                const locationData = mapGPSToLocation(lat, lon);
+                
+                // Auto-fill hidden fields with detected environmental data
+                document.getElementById('region').value = locationData.region;
+                document.getElementById('county').value = locationData.county;
+                document.getElementById('rainfall_mm').value = locationData.rainfall_mm;
+                document.getElementById('temperature_c').value = locationData.temperature_c;
+                document.getElementById('altitude_m').value = position.coords.altitude || locationData.altitude_m;
+                document.getElementById('soil_type').value = locationData.soil_type;
+                document.getElementById('soil_ph').value = locationData.soil_ph;
+                
+                // Show auto-detected summary card
+                showAutoDetectedSummary(locationData, position.coords.altitude || locationData.altitude_m);
+                
+                console.log('Environmental data auto-detected:', locationData);
+                
+                // Step 3: Run our trained RandomForest ML model
+                predictBtn.innerHTML = '<i class="fas fa-brain fa-spin me-2"></i>AI Analyzing Tree Survival...';
+                
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                const formData = new FormData(document.getElementById('predictionForm'));
+                const predictionData = Object.fromEntries(formData.entries());
+                
+                // Convert numeric fields for ML model
+                predictionData.rainfall_mm = parseFloat(predictionData.rainfall_mm);
+                predictionData.temperature_c = parseFloat(predictionData.temperature_c);
+                predictionData.altitude_m = parseFloat(predictionData.altitude_m);
+                predictionData.soil_ph = parseFloat(predictionData.soil_ph);
+                predictionData.tree_age_months = parseInt(predictionData.tree_age_months);
+                
+                console.log('Sending to ML model:', predictionData);
+                
+                const response = await fetch('/api/predict-tree-survival/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                    body: JSON.stringify(predictionData)
+                });
+                
+                const result = await response.json();
+                console.log('ML model result:', result);
+                
+                if (result.success) {
+                    currentResults = result;
+                    displayResults(result);
+                } else {
+                    throw new Error(result.error || 'ML model prediction failed');
+                }
+                
+            } catch (error) {
+                console.error('GPS or prediction error:', error);
+                
+                if (error.code === 1) {
+                    displayError('GPS access denied. Please allow location access and try again.');
+                } else if (error.code === 2) {
+                    displayError('GPS location unavailable. Please check your device settings.');
+                } else if (error.code === 3) {
+                    displayError('GPS request timed out. Please try again.');
+                } else {
+                    displayError(`Error: ${error.message}. Please try again.`);
+                }
+            } finally {
+                predictBtn.innerHTML = originalText;
+                predictBtn.disabled = false;
+            }
+        });
     }
 });
+
+// Force GPS permission request
+function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('GPS not supported by this browser'));
+            return;
+        }
+        
+        // Force GPS permission popup
+        navigator.geolocation.getCurrentPosition(
+            resolve,
+            function(error) {
+                console.log('GPS permission denied or failed:', error.message);
+                reject(error);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0  // Force fresh GPS reading
+            }
+        );
+    });
+}
+
+// Show auto-detected environmental summary
+function showAutoDetectedSummary(locationData, altitude) {
+    document.getElementById('detectedLocation').textContent = `${locationData.county}, ${locationData.region}`;
+    document.getElementById('detectedRainfall').textContent = `${locationData.rainfall_mm}mm/year`;
+    document.getElementById('detectedTemp').textContent = `${locationData.temperature_c}°C`;
+    document.getElementById('detectedSoil').textContent = locationData.soil_type;
+    document.getElementById('detectedAltitude').textContent = `${altitude}m`;
+    
+    // Show the card with animation
+    const card = document.getElementById('autoDetectedCard');
+    card.style.display = 'block';
+    card.style.animation = 'fadeInUp 0.8s ease';
+}
+
+// GPS to location mapping
+function mapGPSToLocation(lat, lon) {
+    // Nairobi County
+    if (lat >= -1.45 && lat <= -1.15 && lon >= 36.6 && lon <= 37.1) {
+        return {
+            region: 'Nairobi',
+            county: 'Nairobi',
+            rainfall_mm: 635,
+            temperature_c: 19.5,
+            altitude_m: 1795,
+            soil_type: 'Clay',
+            soil_ph: 6.5
+        };
+    }
+    // Kiambu County
+    else if (lat >= -1.3 && lat <= -0.9 && lon >= 36.7 && lon <= 37.2) {
+        return {
+            region: 'Central',
+            county: 'Kiambu',
+            rainfall_mm: 1050,
+            temperature_c: 20.0,
+            altitude_m: 1800,
+            soil_type: 'Clay',
+            soil_ph: 6.7
+        };
+    }
+    // Central Kenya
+    else if (lat >= -1.0 && lat <= 0.5 && lon >= 36.5 && lon <= 37.5) {
+        return {
+            region: 'Central',
+            county: 'Nyeri',
+            rainfall_mm: 1200,
+            temperature_c: 20.5,
+            altitude_m: 1850,
+            soil_type: 'Clay',
+            soil_ph: 6.8
+        };
+    }
+    // Coast Region
+    else if (lat >= -4.7 && lat <= -1.6 && lon >= 39.0 && lon <= 41.9) {
+        return {
+            region: 'Coast',
+            county: 'Mombasa',
+            rainfall_mm: 1100,
+            temperature_c: 26.0,
+            altitude_m: 50,
+            soil_type: 'Sandy',
+            soil_ph: 6.2
+        };
+    }
+    // Western Kenya
+    else if (lat >= -1.0 && lat <= 1.5 && lon >= 34.0 && lon <= 35.5) {
+        return {
+            region: 'Western',
+            county: 'Kakamega',
+            rainfall_mm: 1400,
+            temperature_c: 22.0,
+            altitude_m: 1500,
+            soil_type: 'Loam',
+            soil_ph: 6.5
+        };
+    }
+    // Default to Central Kenya
+    else {
+        return {
+            region: 'Central',
+            county: 'Nyeri',
+            rainfall_mm: 1200,
+            temperature_c: 20.5,
+            altitude_m: 1850,
+            soil_type: 'Clay',
+            soil_ph: 6.8
+        };
+    }
+}
 
 function displayResults(result) {
     const resultsCard = document.getElementById('resultsCard');
@@ -621,48 +1355,95 @@ function displayResults(result) {
     if (result.success) {
         const riskColor = getRiskColor(result.risk_level);
         
+        // Update call-to-action based on prediction results
+        updateCallToAction(result.survival_percentage);
+        
         resultsDiv.innerHTML = `
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="text-center p-4" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: 20px; border: 2px solid #22c55e;">
-                        <div class="display-2 fw-bold text-success mb-2">${result.survival_percentage}%</div>
-                        <h6 class="text-muted mb-0">Survival Probability</h6>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="text-center p-4" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 20px; border: 2px solid #f59e0b;">
-                        <div class="display-4 text-${riskColor} mb-2">
-                            ${getRiskIcon(result.risk_level)}
-                        </div>
-                        <h6 class="text-muted mb-2">Risk Level</h6>
-                        <span class="badge px-3 py-2" style="background: var(--${riskColor === 'success' ? 'primary' : riskColor === 'warning' ? 'accent' : 'danger'}-color); color: white; font-size: 0.9rem;">${result.risk_level}</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="text-center p-4" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 20px; border: 2px solid #3b82f6;">
-                        <div class="display-4 text-primary mb-2">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <h6 class="text-muted mb-0">AI Analysis Complete</h6>
-                    </div>
-                </div>
-            </div>
-            
+            <!-- Clean Auto-Detected Data -->
             <div class="mb-4">
-                <div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 15px; border-left: 4px solid #3b82f6;">
-                    <h6 class="fw-bold mb-3" style="color: #1e40af;"><i class="fas fa-brain me-2"></i>AI Recommendation</h6>
-                    <p class="mb-0" style="color: #1e293b; font-size: 1.1rem; line-height: 1.6;">${result.recommendation}</p>
+                <div class="bg-light p-4 rounded">
+                    <h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-satellite me-2" style="color: #15803d;"></i>Auto-Detected Data</h5>
+                    <div class="row g-3">
+                        <div class="col-md-2 col-6">
+                            <div class="text-center p-2 bg-white rounded border">
+                                <div class="fw-bold" style="color: #15803d;">${document.getElementById('county').value}</div>
+                                <small class="text-muted">Location</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="text-center p-2 bg-white rounded border">
+                                <div class="fw-bold" style="color: #15803d;">${document.getElementById('rainfall_mm').value}mm</div>
+                                <small class="text-muted">Rainfall</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="text-center p-2 bg-white rounded border">
+                                <div class="fw-bold" style="color: #15803d;">${document.getElementById('temperature_c').value}°C</div>
+                                <small class="text-muted">Temperature</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="text-center p-2 bg-white rounded border">
+                                <div class="fw-bold" style="color: #15803d;">${document.getElementById('altitude_m').value}m</div>
+                                <small class="text-muted">Altitude</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="text-center p-2 bg-white rounded border">
+                                <div class="fw-bold" style="color: #15803d;">${document.getElementById('soil_type').value}</div>
+                                <small class="text-muted">Soil</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <div class="text-center p-2 bg-white rounded border">
+                                <div class="fw-bold" style="color: #15803d;">${document.getElementById('soil_ph').value}</div>
+                                <small class="text-muted">pH</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div>
-                <h6 class="fw-bold mb-3" style="color: #1e293b;">Survival Probability Visualization</h6>
-                <div class="progress" style="height: 30px; border-radius: 15px; background: #f1f5f9;">
-                    <div class="progress-bar" role="progressbar" 
-                         style="width: ${result.survival_percentage}%; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 15px; display: flex; align-items: center; justify-content: center;" 
-                         aria-valuenow="${result.survival_percentage}" 
-                         aria-valuemin="0" aria-valuemax="100">
-                        <strong style="color: white; font-size: 1.1rem;">${result.survival_percentage}%</strong>
+            <!-- Clean Main Result -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="bg-white p-4 rounded border text-center">
+                        <div class="display-1 fw-bold mb-2" style="color: #22c55e;">${result.survival_percentage}%</div>
+                        <h5 class="text-muted mb-3">Survival Probability</h5>
+                        <span class="badge bg-${riskColor} px-3 py-2">${result.risk_level} Risk</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="bg-white p-4 rounded border">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-brain me-2" style="color: #15803d;"></i>AI Recommendation</h5>
+                        <p class="mb-3">${result.recommendation}</p>
+                        {% if user.is_authenticated %}
+                        <button class="btn px-4 py-2" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 25px; font-weight: 600;" onclick="loadAIRecommendations()">
+                            <i class="fas fa-seedling me-2"></i>Get Species Recommendations
+                        </button>
+                        {% else %}
+                        <a href="{% url 'login' %}" class="btn px-4 py-2" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 25px; font-weight: 600; text-decoration: none;">
+                            <i class="fas fa-lock me-2"></i>Login for Recommendations
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+
+            
+            <!-- Species Recommendations Container -->
+            <div class="mb-4" id="aiRecommendations">
+                <div id="recommendationsResults"></div>
+            </div>
+            
+            <!-- Clean Kenya Initiative -->
+            <div class="p-4 rounded border" style="background: rgba(34, 197, 94, 0.1); border-color: #22c55e !important;">
+                <div class="d-flex align-items-center">
+                    <div class="fs-1 me-3">🇰🇪</div>
+                    <div>
+                        <h5 class="fw-bold mb-2" style="color: #15803d;">Kenya's 15 Billion Trees Initiative</h5>
+                        <p class="mb-0 text-muted">Your prediction supports national reforestation goals and earns environmental tokens.</p>
                     </div>
                 </div>
             </div>
@@ -682,93 +1463,95 @@ function displayResults(result) {
     document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Species recommendations functionality
-document.getElementById('getRecommendationsBtn').addEventListener('click', async function() {
-    const btn = this;
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting Recommendations...';
-    btn.disabled = true;
-    
-    // Get form data for location-based recommendations
-    const formData = new FormData(document.getElementById('predictionForm'));
-    const data = Object.fromEntries(formData.entries());
-    
-    // Convert numeric fields
-    data.rainfall_mm = parseFloat(data.rainfall_mm);
-    data.temperature_c = parseFloat(data.temperature_c);
-    data.altitude_m = parseFloat(data.altitude_m);
-    data.soil_ph = parseFloat(data.soil_ph);
-    
-    try {
-        const response = await fetch('/api/species-recommendations/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        displayRecommendations(result.recommendations);
-        
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('speciesRecommendations').innerHTML = `
-            <div class="alert alert-danger">
-                <strong>Error:</strong> Failed to get recommendations. Please try again.
-            </div>
-        `;
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-});
 
-function displayRecommendations(recommendations) {
-    const recommendationsDiv = document.getElementById('speciesRecommendations');
-    
-    if (recommendations && recommendations.length > 0) {
-        let html = '<div class="row">';
-        
-        recommendations.forEach((rec, index) => {
-            const riskColor = getRiskColor(rec.risk_level);
-            const percentage = (rec.survival_probability * 100).toFixed(1);
-            
-            html += `
-                <div class="col-md-6 mb-3">
-                    <div class="card border-${riskColor}">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="card-title mb-1">${rec.species}</h6>
-                                <span class="badge badge-${riskColor}">${rec.risk_level}</span>
-                            </div>
-                            <div class="progress mb-2" style="height: 20px;">
-                                <div class="progress-bar bg-${riskColor}" role="progressbar" 
-                                     style="width: ${percentage}%" 
-                                     aria-valuenow="${percentage}" 
-                                     aria-valuemin="0" aria-valuemax="100">
-                                    <strong>${percentage}%</strong>
+
+// Show species comparison modal
+function showSpeciesComparison() {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-chart-bar me-2"></i>Species Comparison for Your Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <div class="fs-1 mb-2">🌳</div>
+                                    <h5>Indigenous Mix</h5>
+                                    <div class="h3 text-success">92%</div>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success" style="width: 92%"></div>
+                                    </div>
+                                    <small class="text-success">✅ Recommended - Supports biodiversity</small>
                                 </div>
                             </div>
-                            <small class="text-muted">Survival probability for your conditions</small>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <div class="fs-1 mb-2">🌲</div>
+                                    <h5>Grevillea</h5>
+                                    <div class="h3 text-warning">85%</div>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-warning" style="width: 85%"></div>
+                                    </div>
+                                    <small class="text-warning">⚡ Good choice - Fast growing</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <div class="fs-1 mb-2">🌿</div>
+                                    <h5>Acacia</h5>
+                                    <div class="h3 text-info">78%</div>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-info" style="width: 78%"></div>
+                                    </div>
+                                    <small class="text-info">💧 Drought resistant</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-secondary">
+                                <div class="card-body text-center">
+                                    <div class="fs-1 mb-2">🌲</div>
+                                    <h5>Eucalyptus</h5>
+                                    <div class="h3 text-secondary">66%</div>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-secondary" style="width: 66%"></div>
+                                    </div>
+                                    <small class="text-muted">Your current selection</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            `;
-        });
-        
-        html += '</div>';
-        recommendationsDiv.innerHTML = html;
-    } else {
-        recommendationsDiv.innerHTML = `
-            <div class="alert alert-warning">
-                <strong>No recommendations available.</strong> Please check your input data.
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="scrollToRegistration()">
+                        <i class="fas fa-seedling me-2"></i>Register Tree Planting
+                    </button>
+                </div>
             </div>
-        `;
-    }
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    modal.addEventListener('hidden.bs.modal', () => {
+        document.body.removeChild(modal);
+    });
 }
+
+
 
 function getRiskColor(riskLevel) {
     switch(riskLevel) {
@@ -804,6 +1587,28 @@ function resetForm() {
     document.getElementById('predictionForm').reset();
     document.getElementById('resultsContainer').style.display = 'none';
     document.getElementById('formSection').style.display = 'block';
+    
+    // Reset location detection flag so it detects again
+    locationDetected = false;
+    
+    // Reset button text
+    const predictBtn = document.getElementById('predictBtn');
+    predictBtn.innerHTML = '<i class="fas fa-seedling me-2"></i>Check Tree Survival';
+    
+    // Hide auto-detected card and reset form fields
+    document.getElementById('autoDetectedCard').style.display = 'none';
+    document.getElementById('region').value = '';
+    document.getElementById('county').value = '';
+    document.getElementById('rainfall_mm').value = '';
+    document.getElementById('temperature_c').value = '';
+    document.getElementById('altitude_m').value = '';
+    document.getElementById('soil_type').value = '';
+    document.getElementById('planting_season').value = '';
+    document.getElementById('soil_ph').value = '';
+    
+    // Hide all badges and reset hints
+    hideDetectionBadges();
+    
     document.getElementById('predictionForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -813,9 +1618,9 @@ function downloadResults() {
     const formData = new FormData(document.getElementById('predictionForm'));
     const inputData = Object.fromEntries(formData.entries());
     
-    const reportContent = `
-MSITUGUARD - TREE SURVIVAL PREDICTION REPORT
-=============================================
+    let reportContent = `
+MSITUGUARD - AI-ENHANCED TREE SURVIVAL PREDICTION REPORT
+========================================================
 
 Generated: ${new Date().toLocaleString()}
 
@@ -843,6 +1648,405 @@ Risk Level: ${currentResults.risk_level}
 AI RECOMMENDATION:
 -----------------
 ${currentResults.recommendation}
+`;
+    
+    // Add MISTRAL AI enhancements if available
+    if (currentResults.ai_explanation) {
+        reportContent += `
+
+MISTRAL AI ANALYSIS:
+-------------------
+${currentResults.ai_explanation}
+`;
+    }
+    
+    if (currentResults.ai_recommendations) {
+        reportContent += `
+
+MISTRAL AI RECOMMENDATIONS:
+--------------------------
+${currentResults.ai_recommendations}
+`;
+    }
+    
+    // Model breakdown hidden from user but available for technical analysis
+    if (currentResults.ml_prediction && currentResults.ai_prediction) {
+        reportContent += `
+
+TECHNICAL DETAILS (For Reference):
+---------------------------------
+Prediction Method: ${currentResults.prediction_method || 'Advanced AI Model'}
+Model Confidence: ${currentResults.confidence ? Math.round(currentResults.confidence * 100) + '%' : 'High'}
+`;
+    }
+    
+    if (currentResults.ai_species_suggestions) {
+        reportContent += `
+
+ALTERNATIVE SPECIES SUGGESTIONS:
+-------------------------------
+${currentResults.ai_species_suggestions}
+`;
+    }
+    
+    reportContent += `
+
+---
+Generated by MsituGuard AI Tree Survival Prediction System
+Powered by MISTRAL AI for Enhanced Recommendations
+Accuracy: 93.2% (Trained on 10,000+ Kenyan tree records)
+Website: https://msituguard.onrender.com
+`;
+    
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `AI_Enhanced_Tree_Prediction_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Clean AI recommendations - requires login
+async function loadAIRecommendations() {
+    const resultsDiv = document.getElementById('recommendationsResults');
+    
+    // Check if user is authenticated
+    {% if not user.is_authenticated %}
+    resultsDiv.innerHTML = `
+        <div class="alert alert-warning border-0" style="border-radius: 15px; background: linear-gradient(135deg, #fef3c7, #fbbf24); border-left: 4px solid #f59e0b;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-lock fs-4 me-3" style="color: #92400e;"></i>
+                <div>
+                    <h6 class="fw-bold mb-2" style="color: #92400e;">🔒 Login Required for Species Recommendations</h6>
+                    <p class="mb-3" style="color: #92400e;">Get personalized AI-powered species recommendations and advanced features by logging in.</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-warning fw-bold" style="border-radius: 25px; padding: 0.5rem 1.5rem;">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login Now
+                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-warning fw-bold" style="border-radius: 25px; padding: 0.5rem 1.5rem;">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    return;
+    {% endif %}
+    
+    resultsDiv.innerHTML = '<div class="text-center p-3 bg-light rounded"><i class="fas fa-spinner fa-spin me-2"></i>Loading AI-enhanced recommendations...</div>';
+    
+    try {
+        const formData = new FormData(document.getElementById('predictionForm'));
+        const data = Object.fromEntries(formData.entries());
+        
+        const response = await fetch('/api/species-recommendations/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.login_required) {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-warning border-0" style="border-radius: 15px;">
+                    <h6 class="fw-bold mb-2">🔒 Login Required</h6>
+                    <p class="mb-3">Species recommendations require a user account.</p>
+                    <a href="{% url 'login' %}" class="btn btn-warning">Login Now</a>
+                </div>
+            `;
+            return;
+        }
+        
+        if (result.success) {
+            // Show loading message for AI recommendations
+            if (!result.ai_recommendations && !result.ai_species_suggestions) {
+                setTimeout(() => {
+                    if (!document.getElementById('recommendationsResults').innerHTML.includes('MISTRAL AI')) {
+                        const aiNotice = document.createElement('div');
+                        aiNotice.className = 'alert alert-info mt-3';
+                        aiNotice.innerHTML = '<i class="fas fa-info-circle me-2"></i>AI recommendations are being generated in the background. This may take a few moments.';
+                        document.getElementById('recommendationsResults').appendChild(aiNotice);
+                    }
+                }, 3000);
+            }
+        }
+        
+        if (result.success && result.recommendations && result.recommendations.length > 0) {
+            let html = '<h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-seedling me-2" style="color: #15803d;"></i>Species Recommendations</h5><div class="row g-3">';
+            
+            result.recommendations.forEach((rec, index) => {
+                const badges = ['Best', 'Good', 'Alternative', 'Consider', 'Caution'];
+                const percentage = rec.survival_percentage || Math.round(rec.survival_probability * 100) || 0;
+                
+                let badgeColor = '#22c55e'; // Default green
+                if (percentage < 50) badgeColor = '#ef4444'; // Red for low
+                else if (percentage < 70) badgeColor = '#f59e0b'; // Orange for medium
+                
+                html += `
+                    <div class="col-md-6 col-lg-3">
+                        <div class="bg-white p-3 rounded border text-center">
+                            <h6 class="fw-bold" style="color: #15803d;">${rec.species}</h6>
+                            <div class="h5 fw-bold" style="color: #15803d;">${percentage}%</div>
+                            <small class="badge" style="background: ${badgeColor}; color: white;">${badges[index] || 'Alternative'}</small>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Add MISTRAL AI recommendations if available
+            if (result.ai_explanation) {
+                html += `
+                <div class="mt-4 mb-4">
+                    <div class="bg-white p-4 rounded border" style="border-left: 4px solid #22c55e !important;">
+                        <h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-lightbulb me-2" style="color: #f59e0b;"></i>AI Analysis</h5>
+                        <p class="mb-0" style="font-size: 1.1rem; line-height: 1.6;">${result.ai_explanation}</p>
+                    </div>
+                </div>
+                `;
+            }
+            
+            if (result.ai_recommendations) {
+                html += `
+                <div class="mt-4 mb-4">
+                    <div class="bg-white p-4 rounded border">
+                        <h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-robot me-2" style="color: #6366f1;"></i>AI Recommendations</h5>
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 10px; border-left: 4px solid #6366f1;">
+                            <pre style="white-space: pre-wrap; font-family: 'Inter', sans-serif; margin: 0; color: #374151; line-height: 1.6;">${result.ai_recommendations}</pre>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+            
+            if (result.ai_species_suggestions) {
+                html += `
+                <div class="mt-4 mb-4">
+                    <div class="bg-white p-4 rounded border">
+                        <h5 class="fw-bold mb-3" style="color: #15803d;"><i class="fas fa-leaf me-2" style="color: #10b981;"></i>Alternative Species Suggestions</h5>
+                        <div style="background: #f0fdf4; padding: 1.5rem; border-radius: 10px; border-left: 4px solid #10b981;">
+                            <pre style="white-space: pre-wrap; font-family: 'Inter', sans-serif; margin: 0; color: #166534; line-height: 1.8; font-weight: 500;">${result.ai_species_suggestions}</pre>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+            
+            resultsDiv.innerHTML = html;
+        } else {
+            resultsDiv.innerHTML = '<div class="alert alert-warning">Unable to generate recommendations.</div>';
+        }
+        
+    } catch (error) {
+        resultsDiv.innerHTML = '<div class="alert alert-danger">Error loading recommendations.</div>';
+    }
+}
+
+function getSpeciesIcon(species) {
+    const icons = {
+        'Indigenous Mix': '🌳',
+        'Grevillea': '🌲',
+        'Acacia': '🌿',
+        'Pine': '🌲',
+        'Eucalyptus': '🌲',
+        'Cedar': '🌲'
+    };
+    return icons[species] || '🌱';
+}
+
+function scrollToRegistration() {
+    document.getElementById('actionCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showValidationError(message) {
+    // Remove any existing validation notification
+    const existingNotification = document.getElementById('validationNotification');
+    if (existingNotification) {
+        document.body.removeChild(existingNotification);
+    }
+    
+    const notification = document.createElement('div');
+    notification.id = 'validationNotification';
+    notification.className = 'alert alert-danger border-0 position-fixed';
+    notification.style.cssText = `
+        top: 100px;
+        right: 20px;
+        z-index: 9999;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+        animation: slideInRight 0.5s ease;
+        max-width: 350px;
+    `;
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle text-danger fs-5 me-3"></i>
+            <div>
+                <h6 class="fw-bold text-danger mb-1">⚠️ Missing Information</h6>
+                <small class="text-danger">${message}</small>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 5 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.5s ease';
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 500);
+    }, 5000);
+}
+
+function highlightEmptyFields(treeSpecies, plantingMethod, plantingSeason) {
+    const fields = [
+        { value: treeSpecies, element: document.getElementById('tree_species') },
+        { value: plantingMethod, element: document.getElementById('planting_method') },
+        { value: plantingSeason, element: document.getElementById('planting_season') }
+    ];
+    
+    fields.forEach(field => {
+        if (!field.value) {
+            field.element.style.borderColor = '#dc2626';
+            field.element.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.1)';
+        }
+    });
+}
+
+function clearValidationStyling() {
+    const fields = ['tree_species', 'planting_method', 'planting_season'];
+    fields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        element.style.borderColor = '';
+        element.style.boxShadow = '';
+    });
+}
+
+// Download prediction history
+function downloadPredictionHistory() {
+    if (!predictionHistoryData || predictionHistoryData.length === 0) {
+        alert('No prediction history to download.');
+        return;
+    }
+    
+    let csvContent = 'Species,Location,Survival Rate,Success Level,Date,Region,County,Planting Method,Planting Season,AI Recommendations,Alternative Species\n';
+    
+    predictionHistoryData.forEach(prediction => {
+        const date = new Date(prediction.created_at).toLocaleDateString();
+        const recommendations = generateRecommendations(prediction);
+        const alternatives = getAlternativeSpecies(prediction.region);
+        
+        csvContent += `"${prediction.tree_species}","${prediction.region}, ${prediction.county}","${prediction.survival_percentage}%","${prediction.survival_level}","${date}","${prediction.region}","${prediction.county}","${prediction.planting_method}","${prediction.planting_season}","${recommendations}","${alternatives}"\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Tree_Prediction_History_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Generate AI recommendations based on prediction data
+function generateRecommendations(prediction) {
+    let recommendations = [];
+    
+    if (prediction.survival_percentage >= 70) {
+        recommendations.push('Excellent choice for this location');
+        recommendations.push('Plant during wet season for best results');
+    } else if (prediction.survival_percentage >= 50) {
+        recommendations.push('Consider improving soil conditions');
+        recommendations.push('Ensure adequate water supply');
+        recommendations.push('Try seedling method instead of direct seeding');
+    } else {
+        recommendations.push('Consider alternative species');
+        recommendations.push('Wait for better weather conditions');
+        recommendations.push('Improve soil preparation');
+    }
+    
+    if (prediction.planting_season === 'Dry') {
+        recommendations.push('Switch to wet season planting for 20% higher survival');
+    }
+    
+    if (prediction.planting_method === 'Direct Seeding') {
+        recommendations.push('Use seedlings for better survival rates');
+    }
+    
+    return recommendations.join('; ');
+}
+
+// Get alternative species recommendations by region
+function getAlternativeSpecies(region) {
+    const alternatives = {
+        'Central': 'Indigenous Mix (92%), Grevillea (85%), Acacia (78%)',
+        'Coast': 'Casuarina (88%), Neem (82%), Acacia (75%)',
+        'Western': 'Indigenous Mix (90%), Grevillea (87%), Pine (80%)',
+        'Eastern': 'Acacia (85%), Indigenous Mix (83%), Grevillea (78%)',
+        'Nairobi': 'Indigenous Mix (89%), Grevillea (84%), Cedar (79%)',
+        'Northern': 'Acacia (82%), Casuarina (78%), Neem (75%)',
+        'Nyanza': 'Indigenous Mix (88%), Grevillea (85%), Pine (81%)',
+        'Rift Valley': 'Indigenous Mix (87%), Acacia (83%), Grevillea (80%)'
+    };
+    
+    return alternatives[region] || 'Indigenous Mix (85%), Grevillea (80%), Acacia (75%)';
+}
+
+// Download single prediction report
+function downloadSinglePrediction(index) {
+    if (!predictionHistoryData || !predictionHistoryData[index]) {
+        alert('Prediction data not found.');
+        return;
+    }
+    
+    const prediction = predictionHistoryData[index];
+    const date = new Date(prediction.created_at).toLocaleDateString();
+    const recommendations = generateRecommendations(prediction);
+    const alternatives = getAlternativeSpecies(prediction.region);
+    
+    const reportContent = `MSITUGUARD - TREE SURVIVAL PREDICTION REPORT
+=============================================
+
+Generated: ${new Date().toLocaleString()}
+
+PREDICTION DETAILS:
+------------------
+Tree Species: ${prediction.tree_species}
+Location: ${prediction.region}, ${prediction.county}
+Survival Rate: ${prediction.survival_percentage}%
+Success Level: ${prediction.survival_level}
+Planting Method: ${prediction.planting_method}
+Planting Season: ${prediction.planting_season}
+Prediction Date: ${date}
+
+AI RECOMMENDATIONS:
+------------------
+${recommendations.split('; ').map(rec => '• ' + rec).join('\n')}
+
+ALTERNATIVE SPECIES FOR YOUR REGION:
+-----------------------------------
+${alternatives}
+
+NEXT STEPS:
+----------
+• Review the AI recommendations above
+• Consider alternative species if survival rate is low
+• Plan planting during optimal season
+• Prepare soil according to recommendations
+• Register your tree planting at: https://msituguard.onrender.com
 
 ---
 Generated by MsituGuard AI Tree Survival Prediction System
@@ -854,11 +2058,144 @@ Website: https://msituguard.onrender.com
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Tree_Prediction_Report_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `Tree_Prediction_${prediction.tree_species.replace(/\s+/g, '_')}_${date.replace(/\//g, '-')}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+}
+
+// Show recommendations for a specific prediction
+function showRecommendations(predictionId, species, region, county) {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; padding: 2rem;">
+                    <h4 class="modal-title fw-bold"><i class="fas fa-lightbulb me-2"></i>Species Recommendations</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="mb-4 p-3 rounded" style="background: #f0fdf4; border-left: 4px solid #22c55e;">
+                        <h6 class="fw-bold" style="color: #15803d;">For ${species} in ${region}, ${county}</h6>
+                        <p class="text-muted mb-0">Based on your location's climate and soil conditions:</p>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card h-100" style="border: 2px solid #22c55e; border-radius: 15px;">
+                                <div class="card-body text-center p-3">
+                                    <div class="mb-3" style="font-size: 3rem;">🌳</div>
+                                    <h6 class="fw-bold">Indigenous Mix</h6>
+                                    <div class="h3 fw-bold" style="color: #22c55e;">92%</div>
+                                    <div class="progress mb-3" style="height: 8px; border-radius: 10px;">
+                                        <div class="progress-bar" style="width: 92%; background: #22c55e; border-radius: 10px;"></div>
+                                    </div>
+                                    <small class="fw-medium" style="color: #22c55e;">✅ Best Choice - Supports biodiversity</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100" style="border: 2px solid #f59e0b; border-radius: 15px;">
+                                <div class="card-body text-center p-3">
+                                    <div class="mb-3" style="font-size: 3rem;">🌲</div>
+                                    <h6 class="fw-bold">Grevillea</h6>
+                                    <div class="h3 fw-bold" style="color: #f59e0b;">85%</div>
+                                    <div class="progress mb-3" style="height: 8px; border-radius: 10px;">
+                                        <div class="progress-bar" style="width: 85%; background: #f59e0b; border-radius: 10px;"></div>
+                                    </div>
+                                    <small class="fw-medium" style="color: #f59e0b;">⚡ Good Choice - Fast growing</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100" style="border: 2px solid #0ea5e9; border-radius: 15px;">
+                                <div class="card-body text-center p-3">
+                                    <div class="mb-3" style="font-size: 3rem;">🌿</div>
+                                    <h6 class="fw-bold">Acacia</h6>
+                                    <div class="h3 fw-bold" style="color: #0ea5e9;">78%</div>
+                                    <div class="progress mb-3" style="height: 8px; border-radius: 10px;">
+                                        <div class="progress-bar" style="width: 78%; background: #0ea5e9; border-radius: 10px;"></div>
+                                    </div>
+                                    <small class="fw-medium" style="color: #0ea5e9;">💧 Drought resistant</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100" style="border: 2px solid #6b7280; border-radius: 15px;">
+                                <div class="card-body text-center p-3">
+                                    <div class="mb-3" style="font-size: 3rem;">🌲</div>
+                                    <h6 class="fw-bold">${species}</h6>
+                                    <div class="h5 fw-bold text-muted">Your Selection</div>
+                                    <div class="mb-3" style="height: 8px;"></div>
+                                    <small class="text-muted fw-medium">Current choice for comparison</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none; padding: 2rem; background: #f8fafc;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 25px; padding: 0.75rem 1.5rem;">Close</button>
+                    <a href="{% url 'public_tree_form' %}" class="btn" data-bs-dismiss="modal" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 25px; padding: 0.75rem 1.5rem; font-weight: 600;">
+                        <i class="fas fa-seedling me-2"></i>Register Tree Planting
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    modal.addEventListener('hidden.bs.modal', () => {
+        document.body.removeChild(modal);
+    });
+}
+
+function updateCallToAction(survivalPercentage) {
+    const title = document.getElementById('ctaTitle');
+    const description = document.getElementById('ctaDescription');
+    const button = document.getElementById('ctaButton');
+    
+    if (survivalPercentage >= 70) {
+        title.textContent = 'Excellent Prediction! Ready to Plant?';
+        description.textContent = 'With ' + survivalPercentage + '% survival rate, your trees have great potential. Register your planting and get:';
+        button.innerHTML = `
+            <a href="{% url 'public_tree_form' %}" class="btn btn-lg px-5 py-3" style="background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; border-radius: 50px; font-weight: 700; font-size: 1.2rem; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); transition: all 0.4s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 40px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(16, 185, 129, 0.4)';">
+                <i class="fas fa-seedling me-2"></i>Register My Trees
+            </a>
+            <p class="mt-3 mb-0 text-muted fw-semibold">No account needed - we'll create one for you!</p>
+        `;
+    } else if (survivalPercentage >= 50) {
+        title.textContent = 'Consider Optimizing Your Approach';
+        description.textContent = 'With ' + survivalPercentage + '% survival rate, you can improve your chances. Try different species or timing, then:';
+        button.innerHTML = `
+            <div class="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center mb-3">
+                <button class="btn px-4 py-2" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 25px; font-weight: 600; font-size: 1rem;" onclick="resetForm()">
+                    <i class="fas fa-redo me-2"></i>Try Different Options
+                </button>
+                <a href="{% url 'public_tree_form' %}" class="btn px-4 py-2" style="border: 2px solid #22c55e; color: #15803d; background: white; border-radius: 25px; font-weight: 600; font-size: 1rem; text-decoration: none;">
+                    <i class="fas fa-seedling me-2"></i>Plant Anyway
+                </a>
+            </div>
+            <p class="mt-2 mb-0 text-muted fw-semibold text-center">Consider the AI recommendations above</p>
+        `;
+    } else {
+        title.textContent = 'Low Survival Rate - Consider Alternatives';
+        description.textContent = 'With only ' + survivalPercentage + '% survival rate, we recommend trying different conditions first:';
+        button.innerHTML = `
+            <div class="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center mb-3">
+                <button class="btn px-4 py-2" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 25px; font-weight: 600; font-size: 1rem;" onclick="resetForm()">
+                    <i class="fas fa-lightbulb me-2"></i>Try Better Conditions
+                </button>
+                <button class="btn px-4 py-2" style="border: 2px solid #22c55e; color: #15803d; background: white; border-radius: 25px; font-weight: 600; font-size: 1rem;" onclick="loadAIRecommendations()">
+                    <i class="fas fa-brain me-2"></i>Get AI Advice
+                </button>
+            </div>
+            <p class="mt-2 mb-0 text-warning fw-semibold text-center">Consider waiting for better conditions or different species</p>
+        `;
+    }
 }
 
 

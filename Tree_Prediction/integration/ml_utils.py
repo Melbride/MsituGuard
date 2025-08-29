@@ -17,15 +17,18 @@ class TreeSurvivalPredictor:
     def load_model(self):
         """Load trained model and preprocessing components"""
         try:
-            model_dir = os.path.join(settings.BASE_DIR, 'App', 'models')
+            model_dir = os.path.join(settings.BASE_DIR, 'Tree_Prediction', 'models')
             
             self.model = joblib.load(os.path.join(model_dir, 'tree_survival_model.pkl'))
             self.scaler = joblib.load(os.path.join(model_dir, 'tree_scaler.pkl'))
             self.encoders = joblib.load(os.path.join(model_dir, 'tree_encoders.pkl'))
             self.feature_columns = joblib.load(os.path.join(model_dir, 'feature_columns.pkl'))
             
+            print(f"Model loaded successfully from {model_dir}")
+            
         except Exception as e:
             print(f"Error loading model: {e}")
+            print(f"Attempted to load from: {model_dir}")
             self.model = None
     
     def predict_survival(self, tree_data):
@@ -158,6 +161,108 @@ class TreeSurvivalPredictor:
         recommendations.sort(key=lambda x: x['survival_probability'], reverse=True)
         
         return recommendations[:5]  # Top 5 recommendations
+
+    def get_climate_from_gps(self, latitude, longitude, altitude=None):
+        """Get climate data from GPS coordinates using real dataset averages"""
+        
+        try:
+            # Load dataset to get real averages by region
+            dataset_path = os.path.join(settings.BASE_DIR, 'Tree_Prediction', 'training', 'cleaned_tree_data.csv')
+            df = pd.read_csv(dataset_path)
+            
+            # Determine region from coordinates
+            region = self._map_coordinates_to_region(latitude, longitude)
+            
+            # Get real averages from dataset for this region
+            region_data = df[df['region'] == region]
+            
+            if len(region_data) > 0:
+                # Calculate averages from real data
+                climate_data = {
+                    'region': region,
+                    'county': region_data['county'].mode().iloc[0],  # Most common county
+                    'rainfall_mm': round(region_data['rainfall_mm'].mean()),
+                    'temperature_c': round(region_data['temperature_c'].mean(), 1),
+                    'altitude_m': altitude if altitude and altitude > 0 else round(region_data['altitude_m'].mean()),
+                    'soil_type': region_data['soil_type'].mode().iloc[0],  # Most common soil
+                    'soil_ph': round(region_data['soil_ph'].mean(), 1),
+                    'planting_season': self._get_current_season()
+                }
+            else:
+                # Fallback to Central region if no data found
+                central_data = df[df['region'] == 'Central']
+                climate_data = {
+                    'region': 'Central',
+                    'county': central_data['county'].mode().iloc[0],
+                    'rainfall_mm': round(central_data['rainfall_mm'].mean()),
+                    'temperature_c': round(central_data['temperature_c'].mean(), 1),
+                    'altitude_m': altitude if altitude and altitude > 0 else round(central_data['altitude_m'].mean()),
+                    'soil_type': central_data['soil_type'].mode().iloc[0],
+                    'soil_ph': round(central_data['soil_ph'].mean(), 1),
+                    'planting_season': self._get_current_season()
+                }
+            
+            return climate_data
+            
+        except Exception as e:
+            print(f"Error getting climate data: {e}")
+            # Return default values if error
+            return {
+                'region': 'Central',
+                'county': 'Nyeri',
+                'rainfall_mm': 635,
+                'temperature_c': 20.5,
+                'altitude_m': altitude if altitude and altitude > 0 else 1850,
+                'soil_type': 'Clay',
+                'soil_ph': 6.8,
+                'planting_season': self._get_current_season()
+            }
+    
+    def _map_coordinates_to_region(self, lat, lon):
+        """Map GPS coordinates to Kenyan regions"""
+        
+        # Nairobi (includes Kangemi)
+        if -1.45 <= lat <= -1.15 and 36.6 <= lon <= 37.1:
+            return 'Nairobi'
+        # Central
+        elif -1.0 <= lat <= 0.5 and 36.5 <= lon <= 37.5:
+            return 'Central'
+        # Coast
+        elif -4.7 <= lat <= -1.6 and 39.0 <= lon <= 41.9:
+            return 'Coast'
+        # Western
+        elif -1.0 <= lat <= 1.5 and 34.0 <= lon <= 35.5:
+            return 'Western'
+        # Eastern
+        elif -3.0 <= lat <= 1.0 and 37.5 <= lon <= 40.0:
+            return 'Eastern'
+        # Rift Valley
+        elif -2.0 <= lat <= 2.0 and 35.0 <= lon <= 37.0:
+            return 'Rift Valley'
+        # Northern
+        elif 1.0 <= lat <= 5.0 and 35.0 <= lon <= 42.0:
+            return 'Northern'
+        # North Eastern
+        elif -1.0 <= lat <= 4.0 and 38.0 <= lon <= 42.0:
+            return 'North Eastern'
+        # Nyanza
+        elif -1.5 <= lat <= 0.5 and 33.8 <= lon <= 35.5:
+            return 'Nyanza'
+        else:
+            return 'Central'  # Default
+    
+    def _get_current_season(self):
+        """Get current planting season based on date"""
+        from datetime import datetime
+        current_month = datetime.now().month
+        
+        # Kenya's seasons: Wet (Mar-May, Oct-Dec), Dry (Jun-Sep, Jan-Feb)
+        if current_month in [3, 4, 5, 10, 11, 12]:
+            return 'Wet'
+        elif current_month in [6, 7, 8, 9, 1, 2]:
+            return 'Dry'
+        else:
+            return 'Transition'
 
 # Global predictor instance
 tree_predictor = TreeSurvivalPredictor()

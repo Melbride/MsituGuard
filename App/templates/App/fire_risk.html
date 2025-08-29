@@ -21,7 +21,7 @@
     }
     
     .page-header {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         color: white;
         padding: 4rem 0 2rem;
         text-align: center;
@@ -53,18 +53,18 @@
     }
     
     .fire-card.danger {
-        border-color: #ef4444;
-        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
+        border-color: #22c55e;
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
     }
     
     .fire-card.warning {
-        border-color: #f59e0b;
-        box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+        border-color: #22c55e;
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
     }
     
     .fire-card.primary {
-        border-color: #3b82f6;
-        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        border-color: #22c55e;
+        box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
     }
     
     .fire-card::after {
@@ -74,7 +74,7 @@
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(239,68,68,0.05), transparent);
+        background: linear-gradient(90deg, transparent, rgba(34,197,94,0.05), transparent);
         transition: left 0.8s ease;
     }
     
@@ -84,7 +84,7 @@
     
     .fire-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(239, 68, 68, 0.2);
+        box-shadow: 0 20px 40px rgba(34, 197, 94, 0.2);
     }
     
     .risk-banner {
@@ -93,21 +93,21 @@
     }
     
     .btn-fire {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         color: white;
         padding: 1rem 2rem;
         border-radius: 25px;
         text-decoration: none;
         font-weight: 600;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
         display: inline-block;
         border: none;
     }
     
     .btn-fire:hover {
         transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 15px 40px rgba(239, 68, 68, 0.4);
+        box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
         color: white;
     }
     
@@ -133,14 +133,14 @@
     }
     
     .fire-icon.primary {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        background: linear-gradient(135deg, #22c55e, #16a34a);
     }
     
 
     
     .info-card {
-        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-        border: 2px solid #3b82f6;
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        border: 2px solid #22c55e;
         border-radius: 20px;
         padding: 2rem;
         text-align: center;
@@ -308,7 +308,7 @@
     }
 </style>
 <!-- Page Header -->
-<div class="page-header" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(220, 38, 38, 0.4)), url('{% static 'images/Forest-fire2.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: white; padding: 4rem 0 2rem; text-align: center; position: relative; overflow: hidden;">
+<div class="page-header" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(220, 38, 38, 0.4)), url('{% static 'images/forest2.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: white; padding: 4rem 0 2rem; text-align: center; position: relative; overflow: hidden;">
     <div class="container" style="position: relative; z-index: 2;">
         <div class="d-flex justify-content-between align-items-start mb-4">
             <div class="text-center flex-grow-1">
@@ -445,6 +445,37 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- MISTRAL AI Analysis -->
+                    {% if prediction.ai_analysis %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-brain me-2"></i>AI Fire Risk Analysis</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6 class="text-primary"><i class="fas fa-exclamation-triangle me-1"></i>Risk Explanation</h6>
+                                            <p class="mb-3">{{ prediction.ai_analysis.risk_explanation }}</p>
+                                            
+                                            <h6 class="text-success"><i class="fas fa-shield-alt me-1"></i>Prevention Tips</h6>
+                                            <p class="mb-3">{{ prediction.ai_analysis.prevention_tips }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Emergency Actions</h6>
+                                            <p class="mb-3">{{ prediction.ai_analysis.emergency_actions }}</p>
+                                            
+                                            <h6 class="text-info"><i class="fas fa-calendar-alt me-1"></i>Seasonal Outlook</h6>
+                                            <p class="mb-0">{{ prediction.ai_analysis.seasonal_outlook }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -652,12 +683,7 @@
                         <small class="text-muted">We may need to contact you for follow-up</small>
                     </div>
                     {% endif %}
-                    <div class="mb-3">
-                        <label class="form-label">Location Name</label>
-                        <input type="text" class="form-control" name="location_name" required 
-                               placeholder="e.g., Near Mau Forest, Nakuru County">
-                        <small class="text-muted">Describe the area where you observed the fire (forest name, landmark, etc.)</small>
-                    </div>
+
                     <div class="mb-3">
                         <button type="button" id="useCurrentLocationBtn" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-location-arrow me-1"></i>Use Current Location

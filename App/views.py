@@ -6,7 +6,7 @@ from django.contrib.auth.views import LogoutView, PasswordChangeView
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy, reverse
 from django.utils.safestring import mark_safe
-from .models import Profile, Resource, EmergencyContact, Report, ResourceRequest, ForumPost, Comment, TreePlanting, Token, Reward, UserReward, FireRiskPrediction, CitizenFireReport #Post
+from .models import Profile, Resource, EmergencyContact, Report, ResourceRequest, ForumPost, Comment, TreePlanting, Token, Reward, UserReward, FireRiskPrediction, CitizenFireReport, TreePrediction #Post
 # Keep Alert as alias for backward compatibility
 Alert = Report
 from .forms import UserRegistrationForm,  ResourceForm, ReportForm, ProfileForm,  ResourceRequestForm, ForumPostForm,  FormComment, EditProfileForm, PasswordChangingForm
@@ -723,6 +723,7 @@ class OrganizationDashboardView(LoginRequiredMixin, TemplateView):
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from .soil_detector import detect_soil_with_mistral, detect_region_county
 
 @csrf_exempt
 def update_report_status(request, report_id):
@@ -744,6 +745,36 @@ def update_report_status(request, report_id):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False})
+
+@csrf_exempt
+def detect_soil_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            latitude = data.get('latitude')
+            longitude = data.get('longitude')
+            
+            if not latitude or not longitude:
+                return JsonResponse({'success': False, 'error': 'Latitude and longitude required'})
+            
+            # Use MISTRAL AI to detect soil type
+            soil_type = detect_soil_with_mistral(latitude, longitude)
+            
+            # Detect region and county
+            region, county = detect_region_county(latitude, longitude)
+            
+            return JsonResponse({
+                'success': True,
+                'soil_type': soil_type,
+                'region': region,
+                'county': county,
+                'coordinates': f"{latitude}, {longitude}"
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'POST method required'})
 
 @csrf_exempt
 def update_tree_status(request, tree_id):
@@ -1672,6 +1703,29 @@ class FieldAssessmentView(LoginRequiredMixin, TemplateView):
                     created_by=self.request.user
                 )
                 
+                # Get MISTRAL AI analysis for field assessment
+                from .fire_risk_analyzer import get_fire_risk_analysis
+                
+                weather_data = {
+                    'temp_c': weather['temp_c'],
+                    'humidity': weather['humidity'],
+                    'wind_speed_ms': weather['wind_speed_ms'],
+                    'rainfall_mm_24h': weather['rainfall_mm_24h'],
+                    'risk_level': level,
+                    'risk_score': score,
+                    'recent_fires': recent_fires,
+                    'ndvi': ndvi
+                }
+                
+                location_data = {
+                    'lat': lat,
+                    'lon': lon,
+                    'region': 'Kenya',
+                    'county': 'Field Assessment Area'
+                }
+                
+                ai_analysis = get_fire_risk_analysis(weather_data, location_data)
+                
                 # Prepare prediction data for template
                 context['prediction'] = {
                     'lat': lat,
@@ -1683,6 +1737,8 @@ class FieldAssessmentView(LoginRequiredMixin, TemplateView):
                     'level': level,
                     'color': color,
                     'timestamp': prediction_obj.created_at,
+                    'ai_analysis': ai_analysis,
+                    'field_assessment': True
                 }
                 
             except (ValueError, Exception) as e:
@@ -1710,14 +1766,14 @@ class FireRiskView(TemplateView):
                 lon = float(lon)
                 context['has_location'] = True
                 
-                # Get environmental data using fire_utils
-                from .fire_utils import get_openweather, get_ndvi, get_recent_fires_count, compute_fire_risk, categorize_risk
+                # Get environmental data using improved fire_utils
+                from .fire_utils import get_openweather, get_ndvi, get_recent_fires_count, compute_fire_risk, categorize_risk, get_risk_explanation
                 
                 weather = get_openweather(lat, lon)
                 ndvi = get_ndvi(lat, lon)
                 recent_fires = get_recent_fires_count(lat, lon)
                 
-                # Calculate fire risk
+                # Calculate fire risk with Kenya-specific configuration
                 score = compute_fire_risk(
                     temp_c=weather['temp_c'],
                     humidity=weather['humidity'],
@@ -1728,8 +1784,10 @@ class FireRiskView(TemplateView):
                 )
                 
                 level, color = categorize_risk(score)
+                risk_explanation = get_risk_explanation(score, weather)
                 
                 # Save prediction to database (only for authenticated users)
+                prediction_obj = None
                 if self.request.user.is_authenticated:
                     prediction_obj = FireRiskPrediction.objects.create(
                         location_name=f"Location {lat:.3f}, {lon:.3f}",
@@ -1746,6 +1804,31 @@ class FireRiskView(TemplateView):
                         created_by=self.request.user
                     )
                 
+                # Get MISTRAL AI analysis
+                from .fire_risk_analyzer import get_fire_risk_analysis
+                
+                # Prepare data for AI analysis
+                weather_data = {
+                    'temp_c': weather['temp_c'],
+                    'humidity': weather['humidity'],
+                    'wind_speed_ms': weather['wind_speed_ms'],
+                    'rainfall_mm_24h': weather['rainfall_mm_24h'],
+                    'risk_level': level,
+                    'risk_score': score,
+                    'recent_fires': recent_fires,
+                    'ndvi': ndvi
+                }
+                
+                location_data = {
+                    'lat': lat,
+                    'lon': lon,
+                    'region': 'Kenya',
+                    'county': 'Unknown'
+                }
+                
+                # Get AI analysis
+                ai_analysis = get_fire_risk_analysis(weather_data, location_data)
+                
                 # Prepare prediction data for template
                 context['prediction'] = {
                     'lat': lat,
@@ -1756,7 +1839,9 @@ class FireRiskView(TemplateView):
                     'score': round(score, 3),
                     'level': level,
                     'color': color,
-                    'timestamp': prediction_obj.created_at,
+                    'timestamp': prediction_obj.created_at if prediction_obj else None,
+                    'ai_analysis': ai_analysis,
+                    'risk_explanation': risk_explanation
                 }
                 
             except (ValueError, Exception) as e:
@@ -1909,3 +1994,29 @@ def export_fire_reports(request):
         ])
     
     return response
+
+class TreePredictionView(TemplateView):
+    template_name = 'App/tree_prediction.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Add prediction history for logged-in users
+        if self.request.user.is_authenticated:
+            predictions = TreePrediction.objects.filter(
+                user=self.request.user
+            ).order_by('-created_at')[:10]
+            
+            # Add percentage calculation to each prediction
+            for prediction in predictions:
+                prediction.survival_percentage = round(prediction.survival_probability * 100, 1)
+            
+            context['prediction_history'] = predictions
+            context['total_predictions'] = TreePrediction.objects.filter(
+                user=self.request.user
+            ).count()
+        else:
+            context['prediction_history'] = []
+            context['total_predictions'] = 0
+        
+        return context

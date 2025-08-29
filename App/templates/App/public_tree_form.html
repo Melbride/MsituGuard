@@ -387,48 +387,58 @@
 
                         <form method="post" action="{% url 'public_tree_planting' %}" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <div class="row g-3">
+                            
+                            <!-- Personal Information Section -->
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-3" style="color: #15803d; border-bottom: 2px solid #22c55e; padding-bottom: 0.5rem;">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h5>
+                            </div>
+                            
+                            <div class="row g-4">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Full Name *</label>
-                                    <input type="text" name="full_name" class="form-control" required>
+                                    {% if user.is_authenticated %}
+                                        <input type="text" name="full_name" class="form-control" value="{{ user.get_full_name|default:user.username }}" required>
+                                    {% else %}
+                                        <input type="text" name="full_name" class="form-control" required>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Phone Number *</label>
-                                    <input type="tel" name="phone_number" class="form-control" placeholder="+254..." required>
+                                    {% if user.is_authenticated and user.profile.phoneNumber %}
+                                        <input type="tel" name="phone_number" class="form-control" value="{{ user.profile.phoneNumber }}" readonly style="background-color: #f8f9fa;" required>
+                                        <small class="text-muted">Using your registered phone number</small>
+                                    {% else %}
+                                        <input type="tel" name="phone_number" class="form-control" placeholder="+254..." required>
+                                    {% endif %}
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">Email Address *</label>
-                                    <input type="email" name="email" class="form-control" required>
+                                    {% if user.is_authenticated %}
+                                        <input type="email" name="email" class="form-control" value="{{ user.email }}" readonly style="background-color: #f8f9fa;" required>
+                                        <small class="text-muted">Using your registered email address</small>
+                                    {% else %}
+                                        <input type="email" name="email" class="form-control" required>
+                                    {% endif %}
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Region *</label>
-                                    <select id="regionSelect" name="region" class="form-select" required>
-                                        <option value="">Select Region</option>
-                                        <option value="Central">Central</option>
-                                        <option value="Coast">Coast</option>
-                                        <option value="Eastern">Eastern</option>
-                                        <option value="North Eastern">North Eastern</option>
-                                        <option value="Nyanza">Nyanza</option>
-                                        <option value="Rift Valley">Rift Valley</option>
-                                        <option value="Western">Western</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">County *</label>
-                                    <select id="countySelect" name="county" class="form-select" required>
-                                        <option value="">Select County</option>
-                                        <option value="Nairobi">Nairobi</option>
-                                        <option value="Kiambu">Kiambu</option>
-                                        <option value="Nakuru">Nakuru</option>
-                                        <option value="Mombasa">Mombasa</option>
-                                        <option value="Kisumu">Kisumu</option>
-                                        <option value="Eldoret">Eldoret</option>
-                                        <option value="Machakos">Machakos</option>
-                                        <option value="Meru">Meru</option>
-                                        <option value="Nyeri">Nyeri</option>
-                                        <option value="Kakamega">Kakamega</option>
-                                    </select>
-                                </div>
+                                <!-- Hidden fields for auto-detected data -->
+                                <input type="hidden" id="regionField" name="region">
+                                <input type="hidden" id="countyField" name="county">
+                                <input type="hidden" id="latitudeField" name="latitude">
+                                <input type="hidden" id="longitudeField" name="longitude">
+                                
+
+                            </div>
+                            
+                            <!-- Tree Planting Details Section -->
+                            <div class="mb-4 mt-5">
+                                <h5 class="fw-bold mb-3" style="color: #15803d; border-bottom: 2px solid #22c55e; padding-bottom: 0.5rem;">
+                                    <i class="fas fa-seedling me-2"></i>Tree Planting Details
+                                </h5>
+                            </div>
+                            
+                            <div class="row g-4">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Location/Area *</label>
                                     <div style="position: relative;">
@@ -462,14 +472,9 @@
                                     <input type="number" id="numberOfTrees" name="number_of_trees" class="form-control" min="1" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Soil Type</label>
-                                    <select id="soilTypeSelect" name="soil_type" class="form-select">
-                                        <option value="Loam">Loam</option>
-                                        <option value="Clay">Clay</option>
-                                        <option value="Sandy">Sandy</option>
-                                        <option value="Rocky">Rocky</option>
-                                        <option value="Volcanic">Volcanic</option>
-                                    </select>
+                                    <label class="form-label fw-semibold">Soil Type <span class="badge bg-success ms-2" id="soilBadge" style="display: none;">AI Detected</span></label>
+                                    <input type="text" id="soilTypeField" name="soil_type" class="form-control" readonly style="background-color: #f8f9fa;" placeholder="Will be detected from GPS location">
+                                    <small class="text-muted">Automatically detected using MISTRAL AI</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Planting Season</label>
@@ -482,10 +487,16 @@
                                     <label class="form-label fw-semibold">Planting Date</label>
                                     <input type="date" name="planting_date" class="form-control">
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold">Description</label>
-                                    <textarea name="description" class="form-control" rows="3" placeholder="Describe the planting area and purpose..."></textarea>
-                                </div>
+                            </div>
+                            
+                            <!-- Photo Upload Section -->
+                            <div class="mb-4 mt-5">
+                                <h5 class="fw-bold mb-3" style="color: #15803d; border-bottom: 2px solid #22c55e; padding-bottom: 0.5rem;">
+                                    <i class="fas fa-camera me-2"></i>Photo Evidence
+                                </h5>
+                            </div>
+                            
+                            <div class="row g-4">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Before Photo</label>
                                     <input type="file" name="before_image" class="form-control" accept="image/*">
@@ -520,24 +531,76 @@
 </section>
 
 <script>
-// GPS button click functionality
-document.getElementById('getLocationBtn').addEventListener('click', function() {
+// GPS button click functionality with AI soil detection
+document.getElementById('getLocationBtn').addEventListener('click', async function() {
     const locationInput = document.getElementById('locationInput');
     const btn = this;
     
     if (navigator.geolocation) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>GPS...';
         btn.disabled = true;
         
         navigator.geolocation.getCurrentPosition(
-            function(position) {
+            async function(position) {
                 const lat = position.coords.latitude.toFixed(6);
                 const lng = position.coords.longitude.toFixed(6);
                 
+                // Update location input
                 locationInput.value = `${lat}, ${lng}`;
                 
-                btn.innerHTML = '<i class="fas fa-check me-1"></i>✓';
-                btn.style.background = '#10b981';
+                // Store coordinates in hidden fields
+                document.getElementById('latitudeField').value = lat;
+                document.getElementById('longitudeField').value = lng;
+                
+                btn.innerHTML = '<i class="fas fa-brain fa-spin me-1"></i>AI...';
+                
+                try {
+                    // Call our soil detection API
+                    const response = await fetch('/api/detect-soil/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                        body: JSON.stringify({
+                            latitude: parseFloat(lat),
+                            longitude: parseFloat(lng)
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Auto-fill detected data
+                        document.getElementById('regionField').value = result.region;
+                        document.getElementById('countyField').value = result.county;
+                        document.getElementById('soilTypeField').value = result.soil_type;
+                        
+                        // Show soil badge
+                        document.getElementById('soilBadge').style.display = 'inline';
+                        
+                        btn.innerHTML = '<i class="fas fa-check me-1"></i>✓';
+                        btn.style.background = '#10b981';
+                    } else {
+                        throw new Error('AI detection failed');
+                    }
+                } catch (error) {
+                    console.error('Soil detection error:', error);
+                    // Fallback to basic detection
+                    const region = getRegionFromCoords(lat, lng);
+                    const county = getCountyFromCoords(lat, lng);
+                    const soil = getSoilFromCoords(lat, lng);
+                    
+                    document.getElementById('regionField').value = region;
+                    document.getElementById('countyField').value = county;
+                    document.getElementById('soilTypeField').value = soil;
+                    
+                    // Data populated in hidden fields only
+                    
+                    btn.innerHTML = '<i class="fas fa-check me-1"></i>✓';
+                    btn.style.background = '#10b981';
+                }
+                
                 btn.disabled = true;
             },
             function(error) {
@@ -562,15 +625,38 @@ document.getElementById('getLocationBtn').addEventListener('click', function() {
     }
 });
 
+// Fallback coordinate mapping functions
+function getRegionFromCoords(lat, lng) {
+    if (lat >= -1.45 && lat <= -1.15 && lng >= 36.6 && lng <= 37.1) return 'Nairobi';
+    if (lat >= -1.0 && lat <= 0.5 && lng >= 36.5 && lng <= 37.5) return 'Central';
+    if (lat >= -4.7 && lat <= -1.6 && lng >= 39.0 && lng <= 41.9) return 'Coast';
+    if (lat >= -1.0 && lat <= 1.5 && lng >= 34.0 && lng <= 35.5) return 'Western';
+    return 'Central';
+}
+
+function getCountyFromCoords(lat, lng) {
+    if (lat >= -1.45 && lat <= -1.15 && lng >= 36.6 && lng <= 37.1) return 'Nairobi';
+    if (lat >= -1.3 && lat <= -0.9 && lng >= 36.7 && lng <= 37.2) return 'Kiambu';
+    if (lat >= -4.7 && lat <= -1.6 && lng >= 39.0 && lng <= 41.9) return 'Mombasa';
+    if (lat >= -1.0 && lat <= 1.5 && lng >= 34.0 && lng <= 35.5) return 'Kakamega';
+    return 'Nyeri';
+}
+
+function getSoilFromCoords(lat, lng) {
+    if (lat >= -1.0 && lat <= 0.5 && lng >= 36.5 && lng <= 37.5) return 'Volcanic';
+    if (lat >= -4.7 && lat <= -1.6 && lng >= 39.0 && lng <= 41.9) return 'Sandy';
+    if (lat >= -1.0 && lat <= 1.5 && lng >= 34.0 && lng <= 35.5) return 'Clay';
+    return 'Loam';
+}
+
 // Tree survival prediction functionality
 function validatePredictionInputs() {
-    const region = document.getElementById('regionSelect').value;
-    const county = document.getElementById('countySelect').value;
+    const region = document.getElementById('regionField').value;
     const species = document.getElementById('treeSpeciesSelect').value;
     const numTrees = document.getElementById('numberOfTrees').value;
     
-    if (!region || !county || !species || !numTrees) {
-        alert('Please fill in Region, County, Tree Species, and Number of Trees to check survival prediction.');
+    if (!region || !species || !numTrees) {
+        alert('Please use GPS detection first, then fill in Tree Species and Number of Trees to check survival prediction.');
         return false;
     }
     return true;
@@ -587,9 +673,9 @@ function predictTreeSurvival() {
     
     const predictionData = {
         tree_species: document.getElementById('treeSpeciesSelect').value,
-        region: document.getElementById('regionSelect').value,
-        county: document.getElementById('countySelect').value,
-        soil_type: document.getElementById('soilTypeSelect').value,
+        region: document.getElementById('regionField').value,
+        county: document.getElementById('countyField').value,
+        soil_type: document.getElementById('soilTypeField').value,
         rainfall_mm: 800, // Default for Kenya
         temperature_c: 22, // Default for Kenya
         altitude_m: 1500, // Default for Kenya
@@ -678,7 +764,7 @@ document.getElementById('predictFirstBtn').addEventListener('click', function() 
 
 // Show prediction section when key fields are filled
 function checkFormCompletion() {
-    const region = document.getElementById('regionSelect').value;
+    const region = document.getElementById('regionField').value;
     const species = document.getElementById('treeSpeciesSelect').value;
     
     if (region && species) {
@@ -686,7 +772,6 @@ function checkFormCompletion() {
     }
 }
 
-document.getElementById('regionSelect').addEventListener('change', checkFormCompletion);
 document.getElementById('treeSpeciesSelect').addEventListener('change', checkFormCompletion);
 </script>
 

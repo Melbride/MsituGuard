@@ -209,5 +209,17 @@ SERVER_EMAIL = 'melbrideb@gmail.com'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# MISTRAL AI Configuration - Try environment variable first, then secret file
+MISTRAL_API_KEY = os.environ.get('MISTRAL_API_KEY')
+if not MISTRAL_API_KEY:
+    try:
+        with open('/etc/secrets/.env', 'r') as f:
+            for line in f:
+                if line.startswith('MISTRAL_API_KEY='):
+                    MISTRAL_API_KEY = line.split('=', 1)[1].strip()
+                    break
+    except:
+        MISTRAL_API_KEY = '4IgWzgaCc0NgxAkmbf9rjnZQfdxDP6lH'  # Fallback
+
 
 
