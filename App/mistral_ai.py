@@ -7,8 +7,12 @@ logger = logging.getLogger(__name__)
 
 class MistralAI:
     def __init__(self):
-        self.api_key = getattr(settings, 'MISTRAL_API_KEY', None)
         self.base_url = "https://api.mistral.ai/v1/chat/completions"
+        
+    @property
+    def api_key(self):
+        """Get API key dynamically from settings"""
+        return getattr(settings, 'MISTRAL_API_KEY', None)
         
     def _make_request(self, messages, max_tokens=400):
         """Make request to MISTRAL API"""
